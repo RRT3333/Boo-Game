@@ -4,9 +4,9 @@ class Game {
         this.ctx = this.canvas.getContext('2d');
         this.baseWidth = 800;  // 기준이 되는 게임 너비
         this.baseHeight = 600; // 기준이 되는 게임 높이
-        this.scale = 1;        // 화면 크기에 따른 스케일 비율
-        this.devicePixelRatio = window.devicePixelRatio || 1; // 디바이스 픽셀 비율
-        this.aspectRatio = this.baseWidth / this.baseHeight; // 캔버스의 기본 비율
+        // this.scale = 1;        // 화면 크기에 따른 스케일 비율 (반응형 주석)
+        // this.devicePixelRatio = window.devicePixelRatio || 1; // 디바이스 픽셀 비율 (반응형 주석)
+        // this.aspectRatio = this.baseWidth / this.baseHeight; // 캔버스의 기본 비율 (반응형 주석)
 
         // Game state
         this.score = 0;
@@ -19,8 +19,8 @@ class Game {
         this.player = {
             x: 100,
             y: 300,
-            width: 50,
-            height: 50,
+            width: 50, // 고정
+            height: 50, // 고정
             velocity: 0,
             gravity: 0.5,
             jumpForce: -10
@@ -36,15 +36,21 @@ class Game {
         document.addEventListener('click', () => this.handleInput());
         document.getElementById('restartButton').addEventListener('click', () => this.restart());
 
-        // Resize handler
-        window.addEventListener('resize', () => this.handleResize());
-        this.handleResize();
+        // 반응형 리사이즈 핸들러 주석처리
+        // window.addEventListener('resize', () => this.handleResize());
+        // this.handleResize();
+
+        // 캔버스 고정 크기
+        this.canvas.width = this.baseWidth;
+        this.canvas.height = this.baseHeight;
 
         // Start game loop
         this.lastTime = 0;
         this.init();
     }
 
+    // 반응형 함수 전체 주석처리
+    /*
     handleResize() {
         const container = this.canvas.parentElement;
         const containerWidth = container.clientWidth;
@@ -74,6 +80,7 @@ class Game {
         // HUD 크기 조정
         document.querySelector('.hud').style.fontSize = `${16 * this.scale}px`;
     }
+    */
 
     handleInput(e) {
         if (e && (e.code === 'Space' || e.type === 'touchstart') || !e) {
@@ -118,10 +125,10 @@ class Game {
         if (Math.random() < 0.02) {
             const type = Math.random() < 0.7 ? 'F' : 'obstacle';
             this.obstacles.push({
-                x: this.canvas.width / this.devicePixelRatio,
-                y: Math.random() * (this.canvas.height / this.devicePixelRatio - 40 * this.scale),
-                width: 40 * this.scale,
-                height: 40 * this.scale,
+                x: this.canvas.width,
+                y: Math.random() * (this.canvas.height - 40), // 고정
+                width: 40, // 고정
+                height: 40, // 고정
                 type: type
             });
         }
@@ -131,10 +138,10 @@ class Game {
         if (Math.random() < 0.01) {
             const type = Math.random() < 0.7 ? 'A+' : 'coin';
             this.items.push({
-                x: this.canvas.width / this.devicePixelRatio,
-                y: Math.random() * (this.canvas.height / this.devicePixelRatio - 30 * this.scale),
-                width: 30 * this.scale,
-                height: 30 * this.scale,
+                x: this.canvas.width,
+                y: Math.random() * (this.canvas.height - 30), // 고정
+                width: 30, // 고정
+                height: 30, // 고정
                 type: type
             });
         }
@@ -146,8 +153,8 @@ class Game {
         this.player.y += this.player.velocity;
 
         // Keep player in bounds
-        if (this.player.y > this.canvas.height / this.devicePixelRatio - this.player.height) {
-            this.player.y = this.canvas.height / this.devicePixelRatio - this.player.height;
+        if (this.player.y > this.canvas.height - this.player.height) {
+            this.player.y = this.canvas.height - this.player.height;
             this.player.velocity = 0;
         }
         if (this.player.y < 0) {
@@ -157,7 +164,7 @@ class Game {
 
         // Update background
         this.backgroundX -= 2;
-        if (this.backgroundX <= -this.canvas.width / this.devicePixelRatio) {
+        if (this.backgroundX <= -this.canvas.width) {
             this.backgroundX = 0;
         }
 
@@ -208,11 +215,11 @@ class Game {
 
     drawGame() {
         // Clear canvas
-        this.ctx.clearRect(0, 0, this.canvas.width / this.devicePixelRatio, this.canvas.height / this.devicePixelRatio);
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         // Draw background
         this.ctx.fillStyle = '#87CEEB';
-        this.ctx.fillRect(0, 0, this.canvas.width / this.devicePixelRatio, this.canvas.height / this.devicePixelRatio);
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         // Draw player (Boo)
         this.ctx.fillStyle = '#FFFFFF';
@@ -223,10 +230,10 @@ class Game {
             this.ctx.fillStyle = obstacle.type === 'F' ? '#FF0000' : '#000000';
             this.ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
             this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.font = `${20 * this.scale}px Arial`;
+            this.ctx.font = '20px Arial';
             this.ctx.fillText(obstacle.type, 
-                obstacle.x + (15 * this.scale), 
-                obstacle.y + (25 * this.scale));
+                obstacle.x + 15, 
+                obstacle.y + 25);
         });
 
         // Draw items
@@ -234,10 +241,10 @@ class Game {
             this.ctx.fillStyle = item.type === 'A+' ? '#00FF00' : '#FFD700';
             this.ctx.fillRect(item.x, item.y, item.width, item.height);
             this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.font = `${16 * this.scale}px Arial`;
+            this.ctx.font = '16px Arial';
             this.ctx.fillText(item.type, 
-                item.x + (5 * this.scale), 
-                item.y + (20 * this.scale));
+                item.x + 5, 
+                item.y + 20);
         });
     }
 
