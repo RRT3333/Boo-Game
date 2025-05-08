@@ -79,3 +79,53 @@ python manage.py runserver
 ## 📄 라이센스
 
 이 프로젝트는 MIT 라이센스 하에 공개되어 있습니다. 자세한 내용은 LICENSE 파일을 참조하세요.
+
+## 환경별 설정 및 배포 가이드
+
+### 1. 환경 변수 파일 (.env)
+- **로컬 개발:** `.env.local` 파일을 프로젝트 루트에 복사 후 `.env`로 이름 변경
+- **운영 배포:** `.env.production` 파일을 프로젝트 루트에 복사 후 `.env`로 이름 변경
+- `.env` 파일은 절대 깃허브에 커밋하지 마세요! (보안)
+
+#### .env 예시
+```
+# .env.local
+DJANGO_ENV=local
+DJANGO_SECRET_KEY=your-local-secret-key
+DEBUG=True
+ALLOWED_HOSTS=127.0.0.1,localhost
+DATABASE_URL=sqlite:///db.sqlite3
+STATIC_ROOT=staticfiles
+
+# .env.production
+DJANGO_ENV=production
+DJANGO_SECRET_KEY=your-prod-secret-key
+DEBUG=False
+ALLOWED_HOSTS=your.domain.com
+DATABASE_URL=postgres://user:password@host:5432/dbname
+STATIC_ROOT=/var/www/boo_game/static/
+```
+
+### 2. settings.py 환경 분기
+- `.env`의 `DJANGO_ENV` 값에 따라 개발/운영 설정이 자동 분기됩니다.
+- SECRET_KEY, DB, ALLOWED_HOSTS 등은 반드시 환경변수에서만 읽습니다.
+- settings.py, manage.py, wsgi.py, asgi.py 모두 .env를 자동 로드합니다.
+
+### 3. requirements.txt
+- 운영/개발 공통 패키지: `requirements.txt`
+- 개발 전용 패키지: `requirements-dev.txt` (옵션)
+
+### 4. 배포 환경
+- 운영 서버: AWS EC2 (Linux, gunicorn, nginx)
+- 소스코드: Github Actions 등 CI/CD로 배포 가능
+- gunicorn, nginx 설정은 서버에 직접 적용 (레포에는 예시만 제공)
+
+### 5. 보안 주의사항
+- `.env` 파일은 절대 커밋하지 마세요!
+- SECRET_KEY, DB 비밀번호 등 민감 정보는 반드시 환경변수로만 관리하세요.
+- 운영 서버에는 DEBUG=False로 설정하세요.
+
+---
+
+## 기타
+- 추가적인 배포 자동화(CI/CD)는 `.github/workflows/`에 예시 워크플로를 참고하세요.
