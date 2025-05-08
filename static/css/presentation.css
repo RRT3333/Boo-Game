@@ -1,0 +1,326 @@
+/* 발표용 리더보드 스타일 (21:9 와이드스크린 최적화) */
+:root {
+    --primary-color: #4CAF50;
+    --accent-color: #FF9800;
+    --gold-color: #FFD700;
+    --silver-color: #C0C0C0;
+    --bronze-color: #CD7F32;
+    --dark-color: #333;
+    --light-color: #f4f4f4;
+    --shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: var(--dark-color);
+    color: var(--dark-color);
+    min-height: 100vh;
+    max-width: 100vw;
+    overflow: hidden;
+    background-image: url('../assets/backgrounds/presentation_bg.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.presentation-container {
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+        "header"
+        "content"
+        "qr";
+    overflow: hidden;
+}
+
+.presentation-header {
+    grid-area: header;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.game-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.game-logo h1 {
+    font-size: 3rem;
+    margin-bottom: 5px;
+    color: var(--primary-color);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.game-logo .tagline {
+    font-size: 1.5rem;
+    opacity: 0.9;
+    color: var(--accent-color);
+}
+
+.school-logo {
+    height: 100px;
+}
+
+.school-logo img {
+    height: 100%;
+    width: auto;
+}
+
+.leaderboard-content {
+    grid-area: content;
+    padding: 20px 40px;
+    background-color: rgba(255, 255, 255, 0.9);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.leaderboard-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: var(--dark-color);
+    text-align: center;
+    border-bottom: 3px solid var(--primary-color);
+    padding-bottom: 10px;
+}
+
+.leaderboard-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    overflow-y: auto;
+    padding: 10px;
+    height: 100%;
+}
+
+.player-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+    position: relative;
+}
+
+.player-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.first-place {
+    border: 3px solid var(--gold-color);
+    transform: scale(1.05);
+}
+
+.first-place:hover {
+    transform: scale(1.05) translateY(-5px);
+}
+
+.second-place {
+    border: 3px solid var(--silver-color);
+}
+
+.third-place {
+    border: 3px solid var(--bronze-color);
+}
+
+.rank {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 30px;
+    height: 30px;
+    background-color: var(--dark-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.first-place .rank {
+    background-color: var(--gold-color);
+    color: var(--dark-color);
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+}
+
+.second-place .rank {
+    background-color: var(--silver-color);
+    color: var(--dark-color);
+}
+
+.third-place .rank {
+    background-color: var(--bronze-color);
+    color: var(--dark-color);
+}
+
+.player-avatar {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    background-color: #f9f9f9;
+}
+
+.avatar-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+.character-base, .character-outfit, .character-hat, .character-shoes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.player-info {
+    padding: 15px;
+    text-align: center;
+    background-color: white;
+}
+
+.nickname {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: var(--dark-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.score-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+}
+
+.score {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.time {
+    color: var(--accent-color);
+}
+
+.no-records {
+    grid-column: span 5;
+    text-align: center;
+    padding: 50px;
+    font-size: 1.5rem;
+    color: #888;
+    font-style: italic;
+}
+
+.qr-container {
+    grid-area: qr;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 15px 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+}
+
+.qr-info {
+    text-align: right;
+}
+
+.qr-info h3 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.qr-info p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.qr-code img {
+    width: 150px;
+    height: 150px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+/* 와이드스크린 최적화 */
+@media (min-width: 2000px) {
+    .game-logo h1 {
+        font-size: 4rem;
+    }
+    
+    .game-logo .tagline {
+        font-size: 2rem;
+    }
+    
+    .leaderboard-content h2 {
+        font-size: 3rem;
+    }
+    
+    .leaderboard-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+    
+    .no-records {
+        grid-column: span 6;
+    }
+    
+    .qr-info h3 {
+        font-size: 2.5rem;
+    }
+    
+    .qr-info p {
+        font-size: 1.5rem;
+    }
+    
+    .qr-code img {
+        width: 180px;
+        height: 180px;
+    }
+}
+
+/* 작은 화면 (16:9 등) 대응 */
+@media (max-width: 1600px) {
+    .leaderboard-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .no-records {
+        grid-column: span 4;
+    }
+}
+
+@media (max-width: 1200px) {
+    .leaderboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .no-records {
+        grid-column: span 3;
+    }
+} 

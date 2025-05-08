@@ -21,5 +21,5 @@ from django.shortcuts import redirect
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('game/', include('game.urls')),
-    path('', lambda request: redirect('game:game')),  # Redirect root URL to game
+    path('', lambda request: redirect('game:index')),  # Redirect root URL to game index page
 ]

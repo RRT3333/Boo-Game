@@ -14,6 +14,9 @@ class Game {
         this.timeLeft = 60;
         this.gameOver = false;
         this.gameStarted = false;
+        this.countdownValue = 3;
+        this.isCountingDown = true;
+        this.timer = null;  // 타이머 참조 추가
 
         // Player (Boo)
         this.player = {
@@ -46,6 +49,7 @@ class Game {
 
         // Start game loop
         this.lastTime = 0;
+        this.lastCountdownTime = 0;
         this.init();
     }
 
@@ -96,29 +100,77 @@ class Game {
         this.health = 3;
         this.timeLeft = 60;
         this.gameOver = false;
-        this.gameStarted = true;
+        this.gameStarted = false;
+        this.countdownValue = 3;
+        this.isCountingDown = true;
         this.obstacles = [];
         this.items = [];
         this.backgroundX = 0;
         this.player.y = 300;
         this.player.velocity = 0;
+        this.lastCountdownTime = 0;
+
+        // Clear existing timer if any
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
 
         // Start game loop
         requestAnimationFrame((timestamp) => this.gameLoop(timestamp));
 
-        // Start timer
-        this.timer = setInterval(() => {
-            if (this.timeLeft > 0) {
-                this.timeLeft--;
-                document.getElementById('timer').textContent = this.timeLeft;
-                if (this.timeLeft === 0) {
-                    this.endGame();
-                }
-            }
-        }, 1000);
-
         // Add touch event listener for mobile
         this.canvas.addEventListener('touchstart', (e) => this.handleInput(e));
+    }
+
+    handleCountdown(timestamp) {
+        if (!this.lastCountdownTime) {
+            this.lastCountdownTime = timestamp;
+            return;
+        }
+
+        const deltaTime = timestamp - this.lastCountdownTime;
+
+        if (deltaTime >= 1000) {
+            this.countdownValue--;
+            this.lastCountdownTime = timestamp;
+
+            if (this.countdownValue < 0) {
+                this.isCountingDown = false;
+                this.gameStarted = true;
+                
+                // Start timer only if not already running
+                if (!this.timer) {
+                    this.timer = setInterval(() => {
+                        if (this.timeLeft > 0) {
+                            this.timeLeft--;
+                            document.getElementById('gameTimer').textContent = this.timeLeft;
+                            if (this.timeLeft === 0) {
+                                this.endGame();
+                            }
+                        }
+                    }, 1000);
+                }
+            }
+        }
+    }
+
+    drawCountdown() {
+        // 항상 clearRect와 배경 그리기 (gameLoop에서 이미 했지만, 안전하게 중복 호출)
+        // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // this.ctx.fillStyle = '#87CEEB';
+        // this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = 'bold 120px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        if (this.countdownValue >= 0) {
+            this.ctx.fillText(this.countdownValue.toString(), this.canvas.width / 2, this.canvas.height / 2);
+        } else {
+            this.ctx.fillText('GO!', this.canvas.width / 2, this.canvas.height / 2);
+        }
     }
 
     spawnObstacle() {
@@ -214,10 +266,8 @@ class Game {
     }
 
     drawGame() {
-        // Clear canvas
+        // 항상 clearRect와 배경 그리기
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // Draw background
         this.ctx.fillStyle = '#87CEEB';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -229,22 +279,26 @@ class Game {
         this.obstacles.forEach(obstacle => {
             this.ctx.fillStyle = obstacle.type === 'F' ? '#FF0000' : '#000000';
             this.ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-            this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.font = '20px Arial';
-            this.ctx.fillText(obstacle.type, 
-                obstacle.x + 15, 
-                obstacle.y + 25);
+            if (typeof obstacle.type === 'string' && obstacle.type) {
+                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.font = '20px Arial';
+                this.ctx.fillText(obstacle.type, 
+                    obstacle.x + 15, 
+                    obstacle.y + 25);
+            }
         });
 
         // Draw items
         this.items.forEach(item => {
             this.ctx.fillStyle = item.type === 'A+' ? '#00FF00' : '#FFD700';
             this.ctx.fillRect(item.x, item.y, item.width, item.height);
-            this.ctx.fillStyle = '#FFFFFF';
-            this.ctx.font = '16px Arial';
-            this.ctx.fillText(item.type, 
-                item.x + 5, 
-                item.y + 20);
+            if (typeof item.type === 'string' && item.type) {
+                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.font = '16px Arial';
+                this.ctx.fillText(item.type, 
+                    item.x + 5, 
+                    item.y + 20);
+            }
         });
     }
 
@@ -252,25 +306,38 @@ class Game {
         if (this.lastTime === 0) {
             this.lastTime = timestamp;
         }
-        const deltaTime = timestamp - this.lastTime;
 
         if (!this.gameOver) {
-            this.updateGame();
-            this.drawGame();
+            if (this.isCountingDown) {
+                // 카운트다운만 그림
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.ctx.fillStyle = '#87CEEB';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                this.handleCountdown(timestamp);
+                this.drawCountdown();
+            } else {
+                this.updateGame();
+                this.drawGame();
+            }
             requestAnimationFrame((timestamp) => this.gameLoop(timestamp));
         }
-
         this.lastTime = timestamp;
     }
 
     endGame() {
         this.gameOver = true;
-        clearInterval(this.timer);
+        
+        // Clear the timer
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+
         document.getElementById('finalScore').textContent = this.score;
         document.querySelector('.game-over').classList.remove('hidden');
 
         // Save score
-        fetch('/game/save-score/', {
+        fetch('/game/api/save-score/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
