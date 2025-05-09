@@ -6,7 +6,8 @@
 {% block header_subtitle %}프론트엔드 개발자를 위한 JavaScript API 인터페이스{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/api-client.css">
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/api-client.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -24,9 +25,32 @@
             <li><strong>인증 관리</strong> - 세션 및 CSRF 토큰을 자동으로 처리</li>
         </ul>
     </div>
-    
-    <a href="/static/js/api-client.js" class="download-link" download>api-client.js 다운로드</a>
 </section>
+
+<!-- 코드 유틸리티 컨테이너로 변경 -->
+<div class="code-utility-container">
+    <div class="code-utility-title">API 클라이언트 소스코드 가져오기</div>
+    <div class="utility-buttons">
+        <button class="utility-btn copy-path" data-path="/static/js/api-client.js">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            </svg>
+            스크립트 경로 복사
+        </button>
+        <a href="{% static 'js/api-client.js' %}" class="utility-btn" download>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            다운로드
+        </a>
+    </div>
+    <div class="filepath">
+        HTML에서 사용: <code>&lt;script src="/static/js/api-client.js"&gt;&lt;/script&gt;</code>
+    </div>
+</div>
 
 <section id="setup">
     <h2>설치 및 설정</h2>
@@ -353,4 +377,29 @@ fetch('/api/endpoint/', {
 {% block version_info %}
 <p>Boo 게임 API 클라이언트 <span class="version-tag">v1.0.0</span></p>
 <a href="{% url 'developer:index' %}" class="btn btn-primary mt-3" style="background-color: #00DDFF; color: white; text-decoration: none; padding: 8px 16px; border-radius: 5px; display: inline-block; margin-top: 10px;">개발자 허브로 돌아가기</a>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 복사 버튼 기능
+    const copyPathBtn = document.querySelector('.copy-path');
+    if (copyPathBtn) {
+        copyPathBtn.addEventListener('click', function() {
+            const path = this.getAttribute('data-path');
+            navigator.clipboard.writeText(path).then(() => {
+                // 복사 성공 시 버튼 텍스트 임시 변경
+                const originalText = this.innerHTML;
+                this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> 복사됨!';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('경로 복사 실패:', err);
+            });
+        });
+    }
+});
+</script>
 {% endblock %} 
