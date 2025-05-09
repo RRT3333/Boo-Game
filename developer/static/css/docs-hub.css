@@ -1,0 +1,67 @@
+/* Docs Hub specific styles */
+.auto-update-info {
+    text-align: center;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: rgba(0, 221, 255, 0.1);
+    border-radius: 5px;
+}
+
+.file-count {
+    background-color: var(--primary);
+    color: var(--dark);
+    font-weight: bold;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    margin: 0 0.3rem;
+}
+
+.file-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dotted rgba(255, 255, 255, 0.1);
+}
+
+.empty-category {
+    text-align: center;
+    padding: 2rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+}
+
+.links-section {
+    margin-top: 2rem;
+}
+
+.links-section h3 {
+    margin-bottom: 1rem;
+    color: var(--secondary);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+}
+
+.doc-tools {
+    margin-top: 20px; 
+    border-top: 1px solid rgba(255, 255, 255, 0.1); 
+    padding-top: 20px; 
+    font-size: 0.9rem; 
+    text-align: left;
+}
+
+.doc-tools h3 {
+    color: var(--secondary); 
+    margin-bottom: 10px;
+}
+
+.doc-tools pre {
+    background-color: rgba(0, 0, 0, 0.3); 
+    padding: 10px; 
+    border-radius: 5px; 
+    overflow-x: auto; 
+    margin-bottom: 10px;
+} 

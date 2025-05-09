@@ -1,0 +1,228 @@
+{% extends "developer/base.html" %}
+
+{% block title %}Boo Game 개발자 대시보드{% endblock %}
+
+{% block header_title %}Boo Game 개발자 대시보드{% endblock %}
+{% block header_subtitle %}프론트엔드 및 백엔드 개발자를 위한 도구 모음{% endblock %}
+
+{% block content %}
+<div class="card-grid">
+    <!-- API 문서 -->
+    <div class="card">
+        <div class="card-header">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                API 문서
+            </h2>
+        </div>
+        <div class="card-body">
+            <p>API의 엔드포인트, 요청/응답 형식, 인증 방법에 대한 문서</p>
+            <div>
+                <span class="tag tag-api">API</span>
+                <span class="tag tag-docs">문서</span>
+            </div>
+            <div class="btn-group">
+                <a href="/swagger/" class="btn" target="_blank">Swagger UI</a>
+                <a href="/redoc/" class="btn btn-secondary" target="_blank">ReDoc</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 문서 허브 -->
+    <div class="card">
+        <div class="card-header">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                문서 허브
+            </h2>
+        </div>
+        <div class="card-body">
+            <p>프로젝트의 모든 마크다운(.md) 문서를 한 곳에서 찾아볼 수 있는 허브</p>
+            <div>
+                <span class="tag tag-docs">문서</span>
+                <span class="tag tag-frontend">프론트엔드</span>
+                <span class="tag tag-backend">백엔드</span>
+            </div>
+            <a href="{% url 'developer:docs-hub' %}" class="btn" target="_blank">문서 허브 방문</a>
+        </div>
+    </div>
+    
+    <!-- API 테스트 도구 -->
+    <div class="card">
+        <div class="card-header">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="17 1 21 5 17 9"></polyline>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                    <polyline points="7 23 3 19 7 15"></polyline>
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                </svg>
+                API 테스트 도구
+            </h2>
+        </div>
+        <div class="card-body">
+            <p>API 엔드포인트를 쉽게 테스트하고 응답을 확인할 수 있는 도구</p>
+            <div>
+                <span class="tag tag-api">API</span>
+                <span class="tag tag-frontend">프론트엔드</span>
+            </div>
+            <a href="/api-test/" class="btn" target="_blank">API 테스트 클라이언트</a>
+        </div>
+    </div>
+    
+    <!-- 개발자 가이드 -->
+    <div class="card">
+        <div class="card-header">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                개발자 가이드
+            </h2>
+        </div>
+        <div class="card-body">
+            <p>프로젝트 구조, 코드 스타일, 개발 환경 설정에 관한 가이드</p>
+            <div>
+                <span class="tag tag-docs">문서</span>
+                <span class="tag tag-frontend">프론트엔드</span>
+                <span class="tag tag-backend">백엔드</span>
+            </div>
+            <div class="btn-group">
+                <a href="/static/frontend-guide.md" class="btn" target="_blank">프론트엔드 가이드</a>
+                <a href="{% url 'developer:api-client-docs' %}" class="btn btn-secondary" target="_blank">API 클라이언트</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Django 관리자 -->
+    <div class="card">
+        <div class="card-header">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <line x1="20" y1="8" x2="20" y2="14"></line>
+                    <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+                Django 관리자
+            </h2>
+        </div>
+        <div class="card-body">
+            <p>데이터베이스 레코드를 직접 관리하고 모델을 확인할 수 있는 관리자 페이지</p>
+            <div>
+                <span class="tag tag-backend">백엔드</span>
+            </div>
+            <a href="/admin/" class="btn" target="_blank">관리자 페이지</a>
+        </div>
+    </div>
+    
+    <!-- ERD 다이어그램 -->
+    <div class="card">
+        <div class="card-header">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                데이터베이스 ERD
+            </h2>
+        </div>
+        <div class="card-body">
+            <p>데이터베이스 모델의 ERD(Entity Relationship Diagram) 다이어그램</p>
+            <div>
+                <span class="tag tag-backend">백엔드</span>
+                <span class="tag tag-docs">문서</span>
+            </div>
+            <a href="/static/erd.md" class="btn" target="_blank">ERD 보기</a>
+        </div>
+    </div>
+    
+    <!-- 사이트맵 -->
+    <div class="card">
+        <div class="card-header">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+                사이트맵
+            </h2>
+        </div>
+        <div class="card-body">
+            <p>웹사이트의 모든 페이지에 대한 사이트맵</p>
+            <div>
+                <span class="tag tag-frontend">프론트엔드</span>
+                <span class="tag tag-docs">문서</span>
+            </div>
+            <a href="/sitemap.xml" class="btn" target="_blank">사이트맵 보기</a>
+        </div>
+    </div>
+    
+    <!-- 마크다운 파일 관리 -->
+    <div class="card">
+        <div class="card-header">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                마크다운 파일 관리
+            </h2>
+        </div>
+        <div class="card-body">
+            <p>프로젝트의 마크다운 파일들을 관리하기 위한 도구</p>
+            <div>
+                <span class="tag tag-backend">백엔드</span>
+                <span class="tag tag-docs">문서</span>
+            </div>
+            
+            <div style="margin-top: 15px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 5px;">
+                <h4 style="color: var(--secondary); margin-bottom: 10px; font-size: 1.1rem;">마크다운 파일 스캔</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 10px;">
+                    모든 마크다운 파일을 스캔하고 메타데이터를 생성합니다:
+                </p>
+                <code style="display: block; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 3px; margin-bottom: 10px;">
+                    python manage.py scan_markdown_files
+                </code>
+                <p style="font-size: 0.8rem; color: rgba(255,255,255,0.7);">
+                    이 명령은 모든 마크다운 파일을 찾아 메타데이터를 생성하고, 
+                    자동으로 문서 허브에 표시합니다.
+                </p>
+            </div>
+            
+            <div style="margin-top: 15px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 5px;">
+                <h4 style="color: var(--secondary); margin-bottom: 10px; font-size: 1.1rem;">심볼릭 링크 생성</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 10px;">
+                    마크다운 파일을 static 폴더에 심볼릭 링크로 생성합니다:
+                </p>
+                <code style="display: block; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 3px;">
+                    python manage.py create_md_symlinks
+                </code>
+                <p style="font-size: 0.8rem; color: rgba(255,255,255,0.7); margin-top: 10px;">
+                    Windows에서는 관리자 권한이 필요할 수 있으며, 실패 시 파일 복사가 수행됩니다.
+                </p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="{% url 'developer:docs-hub' %}" class="btn" target="_blank">문서 허브 방문</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

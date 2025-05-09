@@ -1,0 +1,355 @@
+{% extends "developer/base.html" %}
+
+{% block title %}Boo Game API 클라이언트 문서{% endblock %}
+
+{% block header_title %}Boo Game API 클라이언트{% endblock %}
+{% block header_subtitle %}프론트엔드 개발자를 위한 JavaScript API 인터페이스{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/api-client.css">
+{% endblock %}
+
+{% block content %}
+<section id="overview">
+    <h2>개요</h2>
+    <p>BooGameAPI 클라이언트는 프론트엔드 개발자가 Boo Game의 백엔드 API와 쉽게 통신할 수 있도록 설계된 JavaScript 라이브러리입니다. 이 클라이언트를 사용하면 복잡한 HTTP 요청을 직접 처리할 필요 없이 간단한 메서드 호출만으로 API와 상호작용할 수 있습니다.</p>
+    
+    <div class="notes" style="background-color: rgba(0, 221, 255, 0.1); border-left-color: var(--primary); margin-top: 1.5rem;">
+        <h4>API 클라이언트의 역할</h4>
+        <p>이 클라이언트는 다음과 같은 역할을 합니다:</p>
+        <ul>
+            <li><strong>HTTP 통신 추상화</strong> - 복잡한 fetch/XHR 요청을 간단한 메서드로 캡슐화</li>
+            <li><strong>에러 처리 표준화</strong> - 서버 오류 및 네트워크 문제를 일관된 형식으로 처리</li>
+            <li><strong>데이터 변환</strong> - JSON 데이터를 자동으로 변환하고 처리</li>
+            <li><strong>인증 관리</strong> - 세션 및 CSRF 토큰을 자동으로 처리</li>
+        </ul>
+    </div>
+    
+    <a href="/static/js/api-client.js" class="download-link" download>api-client.js 다운로드</a>
+</section>
+
+<section id="setup">
+    <h2>설치 및 설정</h2>
+    <p>API 클라이언트는 두 가지 방법으로 사용할 수 있습니다:</p>
+    
+    <h3>1. 글로벌 객체로 사용</h3>
+    <p>HTML에서 직접 스크립트를 로드하여 글로벌 객체로 사용할 수 있습니다:</p>
+    <pre><code>&lt;script src="/static/js/api-client.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  // booGameAPI 전역 객체 사용
+  const api = window.booGameAPI;
+  
+  // API 메서드 호출
+  api.getLeaderboard().then(data => {
+    console.log('리더보드 데이터:', data);
+  });
+&lt;/script&gt;</code></pre>
+    
+    <h3>2. ES 모듈로 가져오기</h3>
+    <p>모듈 시스템을 사용하는 경우 다음과 같이 가져올 수 있습니다:</p>
+    <pre><code>// api-client.js를 ES 모듈로 가져오기
+import BooGameAPI from './api-client.js';
+
+// 새 인스턴스 생성
+const api = new BooGameAPI();
+
+// API 메서드 호출
+api.savePlayer({
+  outfit: 'casual',
+  hat: 'cap',
+  shoes: 'sneakers'
+}).then(result => {
+  console.log('저장 성공:', result);
+});</code></pre>
+</section>
+
+<section id="methods">
+    <h2>API 메서드</h2>
+    
+    <div class="method">
+        <div class="method-header">
+            <span class="method-type post">POST</span>
+            <span class="method-name">savePlayer(customization)</span>
+        </div>
+        <p>플레이어의 커스터마이징 정보를 저장합니다.</p>
+        
+        <h4>매개변수</h4>
+        <table class="param-table">
+            <thead>
+                <tr>
+                    <th>이름</th>
+                    <th>타입</th>
+                    <th>필수</th>
+                    <th>설명</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="param-name">customization</td>
+                    <td class="param-type">Object</td>
+                    <td><span class="param-required">필수</span></td>
+                    <td>플레이어 커스터마이징 정보 객체</td>
+                </tr>
+                <tr>
+                    <td class="param-name">customization.outfit</td>
+                    <td class="param-type">string</td>
+                    <td><span class="param-required">필수</span></td>
+                    <td>의상 유형 (예: 'casual', 'formal')</td>
+                </tr>
+                <tr>
+                    <td class="param-name">customization.hat</td>
+                    <td class="param-type">string</td>
+                    <td><span class="param-required">필수</span></td>
+                    <td>모자 유형 (예: 'cap', 'none')</td>
+                </tr>
+                <tr>
+                    <td class="param-name">customization.shoes</td>
+                    <td class="param-type">string</td>
+                    <td><span class="param-required">필수</span></td>
+                    <td>신발 유형 (예: 'sneakers', 'boots')</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h4>반환값</h4>
+        <p><code>Promise&lt;Object&gt;</code> - 저장 결과 객체</p>
+        
+        <h4>예제</h4>
+        <pre><code>const result = await api.savePlayer({
+  outfit: 'casual',
+  hat: 'cap',
+  shoes: 'sneakers'
+});
+console.log('플레이어 저장 성공:', result);</code></pre>
+    </div>
+    
+    <div class="method">
+        <div class="method-header">
+            <span class="method-type post">POST</span>
+            <span class="method-name">saveScore(scoreData)</span>
+        </div>
+        <p>게임 점수와 통계를 저장합니다.</p>
+        
+        <h4>매개변수</h4>
+        <table class="param-table">
+            <thead>
+                <tr>
+                    <th>이름</th>
+                    <th>타입</th>
+                    <th>필수</th>
+                    <th>설명</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="param-name">scoreData</td>
+                    <td class="param-type">Object</td>
+                    <td><span class="param-required">필수</span></td>
+                    <td>점수 데이터 객체</td>
+                </tr>
+                <tr>
+                    <td class="param-name">scoreData.player_id</td>
+                    <td class="param-type">string</td>
+                    <td><span class="param-required">필수</span></td>
+                    <td>플레이어 고유 ID</td>
+                </tr>
+                <tr>
+                    <td class="param-name">scoreData.score</td>
+                    <td class="param-type">number</td>
+                    <td><span class="param-required">필수</span></td>
+                    <td>게임 점수</td>
+                </tr>
+                <tr>
+                    <td class="param-name">scoreData.play_time</td>
+                    <td class="param-type">number</td>
+                    <td><span class="param-required">필수</span></td>
+                    <td>플레이 시간(초)</td>
+                </tr>
+                <tr>
+                    <td class="param-name">scoreData.max_stage</td>
+                    <td class="param-type">number</td>
+                    <td><span class="param-optional">선택</span></td>
+                    <td>도달한 최대 스테이지</td>
+                </tr>
+                <tr>
+                    <td class="param-name">scoreData.items_collected</td>
+                    <td class="param-type">number</td>
+                    <td><span class="param-optional">선택</span></td>
+                    <td>수집한 아이템 수</td>
+                </tr>
+                <tr>
+                    <td class="param-name">scoreData.obstacles_avoided</td>
+                    <td class="param-type">number</td>
+                    <td><span class="param-optional">선택</span></td>
+                    <td>피한 장애물 수</td>
+                </tr>
+                <tr>
+                    <td class="param-name">scoreData.max_combo</td>
+                    <td class="param-type">number</td>
+                    <td><span class="param-optional">선택</span></td>
+                    <td>최대 콤보</td>
+                </tr>
+                <tr>
+                    <td class="param-name">scoreData.nickname</td>
+                    <td class="param-type">string</td>
+                    <td><span class="param-optional">선택</span></td>
+                    <td>플레이어 닉네임</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h4>반환값</h4>
+        <p><code>Promise&lt;Object&gt;</code> - 저장 결과 객체</p>
+        
+        <h4>예제</h4>
+        <pre><code>const result = await api.saveScore({
+  player_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+  score: 1500,
+  play_time: 120,
+  max_stage: 3,
+  items_collected: 25,
+  obstacles_avoided: 42,
+  max_combo: 8,
+  nickname: '졸업맨'
+});
+console.log('점수 저장 성공:', result);</code></pre>
+    </div>
+    
+    <div class="method">
+        <div class="method-header">
+            <span class="method-type get">GET</span>
+            <span class="method-name">getLeaderboard()</span>
+        </div>
+        <p>리더보드 데이터를 가져옵니다.</p>
+        
+        <h4>매개변수</h4>
+        <p>없음</p>
+        
+        <h4>반환값</h4>
+        <p><code>Promise&lt;Object&gt;</code> - 리더보드 데이터 객체</p>
+        
+        <h4>예제</h4>
+        <pre><code>const data = await api.getLeaderboard();
+console.log('리더보드 데이터:', data);
+
+// 리더보드 데이터 표시 예시
+const leaderboardDiv = document.getElementById('leaderboard');
+data.leaderboard.forEach((entry, index) => {
+  leaderboardDiv.innerHTML += `
+    &lt;div&gt;
+      ${index + 1}. ${entry.nickname} - ${entry.score}점
+    &lt;/div&gt;
+  `;
+});</code></pre>
+    </div>
+    
+    <div class="method">
+        <div class="method-header">
+            <span class="method-type post">POST</span>
+            <span class="method-name">updateNickname(data)</span>
+        </div>
+        <p>플레이어의 닉네임을 업데이트합니다.</p>
+        
+        <h4>매개변수</h4>
+        <table class="param-table">
+            <thead>
+                <tr>
+                    <th>이름</th>
+                    <th>타입</th>
+                    <th>필수</th>
+                    <th>설명</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="param-name">data</td>
+                    <td class="param-type">Object</td>
+                    <td><span class="param-required">필수</span></td>
+                    <td>닉네임 업데이트 데이터 객체</td>
+                </tr>
+                <tr>
+                    <td class="param-name">data.player_id</td>
+                    <td class="param-type">string</td>
+                    <td><span class="param-required">필수</span></td>
+                    <td>플레이어 고유 ID</td>
+                </tr>
+                <tr>
+                    <td class="param-name">data.nickname</td>
+                    <td class="param-type">string</td>
+                    <td><span class="param-required">필수</span></td>
+                    <td>새 닉네임</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h4>반환값</h4>
+        <p><code>Promise&lt;Object&gt;</code> - 업데이트 결과 객체</p>
+        
+        <h4>예제</h4>
+        <pre><code>const result = await api.updateNickname({
+  player_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+  nickname: '졸업생_2024'
+});
+console.log('닉네임 업데이트 성공:', result);</code></pre>
+    </div>
+</section>
+
+<section id="csrf">
+    <h2>CSRF 토큰 처리</h2>
+    <p>Django의 CSRF 보호 메커니즘이 활성화되어 있기 때문에, API 클라이언트는 자동으로 CSRF 토큰을 처리하지 않습니다. POST 요청을 보낼 때는 CSRF 토큰을 포함해야 합니다:</p>
+    
+    <pre><code>// Django 템플릿에서 CSRF 토큰 가져오기
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+// fetch 요청에 포함
+fetch('/api/endpoint/', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-CSRFToken': csrfToken
+  },
+  body: JSON.stringify(data)
+});</code></pre>
+</section>
+
+<section id="error-handling">
+    <h2>에러 처리</h2>
+    <p>API 클라이언트는 다양한 오류 상황을 처리하기 위한 메커니즘을 제공합니다:</p>
+    
+    <pre><code>try {
+  const result = await api.saveScore({
+    player_id: 'a1b2c3d4',
+    score: 1500,
+    play_time: 120
+  });
+  console.log('점수 저장 성공:', result);
+} catch (error) {
+  console.error('API 오류:', error.message);
+  
+  // HTTP 상태 코드 확인
+  if (error.status === 401) {
+    // 인증 오류 처리
+    redirectToLogin();
+  } else if (error.status === 400) {
+    // 잘못된 요청 처리
+    showValidationErrors(error.data);
+  } else {
+    // 기타 오류 처리
+    showErrorMessage('서버 오류가 발생했습니다. 나중에 다시 시도해 주세요.');
+  }
+}</code></pre>
+    
+    <div class="notes">
+        <h4>오류 객체 속성</h4>
+        <ul>
+            <li><code>message</code>: 사람이 읽을 수 있는 오류 메시지</li>
+            <li><code>status</code>: HTTP 상태 코드 (예: 400, 401, 500)</li>
+            <li><code>data</code>: 서버에서 반환한 오류 데이터 (가능한 경우)</li>
+        </ul>
+    </div>
+</section>
+{% endblock %}
+
+{% block version_info %}
+<p>Boo 게임 API 클라이언트 <span class="version-tag">v1.0.0</span></p>
+{% endblock %} 

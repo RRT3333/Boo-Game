@@ -15,18 +15,51 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.shortcuts import redirect
 from django.contrib.sitemaps.views import sitemap
 from game.sitemaps import StaticViewSitemap
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from django.views.generic import TemplateView
+from django.conf import settings
 
 sitemaps = {
     'static': StaticViewSitemap,
 }
+
+# Swagger 설정
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Boo Game API",
+        default_version='v1',
+        description="Boo의 졸업 대모험 API 문서",
+        terms_of_service="https://boogame.kr/terms/",
+        contact=openapi.Contact(email="admin@boogame.kr"),
+        license=openapi.License(name="MIT License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('game/', include('game.urls')),
     path('', lambda request: redirect('game:index')),  # Redirect root URL to game index page
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    
+    # 개발자 도구 URL 패턴
+    path('developer/', include('developer.urls')),
+    
+    # Swagger UI 경로
+    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+
+    # 프론트엔드 개발자용 API 테스트 도구
+    path('api-test/', TemplateView.as_view(
+        template_name='api-test.html',
+        extra_context={'debug': True}
+    ), name='api-test'),
 ]

@@ -71,5 +71,141 @@
     <!-- JavaScript -->
     {% block scripts %}
     {% endblock %}
+    
+    {% if debug %}
+    <!-- 개발자 도구 (DEBUG 모드에서만 표시) -->
+    <div id="dev-tools" style="position: fixed; bottom: 0; right: 0; background: rgba(0,0,0,0.8); color: #00ff00; padding: 10px; font-family: monospace; font-size: 12px; z-index: 9999; max-height: 300px; overflow-y: auto; max-width: 500px;">
+        <div style="margin-bottom: 5px; display: flex; justify-content: space-between;">
+            <strong style="font-size: 14px;">DEV TOOLS</strong>
+            <button onclick="document.getElementById('dev-tools').style.display='none'" style="background: none; border: none; color: red; cursor: pointer;">X</button>
+        </div>
+        <div style="margin-bottom: 5px;">
+            <strong>세션 정보:</strong>
+            <div id="dev-session-info">
+                <p>Player ID: {{ request.session.player_id|default:'없음' }}</p>
+                <p>Outfit: {{ request.session.outfit|default:'default' }}</p>
+                <p>Hat: {{ request.session.hat|default:'none' }}</p>
+                <p>Shoes: {{ request.session.shoes|default:'default' }}</p>
+            </div>
+        </div>
+        <div style="margin-bottom: 5px;">
+            <strong>현재 템플릿:</strong> {% block dev_template_name %}base.html{% endblock %}
+        </div>
+        <div style="margin-bottom: 5px;">
+            <strong>API 테스트:</strong>
+            <select id="dev-api-endpoint" style="width: 100%; margin-bottom: 5px;">
+                <option value="leaderboard">리더보드 조회</option>
+                <option value="save-player">플레이어 저장</option>
+                <option value="save-score">점수 저장</option>
+                <option value="update-nickname">닉네임 업데이트</option>
+            </select>
+            <textarea id="dev-api-payload" style="width: 100%; height: 60px; margin-bottom: 5px;" placeholder="JSON 페이로드 (필요시)"></textarea>
+            <button id="dev-api-test-btn" style="width: 100%; background: #333; color: #00ff00; border: 1px solid #00ff00; padding: 5px;">API 테스트</button>
+            <div id="dev-api-result" style="margin-top: 5px; word-break: break-all;"></div>
+        </div>
+        <div style="text-align: center; margin-top: 10px;">
+            <a href="/swagger/" target="_blank" style="color: #00ddff; text-decoration: none;">Swagger UI</a> | 
+            <a href="/redoc/" target="_blank" style="color: #00ddff; text-decoration: none;">ReDoc</a> |
+            <a href="/admin/" target="_blank" style="color: #00ddff; text-decoration: none;">Admin</a>
+        </div>
+    </div>
+    
+    <script>
+    // 개발자 도구 초기화
+    document.getElementById('dev-api-test-btn').addEventListener('click', async function() {
+        const endpoint = document.getElementById('dev-api-endpoint').value;
+        const resultDiv = document.getElementById('dev-api-result');
+        let payload = {};
+        let method = 'GET';
+        let url = '';
+        
+        try {
+            const payloadText = document.getElementById('dev-api-payload').value;
+            if (payloadText) {
+                payload = JSON.parse(payloadText);
+            }
+        } catch (e) {
+            resultDiv.innerHTML = '<span style="color: red;">유효하지 않은 JSON입니다: ' + e.message + '</span>';
+            return;
+        }
+        
+        // 엔드포인트에 따라 설정
+        switch(endpoint) {
+            case 'leaderboard':
+                url = '/game/api/v1/leaderboard/';
+                method = 'GET';
+                break;
+            case 'save-player':
+                url = '/game/api/v1/save-player/';
+                method = 'POST';
+                if (Object.keys(payload).length === 0) {
+                    payload = {
+                        outfit: 'casual',
+                        hat: 'cap',
+                        shoes: 'sneakers'
+                    };
+                }
+                break;
+            case 'save-score':
+                url = '/game/api/v1/save-score/';
+                method = 'POST';
+                if (Object.keys(payload).length === 0) {
+                    payload = {
+                        player_id: "{{ request.session.player_id|default:'' }}",
+                        score: 1000,
+                        play_time: 60,
+                        max_stage: 2,
+                        items_collected: 10,
+                        obstacles_avoided: 20,
+                        max_combo: 5,
+                        nickname: "테스터"
+                    };
+                }
+                break;
+            case 'update-nickname':
+                url = '/game/api/v1/update-nickname/';
+                method = 'POST';
+                if (Object.keys(payload).length === 0) {
+                    payload = {
+                        player_id: "{{ request.session.player_id|default:'' }}",
+                        nickname: "새닉네임" + Math.floor(Math.random() * 1000)
+                    };
+                }
+                break;
+        }
+        
+        // API 호출
+        resultDiv.innerHTML = '<span style="color: yellow;">요청 중...</span>';
+        try {
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            };
+            
+            if (method !== 'GET') {
+                options.body = JSON.stringify(payload);
+            }
+            
+            const response = await fetch(url, options);
+            const data = await response.json();
+            resultDiv.innerHTML = '<pre style="margin: 0;">' + JSON.stringify(data, null, 2) + '</pre>';
+            
+            // 세션 정보 업데이트 (player_id가 변경됐을 수 있음)
+            if (data.player_id) {
+                document.getElementById('dev-session-info').innerHTML = 
+                    '<p>Player ID: ' + data.player_id + '</p>' +
+                    '<p>Outfit: ' + (payload.outfit || '{{ request.session.outfit|default:"default" }}') + '</p>' +
+                    '<p>Hat: ' + (payload.hat || '{{ request.session.hat|default:"none" }}') + '</p>' +
+                    '<p>Shoes: ' + (payload.shoes || '{{ request.session.shoes|default:"default" }}') + '</p>';
+            }
+        } catch (error) {
+            resultDiv.innerHTML = '<span style="color: red;">오류: ' + error.message + '</span>';
+        }
+    });
+    </script>
+    {% endif %}
 </body>
 </html> 

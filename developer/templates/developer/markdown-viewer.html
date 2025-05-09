@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ file_name }}</title>
+    <link rel="stylesheet" href="/static/css/markdown.css">
+</head>
+<body>
+    <div class="file-path">파일 경로: {{ file_path }}</div>
+    {{ html_content|safe }}
+    <div class="doc-nav">
+        <a href="{{ docs_hub_url }}" class="home-btn">문서 허브로 돌아가기</a>
+    </div>
+</body>
+</html> 

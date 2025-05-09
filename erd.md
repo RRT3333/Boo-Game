@@ -162,6 +162,8 @@ erDiagram
 
 ## 정규화 만족도 체크
 [관련 자료](https://velog.io/@wisdom-one/%EC%A0%95%EA%B7%9C%ED%99%94Normalization)
+
+
 | 정규화 단계 | 설명                    | 이 ERD는? |
 | ------ | --------------------- | ------- |
 | 1NF    | 모든 칸은 단일 값            | ✅ 만족    |

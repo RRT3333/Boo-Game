@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, Http404
 from .models import Score, Player, Achievement, PlayerAchievement
 from django.db.models import Max, Count
 from django.views.decorators.csrf import csrf_exempt
