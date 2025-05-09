@@ -161,6 +161,14 @@
             <div id="form-container" style="display: none;">
                 <form id="api-form">
                     <div class="form-row">
+                        <label for="api-protocol">Protocol:</label>
+                        <select id="api-protocol">
+                            <option value="http">HTTP</option>
+                            <option value="https">HTTPS</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
                         <label for="api-url">API URL:</label>
                         <input type="text" id="api-url" readonly>
                     </div>
@@ -260,7 +268,16 @@
                 
                 try {
                     const method = document.getElementById('api-method').value;
-                    const url = document.getElementById('api-url').value;
+                    let url = document.getElementById('api-url').value;
+                    const protocol = document.getElementById('api-protocol').value;
+                    
+                    // URL이 상대 경로인 경우 프로토콜 및 호스트 추가
+                    if (url.startsWith('/')) {
+                        // 현재 호스트 가져오기
+                        const host = window.location.host;
+                        url = `${protocol}://${host}${url}`;
+                    }
+                    
                     const options = {
                         method,
                         headers: {

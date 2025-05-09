@@ -4,9 +4,27 @@
  */
 
 class BooGameAPI {
-    constructor(baseURL = '') {
+    constructor(baseURL = '', useHttps = false) {
+        // baseURL이 비어있으면 현재 호스트 기반으로 자동 생성
+        if (!baseURL) {
+            const protocol = useHttps ? 'https' : 'http';
+            baseURL = `${protocol}://${window.location.host}`;
+        }
         this.baseURL = baseURL;
         this.apiVersion = 'v1';
+    }
+
+    /**
+     * HTTPS 사용 여부 설정
+     * @param {boolean} useHttps - HTTPS 사용 여부
+     */
+    setUseHttps(useHttps) {
+        // baseURL이 비어있지 않고 http: 또는 https:로 시작하는 경우에만 변경
+        if (this.baseURL && (this.baseURL.startsWith('http:') || this.baseURL.startsWith('https:'))) {
+            const host = this.baseURL.split('://')[1];
+            const protocol = useHttps ? 'https' : 'http';
+            this.baseURL = `${protocol}://${host}`;
+        }
     }
 
     /**
@@ -118,7 +136,9 @@ class BooGameAPI {
 }
 
 // 글로벌 인스턴스 생성
-window.booGameAPI = new BooGameAPI();
+// 현재 보안 연결(HTTPS)을 통해 접속했는지 확인하고 그에 맞게 API 설정
+const isHttps = window.location.protocol === 'https:';
+window.booGameAPI = new BooGameAPI('', isHttps);
 
 // 모듈 내보내기 (ES 모듈 지원 환경용)
 export default BooGameAPI; 

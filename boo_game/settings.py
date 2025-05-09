@@ -194,6 +194,10 @@ SWAGGER_SETTINGS = {
     'REFETCH_SCHEMA_ON_LOGOUT': True,
 }
 
+# Production 환경에서는 HTTPS API URL 사용
+if DJANGO_ENV == 'production':
+    SWAGGER_SETTINGS['DEFAULT_API_URL'] = 'https://boogame.kr'
+
 # REST Framework 설정
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
