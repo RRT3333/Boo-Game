@@ -1,0 +1,93 @@
+name: Django CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # 수동 실행 가능
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install coverage
+    - name: Create test .env file
+      run: |
+        echo "DJANGO_ENV=test" > .env
+        echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" >> .env
+        echo "DEBUG=True" >> .env
+        echo "ALLOWED_HOSTS=localhost,127.0.0.1" >> .env
+    - name: Run tests
+      run: |
+        python manage.py test
+    - name: Generate coverage report
+      run: |
+        coverage run --source='.' manage.py test
+        coverage report
+        coverage xml
+    - name: Upload coverage report
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
+
+  deploy:
+    needs: test  # test 작업이 성공한 후에만 실행
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'  # main 브랜치 푸시에만 배포
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Setup known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to EC2
+        run: |
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} '
+            cd ${{ secrets.PROJECT_PATH || "/home/ubuntu/Boo-Game" }}
+            git pull origin main
+            source venv/bin/activate
+            pip3 install -r requirements.txt
+            
+            # 정적 파일 처리
+            sudo rm -rf staticfiles/*
+            sudo mkdir -p staticfiles
+            sudo chmod -R 777 staticfiles
+            
+            # Django 관리 명령어
+            python manage.py collectstatic --noinput
+            python manage.py migrate
+            
+            # 서비스 재시작
+            sudo systemctl restart gunicorn
+            sudo systemctl restart nginx
+            
+            echo "Deployment completed successfully!"
+          '
+
+      - name: Notify deployment status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "🚀 Deployment to ${{ secrets.HOST }} (boogame.kr) completed successfully!"
+          else
+            echo "❌ Deployment to ${{ secrets.HOST }} (boogame.kr) failed!"
+          fi

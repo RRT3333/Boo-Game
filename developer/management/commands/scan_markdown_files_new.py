@@ -152,6 +152,9 @@ class Command(BaseCommand):
                 continue
             
             rel_path = os.path.relpath(file_path, base_dir)
+            # Windows 경로를 URL 경로로 변환 (백슬래시를 슬래시로)
+            rel_path = rel_path.replace('\\', '/')
+            
             filename = os.path.basename(file_path)
             
             # 파일 제목 및 설명 추출
@@ -207,8 +210,8 @@ class Command(BaseCommand):
                 f'마크다운 파일 메타데이터 {mode} 완료:\n'
                 f'- 총 파일 수: {len(file_hashes)}개\n'
                 f'- 새로 추가된 파일: {total_new}개\n'
-                f'- context 폴더 파일: {len([f for f in md_files if f.startswith(context_dir)])}개\n'
-                f'- README 포함: {"예" if os.path.exists(readme_path) else "아니오"}\n'
+                f'- context 폴더 파일: {len([f for f in md_files if os.path.dirname(f).endswith("context")])}개\n'
+                f'- README 포함: {"예" if os.path.exists(readme_path) and readme_path in md_files else "아니오"}\n'
                 f'- 메타데이터 파일: {metadata_file}'
             )
         )

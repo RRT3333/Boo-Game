@@ -6,7 +6,8 @@
 {% block header_subtitle %}프로젝트 문서와 마크다운 파일 모음 (자동 감지){% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/docs-hub.css">
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/docs-hub.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -61,14 +62,15 @@
 {% endblock %}
 
 {% block version_info %}
-<p>Boo 게임 문서 허브 <span class="version-tag">v1.1.0</span></p>
+<p>Boo 게임 문서 허브 <span class="version-tag">v1.2.0</span></p>
 
 <div class="doc-tools">
     <h3>문서 관리 도구</h3>
     <p style="margin-bottom: 10px;">새 마크다운 파일을 스캔하고 문서 허브에 추가하려면:</p>
-    <pre>python manage.py scan_markdown_files</pre>
-    <p style="margin-bottom: 10px;">마크다운 파일을 static 폴더에 심볼릭 링크로 생성하려면:</p>
-    <pre>python manage.py create_md_symlinks</pre>
+    <pre>python manage.py scan_markdown_files_new</pre>
+    <p style="margin-bottom: 10px;">모든 메타데이터를 초기화하고 다시 스캔하려면:</p>
+    <pre>python manage.py scan_markdown_files_new --reset</pre>
+    <p style="margin-bottom: 10px;">Developer 앱 사용법에 대한 자세한 내용은 <a href="{% url 'developer:render_markdown' 'context/developer-guide.md' %}" target="_blank">Developer 앱 가이드</a>를 참조하세요.</p>
 </div>
 {% endblock %}
 

@@ -29,8 +29,6 @@ F 학점을 피하고 A+를 얻으며 졸업을 향해 나아가세요!
 - **데이터베이스**: SQLite
 - **배포**: AWS
 
-[![Tests](https://github.com/username/boo-game/actions/workflows/test.yml/badge.svg)](https://github.com/username/boo-game/actions/workflows/test.yml)
-
 ## 🔧 개발 환경 설정
 
 ### 1. 요구 사항
@@ -64,64 +62,13 @@ python manage.py runserver
 
 이제 브라우저에서 http://localhost:8000 으로 게임에 접속할 수 있습니다.
 
-### 3. 테스트 실행
-
-Boo Game은 자동화된 테스트를 통해 코드 품질을 유지합니다. 테스트를 실행하려면:
-
-```bash
-# 모든 테스트 실행
-python manage.py test
-
-# 특정 앱 테스트
-python manage.py test developer
-python manage.py test game
-
-# 테스트 커버리지 확인 (coverage 패키지 필요)
-pip install coverage
-coverage run --source='.' manage.py test
-coverage report
-```
-
-테스트에 대한 자세한 정보는 `deployment-guide.md`의 "테스트 및 CI/CD 가이드" 섹션을 참조하세요.
-
 ## 🎨 에셋 정보
 
 게임에 사용되는 모든 에셋 정보와 규격은 `assets-guide.md` 파일에 상세히 기록되어 있습니다.
 
-## 📋 기능 명세서
+## 📝 기능 명세서
 
 상세한 기능 명세는 `context/prd.md` 파일에서 확인할 수 있습니다.
-
-## 📝 프로젝트 문서
-
-모든 프로젝트 문서는 `context/` 폴더에 정리되어 있습니다:
-
-- `context/prd.md`: 제품 요구사항 문서
-- `context/project-plan.md`: 프로젝트 계획
-- `context/project-summary.md`: 프로젝트 요약
-- `context/erd.md`: ERD 및 데이터베이스 설계
-- `context/deployment-guide.md`: 배포 가이드
-- `context/assets-guide.md`: 에셋 가이드
-- `context/frontend-guide.md`: 프론트엔드 개발 가이드
-- `context/reports/`: 주차별 보고서
-- `context/study/`: 학습 자료
-
-## 📊 문서 관리
-
-마크다운 문서는 자동으로 스캔되어 웹 인터페이스에서 확인할 수 있습니다:
-
-```bash
-# 문서 스캔 및 메타데이터 생성
-python manage.py scan_markdown_files_new
-
-# 기존 메타데이터 초기화 후 다시 스캔
-python manage.py scan_markdown_files_new --reset
-
-# 메타데이터 파일 삭제
-python manage.py scan_markdown_files_new --delete
-```
-
-스캔된 문서는 http://localhost:8000/docs/ 에서 확인할 수 있습니다.
 
 ## 📋 역할 분담
 
