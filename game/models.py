@@ -6,7 +6,7 @@ import uuid
 class Player(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nickname = models.CharField(max_length=20, default="익명의 학생")
-    ip_address = models.GenericIPAddressField()
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     # 커스터마이징 정보
