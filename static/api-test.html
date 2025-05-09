@@ -10,14 +10,14 @@
             max-width: 900px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f7f9fc;
-            color: #333;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
         }
         .header {
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid #444;
         }
         .header h1 {
             color: #00DDFF;
@@ -29,31 +29,31 @@
         }
         .sidebar {
             flex: 0 0 250px;
-            background-color: #fff;
+            background-color: #2a2a2a;
             padding: 15px;
             border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         .content {
             flex: 1;
-            background-color: #fff;
+            background-color: #2a2a2a;
             padding: 20px;
             border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         .endpoint-link {
             display: block;
             padding: 8px 15px;
             margin-bottom: 5px;
-            background-color: #f0f4f8;
+            background-color: #333333;
             text-decoration: none;
-            color: #333;
+            color: #e0e0e0;
             border-radius: 3px;
             cursor: pointer;
         }
         .endpoint-link:hover, .endpoint-link.active {
             background-color: #00DDFF;
-            color: #fff;
+            color: #000;
         }
         .form-row {
             margin-bottom: 15px;
@@ -62,13 +62,16 @@
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
+            color: #ccc;
         }
         input, select, textarea {
             width: 100%;
             padding: 8px;
-            border: 1px solid #ddd;
+            border: 1px solid #444;
             border-radius: 3px;
             font-family: inherit;
+            background-color: #333;
+            color: #e0e0e0;
         }
         textarea {
             height: 150px;
@@ -76,7 +79,7 @@
         }
         button {
             background-color: #00DDFF;
-            color: white;
+            color: #000;
             border: none;
             padding: 10px 15px;
             border-radius: 3px;
@@ -88,15 +91,16 @@
         }
         .response {
             margin-top: 20px;
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid #444;
             padding-top: 20px;
         }
         .response pre {
-            background-color: #f0f4f8;
+            background-color: #333333;
             padding: 15px;
             border-radius: 3px;
             overflow-x: auto;
             white-space: pre-wrap;
+            color: #e0e0e0;
         }
         .method {
             display: inline-block;
@@ -108,11 +112,11 @@
         }
         .get {
             background-color: #61affe;
-            color: white;
+            color: #000;
         }
         .post {
             background-color: #49cc90;
-            color: white;
+            color: #000;
         }
         .links {
             margin-top: 20px;
@@ -126,6 +130,7 @@
         }
         .links a:hover {
             text-decoration: underline;
+            color: #00c4e0;
         }
     </style>
 </head>
@@ -155,6 +160,14 @@
             
             <div id="form-container" style="display: none;">
                 <form id="api-form">
+                    <div class="form-row">
+                        <label for="api-protocol">Protocol:</label>
+                        <select id="api-protocol">
+                            <option value="http">HTTP</option>
+                            <option value="https">HTTPS</option>
+                        </select>
+                    </div>
+                    
                     <div class="form-row">
                         <label for="api-url">API URL:</label>
                         <input type="text" id="api-url" readonly>
@@ -255,7 +268,16 @@
                 
                 try {
                     const method = document.getElementById('api-method').value;
-                    const url = document.getElementById('api-url').value;
+                    let url = document.getElementById('api-url').value;
+                    const protocol = document.getElementById('api-protocol').value;
+                    
+                    // URL이 상대 경로인 경우 프로토콜 및 호스트 추가
+                    if (url.startsWith('/')) {
+                        // 현재 호스트 가져오기
+                        const host = window.location.host;
+                        url = `${protocol}://${host}${url}`;
+                    }
+                    
                     const options = {
                         method,
                         headers: {
@@ -357,8 +379,8 @@
         });
     </script>
     
-    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
-        <a href="/developer/" style="background-color: #00DDFF; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; display: inline-block;">개발자 허브로 돌아가기</a>
+    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #444;">
+        <a href="/developer/" style="background-color: #00DDFF; color: black; text-decoration: none; padding: 10px 20px; border-radius: 5px; display: inline-block;">개발자 허브로 돌아가기</a>
     </div>
 </body>
 </html> 

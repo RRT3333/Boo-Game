@@ -38,6 +38,10 @@ def api_client_docs(request):
     """API 클라이언트 문서 뷰"""
     return render(request, 'developer/api-client-docs.html')
 
+def api_client_test(request):
+    """API 클라이언트 테스트 뷰"""
+    return render(request, 'developer/api-client-test.html')
+
 def frontend_guide(request):
     """프론트엔드 개발 가이드 뷰"""
     return render(request, 'developer/frontend-guide.html')

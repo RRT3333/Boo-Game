@@ -161,6 +161,24 @@ CORS_ALLOW_CREDENTIALS = True  # 쿠키를 포함한 요청 허용
 #     "http://127.0.0.1:8000",
 # ]
 
+# Production 환경에서 CSRF 설정
+if DJANGO_ENV == 'production':
+    CSRF_TRUSTED_ORIGINS = [
+        'https://boogame.kr',
+        'https://www.boogame.kr',
+        'http://boogame.kr',
+        'http://www.boogame.kr',
+    ]
+    
+    # CORS 설정도 production 환경에 맞게 업데이트
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = [
+        'https://boogame.kr',
+        'https://www.boogame.kr',
+        'http://boogame.kr',
+        'http://www.boogame.kr',
+    ]
+
 # Swagger UI 설정
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
@@ -175,6 +193,10 @@ SWAGGER_SETTINGS = {
     'REFETCH_SCHEMA_WITH_AUTH': True,
     'REFETCH_SCHEMA_ON_LOGOUT': True,
 }
+
+# Production 환경에서는 HTTPS API URL 사용
+if DJANGO_ENV == 'production':
+    SWAGGER_SETTINGS['DEFAULT_API_URL'] = 'https://boogame.kr'
 
 # REST Framework 설정
 REST_FRAMEWORK = {
