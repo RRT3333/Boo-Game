@@ -79,7 +79,7 @@ jobs:
             # Django 관리 명령어
             python manage.py collectstatic --noinput
             python manage.py migrate
-            python manage.py scan_markdown_files
+            python manage.py scan_markdown_files_new --reset
             
             # 서비스 재시작
             sudo systemctl restart gunicorn
