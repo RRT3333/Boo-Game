@@ -2,10 +2,14 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from pathlib import Path
+import dotenv
 
 
 def main():
     """Run administrative tasks."""
+    BASE_DIR = Path(__file__).resolve().parent
+    dotenv.load_dotenv(BASE_DIR / '.env')
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'boo_game.settings')
     try:
         from django.core.management import execute_from_command_line

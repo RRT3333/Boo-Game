@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ file_name }} - Boo Game 문서</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/markdown.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1 class="document-title">{{ file_name }}</h1>
+        <div class="file-path">파일 경로: {{ file_path }}</div>
+    </header>
+    
+    <main class="markdown-content">
+        {{ html_content|safe }}
+    </main>
+    
+    <div class="doc-nav">
+        <a href="{{ docs_hub_url }}" class="home-btn">문서 허브로 돌아가기</a>
+    </div>
+
+    <footer>
+        <p>Boo Game 프로젝트 문서 - 자동 생성됨</p>
+    </footer>
+</body>
+</html> 

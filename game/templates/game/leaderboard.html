@@ -1,34 +1,114 @@
+{% extends 'game/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boo's Adventure - Leaderboard</title>
-    <link rel="stylesheet" href="{% static 'css/game.css' %}">
-</head>
-<body>
+
+{% block title %}Boo의 졸업 대모험 - 리더보드{% endblock %}
+
+{% block meta_description %}Boo의 졸업 대모험 리더보드에서 최고 점수를 확인하세요. 명예의 전당에 이름을 올릴 수 있을까요?{% endblock %}
+{% block meta_keywords %}Boo, 리더보드, 랭킹, 고득점, 웹게임, 외대 게임, 졸업게임, 랭킹{% endblock %}
+
+{% block og_title %}Boo의 졸업 대모험 - 명예의 전당{% endblock %}
+{% block og_description %}Boo의 졸업 대모험 리더보드에서 최고의 졸업생들을 확인하고 랭킹에 도전하세요!{% endblock %}
+{% block og_url %}https://boogame.kr/game/leaderboard/{% endblock %}
+{% block canonical_url %}https://boogame.kr/game/leaderboard/{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/leaderboard.css' %}">
+{% endblock %}
+
+{% block content %}
     <div class="leaderboard-container">
-        <h1>Top Graduates</h1>
-        <table class="leaderboard">
+    <div class="leaderboard-header">
+        <h1>명예의 전당</h1>
+        <p class="subtitle">최고의 졸업생들</p>
+    </div>
+    
+    <div class="leaderboard-content">
+        <table class="leaderboard-table">
             <thead>
                 <tr>
-                    <th>Rank</th>
-                    <th>Player</th>
-                    <th>Score</th>
+                    <th>순위</th>
+                    <th>캐릭터</th>
+                    <th>플레이어</th>
+                    <th>점수</th>
+                    <th>시간</th>
+                    <th>스테이지</th>
                 </tr>
             </thead>
             <tbody>
                 {% for score in scores %}
+                <tr class="{% if forloop.first %}first-place{% elif forloop.counter == 2 %}second-place{% elif forloop.counter == 3 %}third-place{% endif %}">
+                    <td class="rank">{{ forloop.counter }}</td>
+                    <td class="avatar">
+                        <!-- 플레이어 커스터마이징된 아바타 표시 -->
+                        <div class="avatar-container">
+                            <img src="{% static 'assets/character/duck.png' %}" alt="캐릭터" class="character-base">
+                            {% if score.outfit != 'default' %}
+                            <img src="{% static 'assets/customization/'|add:score.outfit|add:'.png' %}" alt="의상" class="character-outfit">
+                            {% endif %}
+                            {% if score.hat != 'none' %}
+                            <img src="{% static 'assets/customization/'|add:score.hat|add:'.png' %}" alt="모자" class="character-hat">
+                            {% endif %}
+                            {% if score.shoes != 'default' %}
+                            <img src="{% static 'assets/customization/'|add:score.shoes|add:'.png' %}" alt="신발" class="character-shoes">
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="nickname">{{ score.nickname }}</td>
+                    <td class="score">{{ score.score }}점</td>
+                    <td class="time">{{ score.time }}초</td>
+                    <td class="stage">
+                        {% if score.stage == 1 %}
+                            교양관
+                        {% elif score.stage == 2 %}
+                            명수당
+                        {% elif score.stage == 3 %}
+                            공대
+                        {% elif score.stage == 4 %}
+                            백년관
+                        {% elif score.stage == 5 %}
+                            기숙사
+                        {% elif score.stage == 6 %}
+                            정문(졸업)
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
                 <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>Player {{ score.player_ip|slice:":8" }}...</td>
-                    <td>{{ score.best_score }}</td>
+                    <td colspan="6" class="no-records">아직 기록이 없습니다. 첫 번째 졸업자가 되어보세요!</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        <a href="{% url 'game:index' %}" class="play-again-btn">Play Again</a>
     </div>
-</body>
-</html>
+    
+    <div class="qr-code">
+        <h3>QR코드로 공유하기</h3>
+        <img src="{% static 'assets/ui/qr_code.png' %}" alt="QR 코드">
+    </div>
+    
+    <div class="action-buttons">
+        <a href="{% url 'game:index' %}" class="btn-home">홈으로</a>
+        <a href="{% url 'game:customize' %}" class="btn-play">게임 시작</a>
+        <a href="{% url 'game:presentation' %}" class="btn-presentation">발표용 리더보드</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Table",
+  "name": "Boo의 졸업 대모험 리더보드",
+  "description": "Boo의 졸업 대모험 게임의 최고 점수 기록 테이블",
+  "about": {
+    "@type": "Game",
+    "name": "Boo의 졸업 대모험"
+  }
+}
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/leaderboard.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+# 사이트맵 설정
+Sitemap: https://boogame.kr/sitemap.xml 

@@ -1,0 +1,148 @@
+{
+  "last_updated": "2025-05-09 19:46:54",
+  "total_files": 16,
+  "categories": {
+    "project": {
+      "title": "프로젝트 문서",
+      "icon": "<path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"></path><polyline points=\"14 2 14 8 20 8\"></polyline><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"></line><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"></line><polyline points=\"10 9 9 9 8 9\"></polyline>",
+      "files": [
+        {
+          "path": "context\\project-plan.md",
+          "title": "Boo Game - 개발 계획",
+          "description": "## 프로젝트 구조",
+          "modified": "2025-05-09",
+          "size": "4.3 KB"
+        },
+        {
+          "path": "README.md",
+          "title": "Boo Game - 외대 졸업 대모험",
+          "description": "외대 캐릭터 Boo를 조종하여 학교를 졸업시키는 웹 게임입니다.",
+          "modified": "2025-05-09",
+          "size": "8.5 KB"
+        },
+        {
+          "path": "context\\project-summary.md",
+          "title": "Boo Game 프로젝트 요약",
+          "description": "## 🚀 프로젝트 개선 사항",
+          "modified": "2025-05-09",
+          "size": "5.4 KB"
+        },
+        {
+          "path": "context\\README.md",
+          "title": "Context 폴더 문서 가이드라인",
+          "description": "이 폴더는 Boo Game 프로젝트의 모든 문서가 저장되는 곳입니다. 모든 팀원은 이 가이드라인에 따라 문서를 관리해주세요.",
+          "modified": "2025-05-09",
+          "size": "2.6 KB"
+        }
+      ]
+    },
+    "guide": {
+      "title": "가이드 문서",
+      "icon": "<path d=\"M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z\"></path><path d=\"M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z\"></path>",
+      "files": [
+        {
+          "path": "context\\developer-guide.md",
+          "title": "Boo Game Developer 앱 가이드",
+          "description": "이 문서는 Boo Game 프로젝트의 Developer 앱에 대한 설명과 사용 방법을 안내합니다.",
+          "modified": "2025-05-09",
+          "size": "6.1 KB"
+        },
+        {
+          "path": "context\\deployment-guide.md",
+          "title": "Boo Game 배포 가이드",
+          "description": "이 문서는 Boo Game을 AWS에 배포하기 위한 단계별 가이드입니다.",
+          "modified": "2025-05-09",
+          "size": "14.7 KB"
+        },
+        {
+          "path": "context\\assets-guide.md",
+          "title": "Boo Game 에셋 가이드",
+          "description": "이 문서는 Boo Game에서 사용되는 에셋의 구조, 형식, 네이밍 컨벤션에 대한 상세한 정보를 제공합니다.",
+          "modified": "2025-05-09",
+          "size": "4.7 KB"
+        },
+        {
+          "path": "context\\frontend-guide.md",
+          "title": "Boo 게임 프론트엔드 개발 가이드",
+          "description": "이 문서는 Boo의 졸업 대모험 웹 게임의 프론트엔드 개발에 참여하는 개발자를 위한 가이드입니다.",
+          "modified": "2025-05-09",
+          "size": "6.1 KB"
+        }
+      ]
+    },
+    "tech": {
+      "title": "기술 문서",
+      "icon": "<path d=\"M12 19l7-7 3 3-7 7-3-3z\"></path><path d=\"M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z\"></path><path d=\"M2 2l7.586 7.586\"></path><circle cx=\"11\" cy=\"11\" r=\"2\"></circle>",
+      "files": [
+        {
+          "path": "context\\erd.md",
+          "title": "Boo 게임 ERD (Entity Relationship Diagram)",
+          "description": "버전: 1.3.0",
+          "modified": "2025-05-09",
+          "size": "8.3 KB"
+        }
+      ]
+    },
+    "report": {
+      "title": "보고서",
+      "icon": "<path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"></path><polyline points=\"14 2 14 8 20 8\"></polyline><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"></line><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"></line><polyline points=\"10 9 9 9 8 9\"></polyline>",
+      "files": [
+        {
+          "path": "context\\reports\\4주차.md",
+          "title": "250404",
+          "description": "- fly duck 모티브로 한 게임 컨셉 잡고 테스트 코드 빌드 및 배포",
+          "modified": "2025-04-18",
+          "size": "0.3 KB"
+        },
+        {
+          "path": "context\\prd.md",
+          "title": "Boo Game - 프로덕트 요구사항 문서 (PRD)",
+          "description": "## 🎮 개요",
+          "modified": "2025-05-09",
+          "size": "3.2 KB"
+        }
+      ]
+    },
+    "other": {
+      "title": "기타 문서",
+      "icon": "<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"16\"></line><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line>",
+      "files": [
+        {
+          "path": "context\\study\\dao.md",
+          "title": "250507",
+          "description": "역할분담 회의 완료",
+          "modified": "2025-05-09",
+          "size": "0.0 KB"
+        },
+        {
+          "path": "venv\\Lib\\site-packages\\django\\contrib\\admin\\static\\admin\\js\\vendor\\select2\\LICENSE.md",
+          "title": "LICENSE",
+          "description": "LICENSE 문서",
+          "modified": "2025-04-04",
+          "size": "1.1 KB"
+        },
+        {
+          "path": "venv\\Lib\\site-packages\\djangorestframework-3.16.0.dist-info\\licenses\\LICENSE.md",
+          "title": "License",
+          "description": "Copyright © 2011-present, [Encode OSS Ltd](https://www.encode.io/).",
+          "modified": "2025-05-09",
+          "size": "1.5 KB"
+        },
+        {
+          "path": "venv\\Lib\\site-packages\\markdown-3.8.dist-info\\licenses\\LICENSE.md",
+          "title": "LICENSE",
+          "description": "LICENSE 문서",
+          "modified": "2025-05-09",
+          "size": "1.6 KB"
+        },
+        {
+          "path": "venv\\Lib\\site-packages\\django\\contrib\\admin\\static\\admin\\css\\vendor\\select2\\LICENSE-SELECT2.md",
+          "title": "LICENSE-SELECT2",
+          "description": "LICENSE-SELECT2 문서",
+          "modified": "2025-04-04",
+          "size": "1.1 KB"
+        }
+      ]
+    }
+  }
+}
