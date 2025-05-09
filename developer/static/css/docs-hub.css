@@ -1,9 +1,15 @@
 /* Docs Hub Styles */
 .card-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: 20px;
     margin-top: 20px;
+}
+
+/* 마크다운 파일 관리 카드를 위한 특별 클래스 */
+.card.markdown-manager {
+    min-width: 500px;
+    grid-column: span 2;
 }
 
 .card {
@@ -143,6 +149,13 @@
     padding: 10px;
     border-radius: 3px;
     overflow-x: auto;
+}
+
+@media (max-width: 1200px) {
+    .card.markdown-manager {
+        grid-column: span 1;
+        min-width: auto;
+    }
 }
 
 @media (max-width: 768px) {
