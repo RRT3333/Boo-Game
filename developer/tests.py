@@ -21,7 +21,7 @@ class DeveloperViewsTestCase(TestCase):
         
     def test_dashboard_view(self):
         """대시보드 뷰 테스트"""
-        url = reverse('developer:dashboard')
+        url = reverse('developer:index')
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, 200)
@@ -51,6 +51,8 @@ class DeveloperViewsTestCase(TestCase):
             self.assertTemplateUsed(response, 'developer/docs-hub.html')
             self.assertContains(response, '문서 허브')
             self.assertContains(response, '프로젝트 문서')
+            self.assertContains(response, 'Developer 앱 가이드')
+            self.assertContains(response, '마크다운 파일 관리')
     
     def test_api_client_docs_view(self):
         """API 클라이언트 문서 뷰 테스트"""
@@ -60,6 +62,9 @@ class DeveloperViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'developer/api-client-docs.html')
         self.assertContains(response, 'API 클라이언트')
+        self.assertContains(response, 'API 클라이언트 소스코드 가져오기')
+        self.assertContains(response, '스크립트 경로 복사')
+        self.assertContains(response, 'HTML에서 사용:')
     
     @patch('developer.views.os.path.exists')
     @patch('developer.views.os.path.isfile')
