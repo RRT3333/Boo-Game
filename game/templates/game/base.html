@@ -4,6 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO 메타 태그 -->
+    <meta name="description" content="{% block meta_description %}Boo의 졸업 대모험은 대학생 Boo가 졸업을 위해 장애물을 극복하는 재미있는 웹 게임입니다.{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}Boo, 웹게임, 대학생, 졸업게임, 플랫폼게임{% endblock %}">
+    <meta name="author" content="Boo Game Team">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / 페이스북 -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{% block og_url %}https://boogame.kr{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}Boo의 졸업 대모험{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Boo의 졸업 대모험은 대학생 Boo가 졸업을 위해 장애물을 극복하는 재미있는 웹 게임입니다.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{% static 'images/social/boo_og_image.jpg' %}{% endblock %}">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{% block twitter_url %}https://boogame.kr{% endblock %}">
+    <meta property="twitter:title" content="{% block twitter_title %}Boo의 졸업 대모험{% endblock %}">
+    <meta property="twitter:description" content="{% block twitter_description %}Boo의 졸업 대모험은 대학생 Boo가 졸업을 위해 장애물을 극복하는 재미있는 웹 게임입니다.{% endblock %}">
+    <meta property="twitter:image" content="{% block twitter_image %}{% static 'images/social/boo_og_image.jpg' %}{% endblock %}">
+    
+    <!-- 캐노니컬 태그 -->
+    <link rel="canonical" href="{% block canonical_url %}https://boogame.kr{% endblock %}">
+    
     <title>{% block title %}Boo의 졸업 대모험{% endblock %}</title>
     
     <!-- 파비콘 -->
@@ -25,6 +49,23 @@
 </head>
 <body>
     {% block content %}
+    {% endblock %}
+    
+    <!-- 구조화된 데이터 -->
+    {% block structured_data %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Boo의 졸업 대모험",
+      "url": "https://boogame.kr",
+      "description": "대학생 Boo가 졸업을 위해 장애물을 극복하는 재미있는 웹 게임",
+      "potentialAction": {
+        "@type": "PlayAction",
+        "target": "https://boogame.kr/game/play/"
+      }
+    }
+    </script>
     {% endblock %}
     
     <!-- JavaScript -->

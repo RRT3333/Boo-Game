@@ -3,6 +3,14 @@
 
 {% block title %}Boo의 졸업 대모험 - 게임 플레이{% endblock %}
 
+{% block meta_description %}Boo의 졸업 대모험 게임을 플레이하세요! 장애물을 점프하여 피하고, 아이템을 수집하여 졸업을 향해 도전하세요.{% endblock %}
+{% block meta_keywords %}Boo, 웹게임, 외대 게임, 졸업게임, 플랫폼게임, 장애물 게임, 점프게임, 스테이지{% endblock %}
+
+{% block og_title %}Boo의 졸업 대모험 - 지금 플레이하세요!{% endblock %}
+{% block og_description %}장애물을 피하고 F를 극복하며 기숙사에서 정문까지 Boo와 함께 졸업을 향해 달려보세요!{% endblock %}
+{% block og_url %}https://boogame.kr/game/play/{% endblock %}
+{% block canonical_url %}https://boogame.kr/game/play/{% endblock %}
+
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/game.css' %}">
 {% endblock %}
@@ -104,6 +112,28 @@
      data-hat="{{ customization.hat }}"
      data-shoes="{{ customization.shoes }}">
 </div>
+{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Boo의 졸업 대모험",
+  "url": "https://boogame.kr/game/play/",
+  "description": "외대생 Boo가 졸업을 향해 장애물을 극복하는 웹 게임",
+  "genre": ["Platform", "Arcade", "Casual"],
+  "gamePlatform": "Web Browser",
+  "applicationCategory": "Game",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW",
+    "availability": "http://schema.org/InStock"
+  }
+}
+</script>
 {% endblock %}
 
 {% block scripts %}

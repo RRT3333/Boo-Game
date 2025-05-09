@@ -3,6 +3,14 @@
 
 {% block title %}Boo의 졸업 대모험{% endblock %}
 
+{% block meta_description %}대학생 Boo가 외대를 졸업하기 위해 다양한 장애물을 극복하는 즐거운 웹 게임입니다. 최고 점수에 도전해보세요!{% endblock %}
+{% block meta_keywords %}Boo, 웹게임, 외대, 졸업게임, 플랫폼게임, 장애물, 점프게임{% endblock %}
+
+{% block og_title %}Boo의 졸업 대모험 - 외대 졸업 웹게임{% endblock %}
+{% block og_description %}대학생 Boo의 졸업 여정을 함께하세요. 장애물을 피하고, 아이템을 모으고, 최고 점수에 도전해보세요!{% endblock %}
+
+{% block canonical_url %}https://boogame.kr/{% endblock %}
+
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/main.css' %}">
 {% endblock %}
@@ -90,6 +98,22 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Boo의 졸업 대모험",
+  "url": "https://boogame.kr",
+  "description": "대학생 Boo가 외대를 졸업하기 위해 다양한 장애물을 극복하는 웹 게임",
+  "potentialAction": {
+    "@type": "PlayAction",
+    "target": "https://boogame.kr/game/play/"
+  }
+}
+</script>
 {% endblock %}
 
 {% block scripts %}

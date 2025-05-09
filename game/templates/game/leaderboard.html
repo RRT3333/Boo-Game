@@ -3,6 +3,14 @@
 
 {% block title %}Boo의 졸업 대모험 - 리더보드{% endblock %}
 
+{% block meta_description %}Boo의 졸업 대모험 리더보드에서 최고 점수를 확인하세요. 명예의 전당에 이름을 올릴 수 있을까요?{% endblock %}
+{% block meta_keywords %}Boo, 리더보드, 랭킹, 고득점, 웹게임, 외대 게임, 졸업게임, 랭킹{% endblock %}
+
+{% block og_title %}Boo의 졸업 대모험 - 명예의 전당{% endblock %}
+{% block og_description %}Boo의 졸업 대모험 리더보드에서 최고의 졸업생들을 확인하고 랭킹에 도전하세요!{% endblock %}
+{% block og_url %}https://boogame.kr/game/leaderboard/{% endblock %}
+{% block canonical_url %}https://boogame.kr/game/leaderboard/{% endblock %}
+
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/leaderboard.css' %}">
 {% endblock %}
@@ -84,6 +92,21 @@
         <a href="{% url 'game:presentation' %}" class="btn-presentation">발표용 리더보드</a>
     </div>
 </div>
+{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Table",
+  "name": "Boo의 졸업 대모험 리더보드",
+  "description": "Boo의 졸업 대모험 게임의 최고 점수 기록 테이블",
+  "about": {
+    "@type": "Game",
+    "name": "Boo의 졸업 대모험"
+  }
+}
+</script>
 {% endblock %}
 
 {% block scripts %}
