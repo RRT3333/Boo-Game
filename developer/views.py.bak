@@ -38,14 +38,6 @@ def api_client_docs(request):
     """API 클라이언트 문서 뷰"""
     return render(request, 'developer/api-client-docs.html')
 
-def frontend_guide(request):
-    """프론트엔드 개발 가이드 뷰"""
-    return render(request, 'developer/frontend-guide.html')
-
-def erd(request):
-    """ERD(Entity Relationship Diagram) 뷰"""
-    return render(request, 'developer/erd.html')
-
 def render_markdown(request, path):
     """마크다운 파일을 HTML로 렌더링합니다."""
     # 상대 경로 구성
@@ -148,4 +140,4 @@ def get_markdown_metadata():
             'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'total_files': 0,
             'categories': {}
-        } 
+        }

@@ -60,9 +60,13 @@ jobs:
           ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to EC2
+        env:
+          PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
+          DEFAULT_PATH: "/home/ubuntu/Boo-Game"
         run: |
           ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} '
-            cd ${{ secrets.PROJECT_PATH || "/home/ubuntu/Boo-Game" }}
+            PROJECT_PATH="${PROJECT_PATH:-/home/ubuntu/Boo-Game}"
+            cd $PROJECT_PATH
             git pull origin main
             source venv/bin/activate
             pip3 install -r requirements.txt
@@ -75,6 +79,7 @@ jobs:
             # Django 관리 명령어
             python manage.py collectstatic --noinput
             python manage.py migrate
+            python manage.py scan_markdown_files
             
             # 서비스 재시작
             sudo systemctl restart gunicorn

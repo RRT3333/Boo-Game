@@ -108,20 +108,35 @@ coverage report
 
 ## 📊 문서 관리
 
-마크다운 문서는 자동으로 스캔되어 웹 인터페이스에서 확인할 수 있습니다:
+프로젝트 문서는 주로 `context/` 폴더에서 관리되며, 모든 팀원은 이 폴더에 마크다운(.md) 파일을 업데이트해야 합니다:
+
+1. **문서 저장 위치**: 모든 마크다운 문서는 `context/` 폴더에 저장합니다.
+   - 주제별 하위 폴더(예: `context/reports/`, `context/study/`)를 활용하세요.
+   - 파일명은 영어 소문자와 하이픈으로 작성하세요 (예: `frontend-guide.md`).
+
+2. **문서 렌더링**: 마크다운 문서는 자동으로 HTML로 렌더링됩니다.
+   - 정적 마크다운 파일은 어두운 테마의 스타일로 자동 렌더링됩니다.
+   - 핵심 문서(프론트엔드 가이드, ERD 등)는 사용자 경험을 위해 HTML 템플릿으로 제공됩니다.
+
+3. **문서 메타데이터 관리**: 다음 명령어로 문서를 관리할 수 있습니다:
 
 ```bash
 # 문서 스캔 및 메타데이터 생성
-python manage.py scan_markdown_files_new
+python manage.py scan_markdown_files
 
 # 기존 메타데이터 초기화 후 다시 스캔
-python manage.py scan_markdown_files_new --reset
+python manage.py scan_markdown_files --reset
 
 # 메타데이터 파일 삭제
-python manage.py scan_markdown_files_new --delete
+python manage.py scan_markdown_files --delete
 ```
 
-스캔된 문서는 http://localhost:8000/docs/ 에서 확인할 수 있습니다.
+스캔된 문서는 개발자 대시보드의 문서 허브(http://localhost:8000/developer/docs/)에서 확인할 수 있습니다.
+
+4. **문서 작성 규칙**:
+   - 마크다운 문서의 첫 번째 줄은 반드시 `# 제목` 형식의 제목이어야 합니다.
+   - 문서 최상단에 작성일자와 버전 정보를 포함하는 것을 권장합니다.
+   - 다이어그램이 필요한 경우 Mermaid.js 문법을 사용하세요.
 
 ## 📋 역할 분담
 

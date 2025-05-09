@@ -1,5 +1,8 @@
 # Boo 게임 ERD (Entity Relationship Diagram)
 
+버전: 1.3.0
+최종 업데이트: 2025년 5월 11일
+
 ## 개체 관계도
 [ERD란?](https://inpa.tistory.com/entry/DB-%F0%9F%93%9A-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EB%AA%A8%EB%8D%B8%EB%A7%81-1N-%EA%B4%80%EA%B3%84-%F0%9F%93%88-ERD-%EB%8B%A4%EC%9D%B4%EC%96%B4%EA%B7%B8%EB%9E%A8)
 
@@ -80,7 +83,65 @@ erDiagram
    - PlayerAchievement 테이블을 통해 이 다대다 관계 구현
    - 플레이어와 업적 조합은 유일함(unique_together 제약조건) 
 
+## 실제 Django 모델 구현
 
+```python
+from django.db import models
+import uuid
+
+class Player(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    nickname = models.CharField(max_length=20, default="익명의 학생")
+    ip_address = models.GenericIPAddressField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    # 커스터마이징 정보
+    outfit = models.CharField(max_length=50, default="default")
+    hat = models.CharField(max_length=50, default="none")
+    shoes = models.CharField(max_length=50, default="default")
+    
+    def __str__(self):
+        return f"{self.nickname} ({self.id})"
+
+class Score(models.Model):
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    score = models.IntegerField(default=0)
+    play_time = models.IntegerField(default=0, help_text="플레이 시간(초)")
+    max_stage = models.IntegerField(default=1, help_text="도달한 최대 스테이지")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    # 게임 통계
+    items_collected = models.IntegerField(default=0)
+    obstacles_avoided = models.IntegerField(default=0)
+    max_combo = models.IntegerField(default=0)
+    
+    class Meta:
+        ordering = ['-score']
+
+    def __str__(self):
+        return f"{self.player.nickname} - {self.score} 점 ({self.play_time}초)"
+
+class Achievement(models.Model):
+    """게임 업적 시스템"""
+    name = models.CharField(max_length=50)
+    description = models.TextField()
+    icon = models.CharField(max_length=100, default="default")
+    
+    def __str__(self):
+        return self.name
+
+class PlayerAchievement(models.Model):
+    """플레이어별 달성 업적"""
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE)
+    achieved_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('player', 'achievement')
+    
+    def __str__(self):
+        return f"{self.player.nickname} - {self.achievement.name}"
+```
 
 ## 🎮 게임 기록 ERD 구조 해설 (입문자용)
 
@@ -107,7 +168,7 @@ erDiagram
 
 ### 🏆 Achievement (업적)
 
-* 도전 과제: 예) “1000점 달성”, “아이템 10개 수집”
+* 도전 과제: 예) "1000점 달성", "아이템 10개 수집"
 * 필드: `업적 이름`, `설명`, `아이콘`
 * **유저와 직접 연결되진 않음** — 대신 아래 PlayerAchievement 통해 연결돼요
 

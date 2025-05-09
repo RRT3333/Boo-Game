@@ -24,6 +24,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.views.generic import TemplateView
 from django.conf import settings
+import re
 
 sitemaps = {
     'static': StaticViewSitemap,
@@ -43,6 +44,16 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+# 마크다운 파일을 렌더링 뷰로 리디렉션하는 함수
+def markdown_redirect(request, path):
+    # 특정 문서는 HTML 페이지로 리디렉션
+    if path == 'frontend-guide.md':
+        return redirect('developer:frontend-guide')
+    elif path == 'erd.md':
+        return redirect('developer:erd')
+    else:
+        return redirect('developer:render_static_markdown', path=path)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('game/', include('game.urls')),
@@ -51,6 +62,9 @@ urlpatterns = [
     
     # 개발자 도구 URL 패턴
     path('developer/', include('developer.urls')),
+    
+    # static 마크다운 파일 리디렉션
+    re_path(r'^static/(?P<path>.+\.md)$', markdown_redirect),
     
     # Swagger UI 경로
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),

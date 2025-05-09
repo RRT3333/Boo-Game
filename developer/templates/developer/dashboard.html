@@ -98,7 +98,7 @@
                 <span class="tag tag-backend">백엔드</span>
             </div>
             <div class="btn-group">
-                <a href="/static/frontend-guide.md" class="btn" target="_blank">프론트엔드 가이드</a>
+                <a href="{% url 'developer:frontend-guide' %}" class="btn" target="_blank">프론트엔드 가이드</a>
                 <a href="{% url 'developer:api-client-docs' %}" class="btn btn-secondary" target="_blank">API 클라이언트</a>
             </div>
         </div>
@@ -145,7 +145,7 @@
                 <span class="tag tag-backend">백엔드</span>
                 <span class="tag tag-docs">문서</span>
             </div>
-            <a href="/static/erd.md" class="btn" target="_blank">ERD 보기</a>
+            <a href="{% url 'developer:erd' %}" class="btn" target="_blank">ERD 보기</a>
         </div>
     </div>
     
