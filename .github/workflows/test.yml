@@ -26,10 +26,7 @@ jobs:
         echo "DJANGO_SECRET_KEY=test-secret-key-for-ci" >> .env
         echo "DEBUG=True" >> .env
         echo "ALLOWED_HOSTS=localhost,127.0.0.1" >> .env
-    - name: Run tests
-      run: |
-        python manage.py test
-    - name: Generate coverage report
+    - name: Run tests with coverage
       run: |
         coverage run --source='.' manage.py test
         coverage report
