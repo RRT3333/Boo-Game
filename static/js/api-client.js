@@ -140,5 +140,8 @@ class BooGameAPI {
 const isHttps = window.location.protocol === 'https:';
 window.booGameAPI = new BooGameAPI('', isHttps);
 
+// BooGameAPI 클래스도 전역으로 노출
+window.BooGameAPI = BooGameAPI;
+
 // 모듈 내보내기 (ES 모듈 지원 환경용)
 export default BooGameAPI; 
