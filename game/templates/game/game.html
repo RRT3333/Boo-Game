@@ -1,117 +1,114 @@
+{% extends 'game/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boo의 졸업 대모험</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Spoqa+Han+Sans+Neo:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/game.css' %}">
-</head>
-<body>
-    <div class="game-container">
-        <!-- 게임 UI 요소 -->
-        <div class="hud">
-            <div class="hud-top">
-                <div class="score">점수: <span id="score">0</span></div>
-                <div class="combo hidden" id="comboContainer">
-                    <span id="comboCount">0</span> 콤보!
-                </div>
-                <div class="timer">시간: <span id="gameTimer">0</span>초</div>
-            </div>
-            
-            <div class="hud-bottom">
-                <div class="health">
-                    <span class="heart">❤️</span>
-                    <span class="heart">❤️</span>
-                    <span class="heart">❤️</span>
-                </div>
-                <div class="stage-indicator">
-                    <span id="currentStage">교양관</span>
-                    <div class="stage-progress">
-                        <div class="progress-bar" id="stageProgress"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 캔버스 게임 화면 -->
-        <canvas id="gameCanvas"></canvas>
-        
-        <!-- 특수 이벤트 표시 영역 -->
-        <div class="event-notification" id="eventNotification">
-            <div class="event-content" id="eventContent"></div>
-        </div>
-        
-        <!-- 게임 시작 카운트다운 -->
-        <div class="countdown" id="countdown">
-            <span id="countdownNumber">3</span>
-        </div>
-        
-        <!-- 게임 오버 화면 -->
-        <div class="game-over hidden" id="gameOver">
-            <h2 id="gameOverTitle">게임 오버!</h2>
-            <p>최종 점수: <span id="finalScore">0</span></p>
-            <p>플레이 시간: <span id="finalTime">0</span>초</p>
-            <p>스테이지: <span id="finalStage">교양관</span></p>
-            
-            <div class="achievement-unlocked hidden" id="achievementContainer">
-                <h3>업적 달성!</h3>
-                <div id="achievementsList"></div>
-            </div>
 
-            <!-- 이름 입력창 및 저장 버튼 추가 -->
-            <div class="nickname-save-container">
-                <div class="retro-input-group">
-                    <div class="retro-input-label">YOUR NAME?</div>
-                    <div class="retro-input-wrapper">
-                        <input type="text" id="gameOverNickname" maxlength="12" placeholder="AAA">
-                        <button id="saveNicknameBtn" class="retro-button">SAVE</button>
-                    </div>
-                    <div class="retro-hint">* 미입력시 '익명의 학생'으로 저장됩니다</div>
-                </div>
+{% block title %}Boo의 졸업 대모험 - 게임 플레이{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/game.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="game-container">
+    <!-- 게임 UI 요소 -->
+    <div class="hud">
+        <div class="hud-top">
+            <div class="score">점수: <span id="score">0</span></div>
+            <div class="combo hidden" id="comboContainer">
+                <span id="comboCount">0</span> 콤보!
             </div>
-            
-            <div class="action-buttons">
-                <button id="restartButton" class="btn-restart">다시 시작</button>
-                <a href="{% url 'game:leaderboard' %}" class="btn-leaderboard">리더보드</a>
-                <a href="{% url 'game:index' %}" class="btn-home">홈으로</a>
-            </div>
+            <div class="timer">시간: <span id="gameTimer">0</span>초</div>
         </div>
         
-        <!-- 게임 클리어 화면 -->
-        <div class="game-clear hidden" id="gameClear">
-            <h2>축하합니다! 졸업이다!</h2>
-            <p>최종 점수: <span id="clearScore">0</span></p>
-            <p>플레이 시간: <span id="clearTime">0</span>초</p>
-            
-            <div class="achievement-unlocked hidden" id="clearAchievementContainer">
-                <h3>업적 달성!</h3>
-                <div id="clearAchievementsList"></div>
+        <div class="hud-bottom">
+            <div class="health">
+                <span class="heart">❤️</span>
+                <span class="heart">❤️</span>
+                <span class="heart">❤️</span>
             </div>
-            
-            <div class="action-buttons">
-                <button id="clearRestartButton" class="btn-restart">다시 시작</button>
-                <a href="{% url 'game:leaderboard' %}" class="btn-leaderboard">리더보드</a>
-                <a href="{% url 'game:index' %}" class="btn-home">홈으로</a>
+            <div class="stage-indicator">
+                <span id="currentStage">교양관</span>
+                <div class="stage-progress">
+                    <div class="progress-bar" id="stageProgress"></div>
+                </div>
             </div>
         </div>
     </div>
     
-    <!-- 캐릭터 및 게임 에셋 데이터 -->
-    <div id="gameAssets" 
-         data-player-id="{{ player_id }}"
-         data-outfit="{{ customization.outfit }}"
-         data-hat="{{ customization.hat }}"
-         data-shoes="{{ customization.shoes }}">
+    <!-- 캔버스 게임 화면 -->
+    <canvas id="gameCanvas"></canvas>
+    
+    <!-- 특수 이벤트 표시 영역 -->
+    <div class="event-notification" id="eventNotification">
+        <div class="event-content" id="eventContent"></div>
     </div>
-    <script>
-      window.PLAYER_ID = "{{ player_id|default:'' }}";
-    </script>
-    <script src="{% static 'js/game.js' %}"></script>
-</body>
-</html>
+    
+    <!-- 게임 시작 카운트다운 -->
+    <div class="countdown" id="countdown">
+        <span id="countdownNumber">3</span>
+    </div>
+    
+    <!-- 게임 오버 화면 -->
+    <div class="game-over hidden" id="gameOver">
+        <h2 id="gameOverTitle">게임 오버!</h2>
+        <p>최종 점수: <span id="finalScore">0</span></p>
+        <p>플레이 시간: <span id="finalTime">0</span>초</p>
+        <p>스테이지: <span id="finalStage">교양관</span></p>
+        
+        <div class="achievement-unlocked hidden" id="achievementContainer">
+            <h3>업적 달성!</h3>
+            <div id="achievementsList"></div>
+        </div>
+
+        <!-- 이름 입력창 및 저장 버튼 추가 -->
+        <div class="nickname-save-container">
+            <div class="retro-input-group">
+                <div class="retro-input-label">YOUR NAME?</div>
+                <div class="retro-input-wrapper">
+                    <input type="text" id="gameOverNickname" maxlength="12" placeholder="익명의 학생">
+                    <button id="saveNicknameBtn" class="retro-button">SAVE</button>
+                </div>
+                <div class="retro-hint">* 미입력시 '익명의 학생'으로 저장됩니다</div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button id="restartButton" class="btn-restart">다시 시작</button>
+            <a href="{% url 'game:leaderboard' %}" class="btn-leaderboard">리더보드</a>
+            <a href="{% url 'game:index' %}" class="btn-home">홈으로</a>
+        </div>
+    </div>
+    
+    <!-- 게임 클리어 화면 -->
+    <div class="game-clear hidden" id="gameClear">
+        <h2>축하합니다! 졸업이다!</h2>
+        <p>최종 점수: <span id="clearScore">0</span></p>
+        <p>플레이 시간: <span id="clearTime">0</span>초</p>
+        
+        <div class="achievement-unlocked hidden" id="clearAchievementContainer">
+            <h3>업적 달성!</h3>
+            <div id="clearAchievementsList"></div>
+        </div>
+        
+        <div class="action-buttons">
+            <button id="clearRestartButton" class="btn-restart">다시 시작</button>
+            <a href="{% url 'game:leaderboard' %}" class="btn-leaderboard">리더보드</a>
+            <a href="{% url 'game:index' %}" class="btn-home">홈으로</a>
+        </div>
+    </div>
+</div>
+
+<!-- 캐릭터 및 게임 에셋 데이터 -->
+<div id="gameAssets" 
+     data-player-id="{{ player_id }}"
+     data-outfit="{{ customization.outfit }}"
+     data-hat="{{ customization.hat }}"
+     data-shoes="{{ customization.shoes }}">
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.PLAYER_ID = "{{ player_id|default:'' }}";
+</script>
+<script src="{% static 'js/game.js' %}"></script>
+{% endblock %}

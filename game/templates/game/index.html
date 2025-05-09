@@ -1,101 +1,97 @@
+{% extends 'game/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boo의 졸업 대모험</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Spoqa+Han+Sans+Neo:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/main.css' %}">
-</head>
-<body>
-    <div class="main-container">
-        <div class="background-blur">
-            <!-- 배경으로 게임 화면이 흐릿하게 보임 -->
+
+{% block title %}Boo의 졸업 대모험{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="background-blur">
+        <!-- 배경으로 게임 화면이 흐릿하게 보임 -->
+    </div>
+    
+    <div class="main-content">
+        <div class="game-logo">
+            <h1><span class="pixel-font">Boo</span>의 졸업 대모험</h1>
+            <p class="tagline">외대를 졸업할 수 있을까요?</p>
         </div>
         
-        <div class="main-content">
-            <div class="game-logo">
-                <h1><span class="pixel-font">Boo</span>의 졸업 대모험</h1>
-                <p class="tagline">외대를 졸업할 수 있을까요?</p>
-            </div>
-            
-            <div class="main-buttons">
-                <a href="{% url 'game:customize' %}" class="btn-start">게임 시작</a>
-                <a href="{% url 'game:leaderboard' %}" class="btn-leaderboard">리더보드</a>
-                <button class="btn-howto" id="howToPlayBtn">게임 방법</button>
-            </div>
-            
-            <div class="mini-leaderboard">
-                <h3>명예의 전당</h3>
-                <div class="top-players">
-                    {% for player in top_players %}
-                    <div class="player-card">
-                        <div class="player-avatar">
-                            <!-- 플레이어 커스터마이징된 아바타 표시 -->
-                            <div class="avatar-container">
-                                <img src="{% static 'assets/character/duck.png' %}" alt="캐릭터" class="character-base">
-                                {% if player.outfit != 'default' %}
-                                <img src="{% static 'assets/customization/'|add:player.outfit|add:'.png' %}" alt="의상" class="character-outfit">
-                                {% endif %}
-                                {% if player.hat != 'none' %}
-                                <img src="{% static 'assets/customization/'|add:player.hat|add:'.png' %}" alt="모자" class="character-hat">
-                                {% endif %}
-                                {% if player.shoes != 'default' %}
-                                <img src="{% static 'assets/customization/'|add:player.shoes|add:'.png' %}" alt="신발" class="character-shoes">
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="player-info">
-                            <span class="player-name">{{ player.nickname }}</span>
-                            <span class="player-score">{{ player.score }}점</span>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <p class="no-records">아직 기록이 없습니다. 첫 번째 졸업자가 되어보세요!</p>
-                    {% endfor %}
-                </div>
-            </div>
+        <div class="main-buttons">
+            <a href="{% url 'game:customize' %}" class="btn-start">게임 시작</a>
+            <a href="{% url 'game:leaderboard' %}" class="btn-leaderboard">리더보드</a>
+            <button class="btn-howto" id="howToPlayBtn">게임 방법</button>
         </div>
         
-        <!-- 게임 방법 모달 -->
-        <div class="modal" id="howToPlayModal">
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <h2>게임 방법</h2>
-                <div class="how-to-content">
-                    <div class="how-to-section">
-                        <h3>기본 규칙</h3>
-                        <ul>
-                            <li>화면을 터치하거나 스페이스바를 눌러 점프!</li>
-                            <li>장애물(F)을 피하고 아이템(A+)을 획득하세요.</li>
-                            <li>지상에 닿으면 즉시 게임 오버.</li>
-                            <li>하트 3개를 모두 잃으면 퇴학(게임 오버).</li>
-                        </ul>
+        <div class="mini-leaderboard">
+            <h3>명예의 전당</h3>
+            <div class="top-players">
+                {% for player in top_players %}
+                <div class="player-card">
+                    <div class="player-avatar">
+                        <!-- 플레이어 커스터마이징된 아바타 표시 -->
+                        <div class="avatar-container">
+                            <img src="{% static 'assets/character/duck.png' %}" alt="캐릭터" class="character-base">
+                            {% if player.outfit != 'default' %}
+                            <img src="{% static 'assets/customization/'|add:player.outfit|add:'.png' %}" alt="의상" class="character-outfit">
+                            {% endif %}
+                            {% if player.hat != 'none' %}
+                            <img src="{% static 'assets/customization/'|add:player.hat|add:'.png' %}" alt="모자" class="character-hat">
+                            {% endif %}
+                            {% if player.shoes != 'default' %}
+                            <img src="{% static 'assets/customization/'|add:player.shoes|add:'.png' %}" alt="신발" class="character-shoes">
+                            {% endif %}
+                        </div>
                     </div>
-                    
-                    <div class="how-to-section">
-                        <h3>스테이지</h3>
-                        <p>교양관 → 명수당 → 공대 → 백년관 → 기숙사 → 정문 순으로 진행됩니다.</p>
-                    </div>
-                    
-                    <div class="how-to-section">
-                        <h3>특별 이벤트</h3>
-                        <ul>
-                            <li>30초 후: 교수님 등장 ("자네 대학원 어떤가?")</li>
-                            <li>60초 후: 장애물 속도 증가 ("졸업이 임박했어요!")</li>
-                            <li>콤보를 쌓아 특별 보너스 받기!</li>
-                        </ul>
+                    <div class="player-info">
+                        <span class="player-name">{{ player.nickname }}</span>
+                        <span class="player-score">{{ player.score }}점</span>
                     </div>
                 </div>
+                {% empty %}
+                <p class="no-records">아직 기록이 없습니다. 첫 번째 졸업자가 되어보세요!</p>
+                {% endfor %}
             </div>
         </div>
     </div>
     
-    <script src="{% static 'js/main.js' %}"></script>
-</body>
-</html> 
+    <!-- 게임 방법 모달 -->
+    <div class="modal" id="howToPlayModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>게임 방법</h2>
+            <div class="how-to-content">
+                <div class="how-to-section">
+                    <h3>기본 규칙</h3>
+                    <ul>
+                        <li>화면을 터치하거나 스페이스바를 눌러 점프!</li>
+                        <li>장애물(F)을 피하고 아이템(A+)을 획득하세요.</li>
+                        <li>지상에 닿으면 즉시 게임 오버.</li>
+                        <li>하트 3개를 모두 잃으면 퇴학(게임 오버).</li>
+                    </ul>
+                </div>
+                
+                <div class="how-to-section">
+                    <h3>스테이지</h3>
+                    <p>교양관 → 명수당 → 공대 → 백년관 → 기숙사 → 정문 순으로 진행됩니다.</p>
+                </div>
+                
+                <div class="how-to-section">
+                    <h3>특별 이벤트</h3>
+                    <ul>
+                        <li>30초 후: 교수님 등장 ("자네 대학원 어떤가?")</li>
+                        <li>60초 후: 장애물 속도 증가 ("졸업이 임박했어요!")</li>
+                        <li>콤보를 쌓아 특별 보너스 받기!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/main.js' %}"></script>
+{% endblock %} 
