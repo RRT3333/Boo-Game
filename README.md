@@ -22,14 +22,55 @@ F 학점을 피하고 A+를 얻으며 졸업을 향해 나아가세요!
 - **모바일 최적화**: 모바일 기기에서도 편리하게 플레이 가능
 - **리더보드**: 성적과 졸업 여부를 친구들과 경쟁
 
+## 🌟 핵심 기술 하이라이트
+
+### 📘 직접 개발한 JavaScript 라이브러리
+
+Boo Game은 자체 개발한 JavaScript 라이브러리를 활용합니다:
+
+- **BooGameAPI**: RESTful API 통신을 단순화하는 클라이언트 라이브러리
+  ```javascript
+  // 사용 예시
+  const api = new BooGameAPI();
+  api.saveScore({
+    player_id: 'player123',
+    score: 5000,
+    nickname: 'BooMaster'
+  });
+  ```
+
+### 💻 개발자 허브 & 문서화 시스템
+
+Boo Game은 개발자 작업 효율성을 높이기 위한 통합 개발자 허브를 제공합니다:
+
+- **통합 문서 허브**: 마크다운 문서를 자동으로 스캔하고 HTML로 렌더링
+- **ERD 시각화**: Mermaid.js를 활용한 데이터베이스 다이어그램 자동 생성
+- **API 문서**: Swagger와 ReDoc을 통한 RESTful API 문서 자동화
+- **디버깅 도구**: 게임 상태 모니터링 및 디버깅을 위한 개발자 도구
+
+개발자 허브는 `http://boogame.kr/developer/` 에서 접근할 수 있습니다.
+
+### 🔄 CI/CD 파이프라인
+
+자동화된 개발 워크플로우로 코드 품질과 배포 효율성을 보장합니다:
+
+- **자동화된 테스트**: GitHub Actions를 통한 단위 및 통합 테스트 자동화
+- **코드 품질 검사**: 정적 코드 분석 및 코드 커버리지 리포트 생성
+- **자동 배포**: 메인 브랜치 푸시 시 AWS EC2에 자동 배포
+- **환경 분리**: 개발, 테스트, 운영 환경 설정 자동화
+
+CI/CD 설정은 `.github/workflows/main.yaml` 파일에서 확인할 수 있습니다.
+
 ## 🛠️ 기술 스택
 
-- **백엔드**: Django
-- **프론트엔드**: HTML, CSS, JavaScript (Vanilla)
-- **데이터베이스**: SQLite
-- **배포**: AWS
+- **백엔드**: Django 5.2, Django REST Framework
+- **프론트엔드**: HTML5, CSS3, JavaScript ES6+, 자체 개발 게임 라이브러리
+- **데이터베이스**: SQLite(개발), PostgreSQL(운영)
+- **배포**: AWS EC2, Nginx, Gunicorn
+- **CI/CD**: GitHub Actions
+- **문서화**: Swagger, ReDoc, Mermaid.js
 
-[![Tests](https://github.com/username/boo-game/actions/workflows/test.yml/badge.svg)](https://github.com/username/boo-game/actions/workflows/test.yml)
+[![CI/CD Status](https://github.com/username/boo-game/actions/workflows/main.yaml/badge.svg)](https://github.com/username/boo-game/actions/workflows/main.yaml)
 
 ## 🔧 개발 환경 설정
 
@@ -106,37 +147,26 @@ coverage report
 - `context/reports/`: 주차별 보고서
 - `context/study/`: 학습 자료
 
-## 📊 문서 관리
+## 📊 문서 관리 시스템
 
-프로젝트 문서는 주로 `context/` 폴더에서 관리되며, 모든 팀원은 이 폴더에 마크다운(.md) 파일을 업데이트해야 합니다:
+프로젝트는 강력한 문서 관리 시스템을 갖추고 있으며, 모든 문서는 `context/` 폴더에서 관리됩니다:
 
-1. **문서 저장 위치**: 모든 마크다운 문서는 `context/` 폴더에 저장합니다.
-   - 주제별 하위 폴더(예: `context/reports/`, `context/study/`)를 활용하세요.
-   - 파일명은 영어 소문자와 하이픈으로 작성하세요 (예: `frontend-guide.md`).
+1. **자동 스캔 및 렌더링**: 모든 마크다운 파일이 자동으로 스캔되어 HTML로 렌더링됩니다.
+   ```bash
+   # 문서 스캔 및 메타데이터 생성
+   python manage.py scan_markdown_files
+   ```
 
-2. **문서 렌더링**: 마크다운 문서는 자동으로 HTML로 렌더링됩니다.
-   - 정적 마크다운 파일은 어두운 테마의 스타일로 자동 렌더링됩니다.
-   - 핵심 문서(프론트엔드 가이드, ERD 등)는 사용자 경험을 위해 HTML 템플릿으로 제공됩니다.
+2. **시각적 문서 허브**: 개발자 대시보드에서 모든 문서에 쉽게 접근하고 검색할 수 있습니다.
+   - 문서는 카테고리별로 자동 분류됩니다
+   - 다크 테마의 가독성 높은 인터페이스 제공
+   - 코드 하이라이팅과 다이어그램 지원
 
-3. **문서 메타데이터 관리**: 다음 명령어로 문서를 관리할 수 있습니다:
+3. **문서 버전 관리**: 문서 버전 관리와 업데이트 이력 추적 기능
 
-```bash
-# 문서 스캔 및 메타데이터 생성
-python manage.py scan_markdown_files
+4. **개발 중 자동 업데이트**: CI/CD 파이프라인에 통합되어 배포 시 문서가 자동으로 업데이트됩니다.
 
-# 기존 메타데이터 초기화 후 다시 스캔
-python manage.py scan_markdown_files --reset
-
-# 메타데이터 파일 삭제
-python manage.py scan_markdown_files --delete
-```
-
-스캔된 문서는 개발자 대시보드의 문서 허브(http://localhost:8000/developer/docs/)에서 확인할 수 있습니다.
-
-4. **문서 작성 규칙**:
-   - 마크다운 문서의 첫 번째 줄은 반드시 `# 제목` 형식의 제목이어야 합니다.
-   - 문서 최상단에 작성일자와 버전 정보를 포함하는 것을 권장합니다.
-   - 다이어그램이 필요한 경우 Mermaid.js 문법을 사용하세요.
+개발자 문서 허브는 `http://localhost:8000/developer/docs/`에서 접근할 수 있습니다.
 
 ## 📋 역할 분담
 
@@ -189,44 +219,4 @@ STATIC_ROOT=/var/www/boo_game/static/
 - gunicorn, nginx 설정은 서버에 직접 적용 (레포에는 예시만 제공)
 
 ### 5. 보안 주의사항
-- `.env` 파일은 절대 커밋하지 마세요!
-- SECRET_KEY, DB 비밀번호 등 민감 정보는 반드시 환경변수로만 관리하세요.
-- 운영 서버에는 DEBUG=False로 설정하세요.
-
----
-
-## 개발자 가이드
-
-### 1. 에셋 파일 구조
-프로젝트에는 다음과 같은 에셋 파일 구조가 있습니다:
-
-```
-static/
-  ├── css/
-  ├── js/
-  ├── assets/
-      ├── character/     # 캐릭터 기본 이미지
-      ├── customization/ # 커스터마이징 아이템 이미지
-      ├── sounds/        # 게임 효과음
-      └── backgrounds/   # 배경 이미지
-```
-
-### 2. 사운드 파일
-- `static/assets/sounds/` 디렉토리에 사운드 파일 배치
-- 현재 더미 파일이 있으니, 실제 사운드 파일로 교체해주세요:
-  - `save.mp3`: 이름 저장 시 효과음
-
-### 3. 게임 디자인 및 스타일
-- 게임은 청록색(#00DDFF)과 골드(#FFD700) 컬러를 주 색상으로 사용합니다.
-- 레트로 콘솔 게임 스타일의 UI를 기반으로 디자인되었습니다.
-- 'Press Start 2P' 폰트를 사용해 게임적인 느낌을 살렸습니다.
-
-### 4. 닉네임 관리
-- 게임 커스터마이징 시 닉네임을 입력받지 않고, 게임 오버 시점에 입력받습니다.
-- 닉네임 미입력 시 '익명의 학생'으로 자동 저장됩니다.
-- 닉네임은 `/game/api/update-nickname/` API를 통해 업데이트됩니다.
-
----
-
-## 기타
-- 추가적인 배포 자동화(CI/CD)는 `.github/workflows/`에 예시 워크플로를 참고하세요.
+- `.env`
