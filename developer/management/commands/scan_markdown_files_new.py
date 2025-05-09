@@ -10,7 +10,7 @@ from django.conf import settings
 
 
 class Command(BaseCommand):
-    help = 'context 폴더 내 마크다운 파일과 README.md를 스캔하고 문서 메타데이터를 생성합니다'
+    help = 'context 폴더 내 마크다운 파일을 스캔하고 문서 메타데이터를 생성합니다'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -22,6 +22,11 @@ class Command(BaseCommand):
             '--delete',
             action='store_true',
             help='메타데이터 파일만 삭제하고 종료합니다',
+        )
+        parser.add_argument(
+            '--include-readme',
+            action='store_true',
+            help='README.md 파일도 포함하여 스캔합니다',
         )
 
     def handle(self, *args, **options):
@@ -88,7 +93,7 @@ class Command(BaseCommand):
         # 스캔할 파일 목록 생성 
         md_files = []
         
-        # 1. context 폴더 내 모든 마크다운 파일 스캔
+        # 1. context 폴더 내 모든 마크다운 파일 스캔 - 이 폴더만 스캔하도록 수정
         context_dir = os.path.join(base_dir, 'context')
         if os.path.exists(context_dir):
             context_files = glob.glob(os.path.join(context_dir, '**/*.md'), recursive=True)
@@ -97,32 +102,15 @@ class Command(BaseCommand):
         else:
             self.stdout.write(self.style.WARNING(f'context 폴더가 존재하지 않습니다: {context_dir}'))
         
-        # 2. README.md 파일 추가 (존재하는 경우)
+        # 2. README.md 파일 추가 (옵션으로 전환)
+        include_readme = options.get('include_readme', False)
         readme_path = os.path.join(base_dir, 'README.md')
-        if os.path.exists(readme_path):
+        if include_readme and os.path.exists(readme_path):
             md_files.append(readme_path)
             self.stdout.write(self.style.SUCCESS('README.md 파일이 스캔 목록에 추가되었습니다'))
         
         # 중복 파일 감지를 위한 해시 집합
         file_hashes = existing_hashes.copy() if not options.get('reset') else set()
-        
-        # static 및 staticfiles 디렉토리 내 파일은 제외 (심볼릭 링크나 복사본)
-        static_dir = os.path.join(base_dir, 'static')
-        staticfiles_dir = os.path.join(base_dir, 'staticfiles')
-        md_files = [f for f in md_files if not (f.startswith(static_dir) or f.startswith(staticfiles_dir))]
-        
-        # 제외할 추가 디렉토리 확인
-        excluded_paths = []
-        if hasattr(settings, 'STATIC_ROOT') and settings.STATIC_ROOT:
-            excluded_paths.append(os.path.abspath(settings.STATIC_ROOT))
-        if hasattr(settings, 'STATICFILES_DIRS') and settings.STATICFILES_DIRS:
-            for dir_path in settings.STATICFILES_DIRS:
-                excluded_paths.append(os.path.abspath(dir_path))
-        
-        # 설정에 정의된 정적 파일 디렉토리를 제외
-        if excluded_paths:
-            md_files = [f for f in md_files if not any(os.path.abspath(f).startswith(path) for path in excluded_paths)]
-            self.stdout.write(self.style.WARNING(f'{len(excluded_paths)}개의 정적 파일 디렉토리가 스캔에서 제외되었습니다'))
         
         # 카테고리별 키워드
         category_keywords = {
@@ -134,6 +122,11 @@ class Command(BaseCommand):
         
         # 파일 분류
         for file_path in md_files:
+            # context 폴더 외부의 파일은 건너뛰기 (README.md 예외)
+            if not file_path.startswith(context_dir) and file_path != readme_path:
+                self.stdout.write(self.style.WARNING(f'context 폴더 외부 파일 건너뛰기: {file_path}'))
+                continue
+                
             # 파일 내용에 기반한 해시 생성
             try:
                 with open(file_path, 'rb') as f:
@@ -210,8 +203,8 @@ class Command(BaseCommand):
                 f'마크다운 파일 메타데이터 {mode} 완료:\n'
                 f'- 총 파일 수: {len(file_hashes)}개\n'
                 f'- 새로 추가된 파일: {total_new}개\n'
-                f'- context 폴더 파일: {len([f for f in md_files if os.path.dirname(f).endswith("context")])}개\n'
-                f'- README 포함: {"예" if os.path.exists(readme_path) and readme_path in md_files else "아니오"}\n'
+                f'- context 폴더 파일: {len([f for f in md_files if f.startswith(context_dir)])}개\n'
+                f'- README 포함: {"예" if include_readme and os.path.exists(readme_path) else "아니오"}\n'
                 f'- 메타데이터 파일: {metadata_file}'
             )
         )
@@ -251,30 +244,18 @@ class Command(BaseCommand):
         lower_title = title.lower() if title else ""
         
         # 경로에 GitHub 관련 디렉토리가 있으면 technical
-        if '.github/' in lower_path:
+        if '.github' in lower_path:
             return 'tech'
+            
+        # 파일 이름이 README.md이면 project로 분류
+        if lower_path.endswith('readme.md'):
+            return 'project'
         
-        # 경로나 제목에 "보고서" 또는 "report"가 있으면 report
-        if '보고서' in lower_path or 'report' in lower_path:
-            return 'report'
-        
-        # 키워드 기반 카테고리 매칭
+        # 경로나 제목에 카테고리 키워드가 포함되어 있는지 확인
         for category, keywords in category_keywords.items():
             for keyword in keywords:
                 if keyword in lower_path or keyword in lower_title:
                     return category
         
-        # 파일명 패턴 기반 매칭
-        filename = os.path.basename(lower_path)
-        
-        if 'readme' in filename:
-            return 'project'
-        
-        if 'guide' in filename or 'manual' in filename or 'tutorial' in filename:
-            return 'guide'
-        
-        if 'erd' in filename or 'api' in filename or 'arch' in filename:
-            return 'tech'
-        
-        # 기본 카테고리
+        # 기본적으로는 other 카테고리로 분류
         return 'other' 

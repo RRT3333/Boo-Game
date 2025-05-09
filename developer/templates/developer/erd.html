@@ -438,9 +438,12 @@ def update_player_customization(player_id, outfit, hat, shoes):
     </div>
 </div>
 
+{% endblock content %}
+
 {% block version_info %}
 <p>데이터베이스 ERD <span class="version-tag">v1.2.0</span></p>
 <p>마지막 업데이트: 2025년 5월 10일</p>
+<a href="{% url 'developer:index' %}" class="btn btn-primary mt-3" style="background-color: #00DDFF; color: white; text-decoration: none; padding: 8px 16px; border-radius: 5px; display: inline-block; margin-top: 10px;">개발자 허브로 돌아가기</a>
 {% endblock %}
 
 {% block extra_js %}

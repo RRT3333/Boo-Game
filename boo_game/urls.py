@@ -22,7 +22,7 @@ from game.sitemaps import StaticViewSitemap
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 from django.conf import settings
 import re
 
@@ -72,8 +72,5 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
     # 프론트엔드 개발자용 API 테스트 도구
-    path('api-test/', TemplateView.as_view(
-        template_name='api-test.html',
-        extra_context={'debug': True}
-    ), name='api-test'),
+    path('api-test/', RedirectView.as_view(url='/static/api-test.html'), name='api-test'),
 ]

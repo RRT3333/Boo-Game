@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.sitemaps',
     'rest_framework',  # Django REST Framework
     'drf_yasg',  # Swagger 생성을 위한 drf-yasg
+    'corsheaders',  # CORS 헤더 지원
     'game',
     'developer',  # 개발자 도구용 앱
 ]
@@ -55,6 +56,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS 미들웨어 (CommonMiddleware 전에 위치해야 함)
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -148,6 +150,16 @@ STATIC_ROOT = os.getenv('STATIC_ROOT', BASE_DIR / 'staticfiles')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# CORS 설정
+CORS_ALLOW_ALL_ORIGINS = True  # 개발 환경에서만 사용. 프로덕션에서는 구체적인 도메인 지정 필요
+CORS_ALLOW_CREDENTIALS = True  # 쿠키를 포함한 요청 허용
+
+# 선택적으로 특정 도메인만 허용하려면 다음 설정 사용
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8000",
+#     "http://127.0.0.1:8000",
+# ]
 
 # Swagger UI 설정
 SWAGGER_SETTINGS = {
