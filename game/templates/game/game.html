@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boo의 졸업 대모험</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Spoqa+Han+Sans+Neo:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/game.css' %}">
 </head>
 <body>
@@ -58,6 +63,18 @@
                 <h3>업적 달성!</h3>
                 <div id="achievementsList"></div>
             </div>
+
+            <!-- 이름 입력창 및 저장 버튼 추가 -->
+            <div class="nickname-save-container">
+                <div class="retro-input-group">
+                    <div class="retro-input-label">YOUR NAME?</div>
+                    <div class="retro-input-wrapper">
+                        <input type="text" id="gameOverNickname" maxlength="12" placeholder="AAA">
+                        <button id="saveNicknameBtn" class="retro-button">SAVE</button>
+                    </div>
+                    <div class="retro-hint">* 미입력시 '익명의 학생'으로 저장됩니다</div>
+                </div>
+            </div>
             
             <div class="action-buttons">
                 <button id="restartButton" class="btn-restart">다시 시작</button>
@@ -92,7 +109,9 @@
          data-hat="{{ customization.hat }}"
          data-shoes="{{ customization.shoes }}">
     </div>
-    
+    <script>
+      window.PLAYER_ID = "{{ player_id|default:'' }}";
+    </script>
     <script src="{% static 'js/game.js' %}"></script>
 </body>
 </html>

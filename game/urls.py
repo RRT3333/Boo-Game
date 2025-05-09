@@ -12,4 +12,5 @@ urlpatterns = [
     path('api/save-score/', views.save_score, name='save_score'),
     path('api/save-player/', views.save_player, name='save_player'),
     path('api/get-leaderboard/', views.get_leaderboard_data, name='get_leaderboard_data'),
+    path('api/update-nickname/', views.update_nickname, name='update_nickname'),
 ] 

@@ -1,4 +1,4 @@
-// 커스터마이징 페이지 스크립트
+// 커스터마이징 페이지 스크립트 (완전히 새로 작성)
 document.addEventListener('DOMContentLoaded', function() {
     // 커스터마이징 요소
     const outfitOptions = document.getElementById('outfitOptions');
@@ -10,8 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const previewHat = document.getElementById('previewHat');
     const previewShoes = document.getElementById('previewShoes');
     
-    // 플레이어 정보
-    const nicknameInput = document.getElementById('playerNickname');
+    // 게임 시작 버튼
     const startGameBtn = document.getElementById('startGameBtn');
     
     // 현재 선택된 옵션
@@ -20,15 +19,15 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedShoes = 'default';
     
     // 옵션 선택 이벤트 핸들러
-    function handleOptionClick(optionsContainer, selectedClass, selectedOptions, previewElement, optionType) {
-        if (!optionsContainer) return;
+    function setupOptions(container, optionType, previewElement) {
+        if (!container) return;
         
-        const options = optionsContainer.querySelectorAll('.item-option');
+        const options = container.querySelectorAll('.item-option');
         
         options.forEach(option => {
             option.addEventListener('click', function() {
                 // 이전 선택 해제
-                const prevSelected = optionsContainer.querySelector('.selected');
+                const prevSelected = container.querySelector('.selected');
                 if (prevSelected) {
                     prevSelected.classList.remove('selected');
                 }
@@ -57,33 +56,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 미리보기 업데이트
-    function updatePreview(type, value, previewElement) {
-        if (!previewElement) return;
+    function updatePreview(type, value, element) {
+        if (!element) return;
         
-        if (type === 'hat' && value === 'none') {
-            previewElement.src = '';
-            previewElement.style.display = 'none';
-        } else if (type === 'outfit' && value === 'default') {
-            previewElement.src = '';
-            previewElement.style.display = 'none';
-        } else if (type === 'shoes' && value === 'default') {
-            previewElement.src = '';
-            previewElement.style.display = 'none';
+        if ((type === 'hat' && value === 'none') || 
+            (type === 'outfit' && value === 'default') || 
+            (type === 'shoes' && value === 'default')) {
+            element.src = '';
+            element.style.display = 'none';
         } else {
-            previewElement.src = `/static/assets/customization/${value}.png`;
-            previewElement.style.display = 'block';
+            element.src = `/static/assets/customization/${value}.png`;
+            element.style.display = 'block';
         }
     }
     
     // 이벤트 리스너 초기화
-    handleOptionClick(outfitOptions, '.selected', selectedOutfit, previewOutfit, 'outfit');
-    handleOptionClick(hatOptions, '.selected', selectedHat, previewHat, 'hat');
-    handleOptionClick(shoesOptions, '.selected', selectedShoes, previewShoes, 'shoes');
+    setupOptions(outfitOptions, 'outfit', previewOutfit);
+    setupOptions(hatOptions, 'hat', previewHat);
+    setupOptions(shoesOptions, 'shoes', previewShoes);
     
     // 게임 시작 버튼 이벤트
     if (startGameBtn) {
         startGameBtn.addEventListener('click', function() {
-            const nickname = nicknameInput.value.trim() || '익명의 학생';
+            console.log('게임 시작 버튼 클릭됨');
+            console.log('선택된 옵션:', { outfit: selectedOutfit, hat: selectedHat, shoes: selectedShoes });
             
             // 플레이어 정보 저장 API 호출
             fetch('/game/api/save-player/', {
@@ -93,23 +89,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-CSRFToken': getCookie('csrftoken')
                 },
                 body: JSON.stringify({
-                    nickname: nickname,
                     outfit: selectedOutfit,
                     hat: selectedHat,
                     shoes: selectedShoes
                 })
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('API 응답 받음:', response);
+                return response.json();
+            })
             .then(data => {
+                console.log('API 응답 데이터:', data);
                 if (data.status === 'success') {
                     // 게임 페이지로 이동
                     window.location.href = '/game/play/';
                 } else {
                     console.error('플레이어 정보 저장 실패:', data.message);
+                    alert('오류가 발생했습니다: ' + data.message);
                 }
             })
             .catch(error => {
-                console.error('API 오류:', error);
+                console.error('API 호출 오류:', error);
+                alert('서버 연결 중 오류가 발생했습니다.');
             });
         });
     }

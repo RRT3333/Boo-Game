@@ -4,12 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boo 커스터마이징</title>
+    <title>캐릭터 커스터마이징 - Boo의 졸업 대모험</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Spoqa+Han+Sans+Neo:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/customize.css' %}">
 </head>
 <body>
     <div class="customize-container">
-        <h1>나만의 Boo 꾸미기</h1>
+        <h1>나만의 <span class="pixel-font">Boo</span> 꾸미기</h1>
         
         <div class="customize-main">
             <div class="preview-section">
@@ -82,10 +87,7 @@
         </div>
         
         <div class="player-info">
-            <div class="nickname-input">
-                <label for="playerNickname">닉네임:</label>
-                <input type="text" id="playerNickname" placeholder="당신의 이름은?" maxlength="20">
-            </div>
+            <!-- 닉네임 입력창 제거 -->
         </div>
         
         <div class="action-buttons">

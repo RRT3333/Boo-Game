@@ -17,6 +17,20 @@ class Game {
         this.countdownValue = 3;
         this.isCountingDown = true;
         this.timer = null;  // 타이머 참조 추가
+        
+        // 사운드 효과 로드
+        this.sounds = {
+            jump: new Audio('/static/assets/sounds/jump.mp3'),
+            coin: new Audio('/static/assets/sounds/coin.mp3'),
+            aplus: new Audio('/static/assets/sounds/aplus.mp3'),
+            gameover: new Audio('/static/assets/sounds/gameover.mp3'),
+            save: new Audio('/static/assets/sounds/save.mp3')
+        };
+        
+        // 음량 설정
+        Object.values(this.sounds).forEach(sound => {
+            sound.volume = 0.5;
+        });
 
         // Player (Boo)
         this.player = {
@@ -90,6 +104,9 @@ class Game {
         if (e && (e.code === 'Space' || e.type === 'touchstart') || !e) {
             if (!this.gameOver) {
                 this.player.velocity = this.player.jumpForce;
+                
+                // 점프 사운드 재생
+                this.playSound('jump');
             }
         }
     }
@@ -157,19 +174,17 @@ class Game {
 
     drawCountdown() {
         // 항상 clearRect와 배경 그리기 (gameLoop에서 이미 했지만, 안전하게 중복 호출)
-        // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        // this.ctx.fillStyle = '#87CEEB';
-        // this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = 'bold 120px Arial';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        if (this.countdownValue >= 0) {
-            this.ctx.fillText(this.countdownValue.toString(), this.canvas.width / 2, this.canvas.height / 2);
-        } else {
-            this.ctx.fillText('GO!', this.canvas.width / 2, this.canvas.height / 2);
+        
+        // 카운트다운 값을 DOM에만 표시하고 캔버스에는 그리지 않음
+        const countdownElement = document.getElementById('countdownNumber');
+        if (countdownElement) {
+            if (this.countdownValue >= 0) {
+                countdownElement.textContent = this.countdownValue;
+            } else {
+                countdownElement.textContent = 'GO!';
+            }
         }
     }
 
@@ -244,8 +259,10 @@ class Game {
             if (this.checkCollision(this.player, item)) {
                 if (item.type === 'A+') {
                     this.score += 100;
+                    this.playSound('aplus');
                 } else {
                     this.score += 50;
+                    this.playSound('coin');
                 }
                 document.getElementById('score').textContent = this.score;
                 return false;
@@ -315,7 +332,19 @@ class Game {
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
                 this.handleCountdown(timestamp);
                 this.drawCountdown();
+                
+                // 카운트다운 DOM 요소 표시
+                const countdownDiv = document.getElementById('countdown');
+                if (countdownDiv) {
+                    countdownDiv.classList.add('show');
+                }
             } else {
+                // 카운트다운 종료 시 DOM 요소 숨김
+                const countdownDiv = document.getElementById('countdown');
+                if (countdownDiv) {
+                    countdownDiv.classList.remove('show');
+                }
+                
                 this.updateGame();
                 this.drawGame();
             }
@@ -327,6 +356,9 @@ class Game {
     endGame() {
         this.gameOver = true;
         
+        // 게임오버 사운드 재생
+        this.playSound('gameover');
+        
         // Clear the timer
         if (this.timer) {
             clearInterval(this.timer);
@@ -336,15 +368,67 @@ class Game {
         document.getElementById('finalScore').textContent = this.score;
         document.querySelector('.game-over').classList.remove('hidden');
 
-        // Save score
+        // Save score (익명)
         fetch('/game/api/save-score/', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Type': 'application/json',
                 'X-CSRFToken': this.getCookie('csrftoken')
             },
-            body: `score=${this.score}`
+            body: JSON.stringify({
+                player_id: window.PLAYER_ID,
+                score: this.score,
+                play_time: this.timeLeft,
+                max_stage: this.currentStage,
+                items_collected: this.itemsCollected,
+                obstacles_avoided: this.obstaclesAvoided,
+                max_combo: this.maxCombo,
+                nickname: '익명의 학생'
+            })
         });
+
+        // 이름 저장 버튼 이벤트 등록
+        const saveBtn = document.getElementById('saveNicknameBtn');
+        if (saveBtn) {
+            saveBtn.onclick = () => {
+                const nickname = document.getElementById('gameOverNickname').value.trim() || '익명의 학생';
+                
+                // 버튼 애니메이션
+                saveBtn.classList.add('active');
+                
+                // 저장 사운드 재생
+                this.playSound('save');
+                
+                fetch('/game/api/update-nickname/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        player_id: window.PLAYER_ID,
+                        nickname: nickname
+                    })
+                }).then(res => res.json()).then(data => {
+                    setTimeout(() => {
+                        saveBtn.classList.remove('active');
+                        if (data.status === 'success') {
+                            // 성공 메시지 표시
+                            const hintEl = document.querySelector('.retro-hint');
+                            if (hintEl) {
+                                hintEl.textContent = '* 이름이 저장되었습니다!';
+                                hintEl.style.color = '#00DDFF'; // 청록색으로 변경
+                            }
+                        } else {
+                            alert('이름 저장 실패: ' + data.message);
+                        }
+                    }, 200);
+                }).catch(error => {
+                    saveBtn.classList.remove('active');
+                    alert('서버 연결 오류: ' + error);
+                });
+            };
+        }
     }
 
     restart() {
@@ -370,6 +454,22 @@ class Game {
             }
         }
         return cookieValue;
+    }
+
+    // 사운드 재생 함수
+    playSound(soundName) {
+        try {
+            if (this.sounds[soundName]) {
+                // 사운드 재생 위치 처음으로 리셋 (중복 재생 가능하게)
+                this.sounds[soundName].currentTime = 0;
+                this.sounds[soundName].play().catch(e => {
+                    // 사운드 로드 실패 시 조용히 무시 (개발 중 오류 방지)
+                    console.log('Sound could not be played', e);
+                });
+            }
+        } catch (e) {
+            console.log('Sound error:', e);
+        }
     }
 }
 

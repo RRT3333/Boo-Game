@@ -1,150 +1,134 @@
 # Boo Game 에셋 가이드
 
-이 문서는 Boo Game의 모든 에셋에 대한 규격과 설명을 제공합니다.
+이 문서는 Boo Game에서 사용되는 에셋의 구조, 형식, 네이밍 컨벤션에 대한 상세한 정보를 제공합니다.
 
-## 📂 에셋 디렉토리 구조
+## 디렉토리 구조
 
 ```
 static/
-└── assets/
-    ├── backgrounds/     # 배경 이미지 (6개 스테이지 + 메인/커스터마이징/리더보드)
-    ├── character/       # 캐릭터 기본 이미지
-    ├── customization/   # 커스터마이징 아이템 (의상, 모자, 신발)
-    ├── items/           # 게임 아이템 (A+, 코인 등)
-    ├── obstacles/       # 장애물 (F, 폴더, 프로그램, 문 등)
-    ├── ui/              # UI 요소 (버튼, 아이콘, QR 코드 등)
-    └── effects/         # 특수 효과 (폭발, 반짝임 등)
+  ├── css/              # 스타일시트 파일
+  ├── js/               # 자바스크립트 파일
+  └── assets/           # 게임 에셋
+      ├── character/     # 캐릭터 기본 이미지
+      ├── customization/ # 커스터마이징 아이템 이미지
+      ├── backgrounds/   # 배경 이미지
+      ├── items/         # 아이템 이미지 (A+, 코인 등)
+      ├── obstacles/     # 장애물 이미지 (F 등)
+      ├── effects/       # 특수 효과 이미지
+      ├── ui/            # UI 요소 이미지
+      └── sounds/        # 게임 효과음
 ```
 
-## 🎨 이미지 에셋 규격
+## 사운드 파일
 
-### 1. 캐릭터 에셋
+게임에서 사용되는 모든 사운드 파일은 `static/assets/sounds/` 디렉토리에 위치합니다.
 
-| 파일명 | 경로 | 크기 | 포맷 | 설명 |
-|-------|-----|------|-----|------|
-| duck.png | assets/character/ | 150x150px | PNG (투명 배경) | 기본 캐릭터 (Boo) |
+### 사운드 파일 목록
 
-### 2. 커스터마이징 아이템
+| 파일명 | 설명 | 포맷 | 볼륨 |
+|--------|------|------|------|
+| jump.mp3 | 플레이어 점프 시 재생 | MP3 | 0.5 |
+| coin.mp3 | 코인 획득 시 재생 | MP3 | 0.5 |
+| aplus.mp3 | A+ 획득 시 재생 | MP3 | 0.5 |
+| gameover.mp3 | 게임 오버 시 재생 | MP3 | 0.5 |
+| save.mp3 | 닉네임 저장 시 재생 | MP3 | 0.5 |
 
-#### 의상 (5종)
+### 사운드 파일 추가 방법
 
-| 파일명 | 경로 | 크기 | 포맷 | 설명 |
-|-------|-----|------|-----|------|
-| default.png | assets/customization/ | 150x150px | PNG (투명 배경) | 기본 의상 (빈 파일) |
-| casual.png | assets/customization/ | 150x150px | PNG (투명 배경) | 캐주얼 의상 |
-| formal.png | assets/customization/ | 150x150px | PNG (투명 배경) | 정장 의상 |
-| sporty.png | assets/customization/ | 150x150px | PNG (투명 배경) | 스포츠 의상 |
-| hoodie.png | assets/customization/ | 150x150px | PNG (투명 배경) | 후드 의상 |
+1. MP3 또는 WAV 형식의 사운드 파일을 `static/assets/sounds/` 폴더에 배치
+2. `game.js` 파일의 `this.sounds` 객체에 새 사운드 추가
+3. `playSound()` 함수를 사용하여 적절한 시점에 재생
 
-#### 모자 (5종)
+```javascript
+// 사운드 추가 예시
+this.sounds = {
+    // 기존 사운드...
+    newSound: new Audio('/static/assets/sounds/newSound.mp3')
+};
 
-| 파일명 | 경로 | 크기 | 포맷 | 설명 |
-|-------|-----|------|-----|------|
-| none_hat.png | assets/customization/ | 80x60px | PNG (투명 배경) | 없음 (빈 파일) |
-| cap.png | assets/customization/ | 80x60px | PNG (투명 배경) | 야구 모자 |
-| beanie.png | assets/customization/ | 80x60px | PNG (투명 배경) | 비니 모자 |
-| graduation.png | assets/customization/ | 80x60px | PNG (투명 배경) | 졸업 모자 |
-| sunglasses.png | assets/customization/ | 80x60px | PNG (투명 배경) | 선글라스 |
+// 사운드 재생 예시
+this.playSound('newSound');
+```
 
-#### 신발 (5종)
+## 이미지 및 스프라이트
 
-| 파일명 | 경로 | 크기 | 포맷 | 설명 |
-|-------|-----|------|-----|------|
-| default_shoes.png | assets/customization/ | 60x40px | PNG (투명 배경) | 기본 신발 (빈 파일) |
-| sneakers.png | assets/customization/ | 60x40px | PNG (투명 배경) | 운동화 |
-| boots.png | assets/customization/ | 60x40px | PNG (투명 배경) | 부츠 |
-| sandals.png | assets/customization/ | 60x40px | PNG (투명 배경) | 샌들 |
-| dress.png | assets/customization/ | 60x40px | PNG (투명 배경) | 구두 |
+### 캐릭터 이미지
 
-### 3. 게임 오브젝트
+- **기본 위치**: `static/assets/character/`
+- **기본 파일**: `duck.png` (기본 캐릭터 이미지)
+- **치수**: 100x100px (권장)
+- **포맷**: PNG (투명 배경)
 
-#### 장애물 (4종)
+### 커스터마이징 아이템
 
-| 파일명 | 경로 | 크기 | 포맷 | 설명 |
-|-------|-----|------|-----|------|
-| f_grade.png | assets/obstacles/ | 100x100px | PNG (투명 배경) | F 학점 장애물 |
-| folder.png | assets/obstacles/ | 100x100px | PNG (투명 배경) | 폴더 장애물 |
-| program.png | assets/obstacles/ | 100x100px | PNG (투명 배경) | 프로그램 장애물 |
-| door.png | assets/obstacles/ | 100x100px | PNG (투명 배경) | 문 장애물 |
+- **기본 위치**: `static/assets/customization/`
+- **네이밍 규칙**: 
+  - 의상: `{outfit_name}.png` (예: casual.png, formal.png)
+  - 모자: `{hat_name}.png` (예: cap.png, beanie.png)
+  - 신발: `{shoes_name}.png` (예: sneakers.png, boots.png)
+- **치수**: 의상/모자/신발 각각 100x100px (캐릭터와 동일)
+- **포맷**: PNG (투명 배경)
 
-#### 아이템 (2종)
+### 배경 이미지
 
-| 파일명 | 경로 | 크기 | 포맷 | 설명 |
-|-------|-----|------|-----|------|
-| a_plus.png | assets/items/ | 80x80px | PNG (투명 배경) | A+ 점수 아이템 |
-| coin.png | assets/items/ | 80x80px | PNG (투명 배경) | 코인 아이템 |
+- **기본 위치**: `static/assets/backgrounds/`
+- **네이밍 규칙**: `{stage_name}_bg.png` (예: library_bg.png)
+- **치수**: 1600x600px (화면 스크롤을 위해 너비는 게임 화면의 2배)
+- **포맷**: PNG 또는 JPG
 
-#### 특수 캐릭터
+### UI 요소
 
-| 파일명 | 경로 | 크기 | 포맷 | 설명 |
-|-------|-----|------|-----|------|
-| professor.png | assets/character/ | 180x200px | PNG (투명 배경) | 교수님 캐릭터 |
+- **기본 위치**: `static/assets/ui/`
+- **네이밍 규칙**: `{element_name}.png` (예: button.png, icon_heart.png)
+- **포맷**: PNG (투명 배경 권장)
 
-### 4. 배경 이미지
+## 스타일 가이드
 
-#### 스테이지 배경 (6종)
+### 색상 팔레트
 
-| 파일명 | 경로 | 크기 | 포맷 | 설명 |
-|-------|-----|------|-----|------|
-| stage1_liberal.jpg | assets/backgrounds/ | 1600x900px | JPG | 1단계: 교양관 배경 |
-| stage2_myungsu.jpg | assets/backgrounds/ | 1600x900px | JPG | 2단계: 명수당 배경 |
-| stage3_engineering.jpg | assets/backgrounds/ | 1600x900px | JPG | 3단계: 공대 배경 |
-| stage4_baekyeon.jpg | assets/backgrounds/ | 1600x900px | JPG | 4단계: 백년관 배경 |
-| stage5_dorm.jpg | assets/backgrounds/ | 1600x900px | JPG | 5단계: 기숙사 배경 |
-| stage6_gate.jpg | assets/backgrounds/ | 1600x900px | JPG | 6단계: 정문 배경 |
+게임에서는 다음 색상 팔레트를 사용합니다:
 
-#### 페이지 배경 (4종)
+- **주요 색상**: #00DDFF (청록색)
+- **강조 색상**: #FFD700 (골드)
+- **경고 색상**: #FF1744 (빨간색)
+- **다크 색상**: #121212 (거의 검정색)
+- **라이트 색상**: #FAFAFA (거의 흰색)
 
-| 파일명 | 경로 | 크기 | 포맷 | 설명 |
-|-------|-----|------|-----|------|
-| main_bg.jpg | assets/backgrounds/ | 1600x900px | JPG | 메인 페이지 배경 |
-| customize_bg.jpg | assets/backgrounds/ | 1600x900px | JPG | 커스터마이징 페이지 배경 |
-| leaderboard_bg.jpg | assets/backgrounds/ | 1600x900px | JPG | 리더보드 페이지 배경 |
-| presentation_bg.jpg | assets/backgrounds/ | 1920x1080px | JPG | 발표용 와이드 스크린 배경 |
+### 폰트
 
-### 5. UI 요소
+- **주 폰트**: 'Press Start 2P' (픽셀화된 레트로 게임 폰트)
+- **보조 폰트**: Arial, sans-serif
 
-#### 버튼 및 아이콘
+### UI 디자인
 
-| 파일명 | 경로 | 크기 | 포맷 | 설명 |
-|-------|-----|------|-----|------|
-| heart.png | assets/ui/ | 40x40px | PNG (투명 배경) | 하트 아이콘 |
-| qr_code.png | assets/ui/ | 200x200px | PNG | QR 코드 이미지 |
-| school_logo.png | assets/ui/ | 200x200px | PNG (투명 배경) | 학교 로고 |
+- **버튼**: 둥근 모서리, 주요/강조 색상, 호버 시 약간 확대 애니메이션
+- **창**: 검은 배경, 청록색 테두리, 골드 색상 텍스트 헤더
+- **아이콘**: 간결하고 인식하기 쉬운 픽셀 아트 스타일
 
-#### 특수 효과
+## 닉네임 관리
 
-| 파일명 | 경로 | 크기 | 포맷 | 설명 |
-|-------|-----|------|-----|------|
-| speech_bubble.png | assets/ui/ | 300x200px | PNG (투명 배경) | 말풍선 UI |
-| combo_effect.png | assets/effects/ | 120x60px | PNG (투명 배경) | 콤보 이펙트 |
-| stage_clear.png | assets/effects/ | 400x200px | PNG (투명 배경) | 스테이지 클리어 효과 |
+게임에서는 커스터마이징 시 닉네임을 입력받지 않고, 게임 오버 시점에 입력받습니다:
 
-## 📝 에셋 제작 가이드라인
+- 닉네임 미입력 시 '익명의 학생'으로 자동 저장
+- 게임 오버 화면에서 레트로 스타일 콘솔 입력 UI를 통해 입력
+- 최대 길이는 12자
+- 닉네임 저장 시 `/game/api/update-nickname/` API 호출
 
-1. **일관된 스타일**: 모든 에셋은 동일한 시각적 스타일(픽셀 아트 또는 플랫 디자인 등)로 제작
-2. **투명 배경**: 캐릭터, 아이템, 장애물 등은 모두 배경이 투명한 PNG 파일로 제작
-3. **최적화**: 용량을 최소화하면서 선명한 이미지 품질 유지
-4. **반응형 고려**: 다양한 화면 크기에서 문제없이 표시될 수 있도록 제작
+## 추가 리소스
 
-## 👨‍🎨 에셋 미리보기 및 배치
+- 무료 픽셀 아트 리소스: [OpenGameArt](https://opengameart.org/)
+- 무료 게임 효과음: [FreeSound](https://freesound.org/)
+- 픽셀 아트 에디터: [Piskel](https://www.piskelapp.com/), [Aseprite](https://www.aseprite.org/)
+- 게임 폰트: [Google Fonts - Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P)
 
-커스터마이징 아이템은 기본 캐릭터 위에 레이어로 배치됩니다:
-- 모자: 캐릭터 머리 위에 배치
-- 의상: 캐릭터 몸 위에 배치
-- 신발: 캐릭터 발 아래 배치
+## 에셋 업데이트 워크플로우
 
-## 🎯 우선 구현 순서
+1. 새 에셋 준비 (이미지/사운드)
+2. 적절한 폴더에 파일 배치
+3. 필요한 코드 업데이트 (CSS/JS)
+4. 로컬 테스트
+5. 변경사항 커밋 및 푸시
 
-1. 기본 캐릭터 (duck.png)
-2. 기본 장애물 및 아이템 (f_grade.png, a_plus.png)
-3. 스테이지 배경 (6종)
-4. 커스터마이징 아이템 (의상, 모자, 신발)
-5. UI 요소 및 특수 효과
+---
 
-## 📋 추가 참고 사항
-
-- 모든 에셋은 이 문서에 기재된 명명 규칙을 준수해야 합니다.
-- 배경 이미지는 게임 스타일과 분위기에 맞게 제작하되, 게임 플레이에 방해가 되지 않아야 합니다.
-- 캐릭터와 아이템은 선명하고 눈에 잘 띄어야 합니다.
-- 모든 이미지는 고해상도로 제작 후 명시된 크기로 다운샘플링하는 것을 권장합니다. 
+이 가이드는 개발 중 필요에 따라 지속적으로 업데이트됩니다. 

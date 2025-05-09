@@ -1,47 +1,54 @@
 /* 커스터마이징 페이지 스타일 */
 :root {
-    --primary-color: #4CAF50;
-    --accent-color: #FF9800;
-    --dark-color: #333;
-    --light-color: #f4f4f4;
-    --shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    --primary-color: #00DDFF;  /* 청록색 */
+    --accent-color: #FFD700;   /* 골드 */
+    --danger-color: #FF1744;   /* 빨간색 */
+    --dark-color: #121212;     /* 어두운 검정 */
+    --light-color: #FAFAFA;    /* 밝은 흰색 */
+    --shadow: 0 0 15px rgba(0, 0, 0, 0.4);
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Spoqa Han Sans Neo', 'Arial', sans-serif;
+    letter-spacing: -0.02em;
 }
 
 body {
-    background-color: var(--light-color);
-    color: var(--dark-color);
+    margin: 0;
+    padding: 0;
+    font-family: 'Spoqa Han Sans Neo', 'Arial', sans-serif;
+    background-color: #121212;
+    background-image: linear-gradient(45deg, #121212, #1a1a2e);
+    color: var(--light-color);
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    background-image: url('../assets/backgrounds/customize_bg.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
     padding: 20px;
 }
 
 .customize-container {
     width: 100%;
     max-width: 800px;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(18, 18, 18, 0.9);
     border-radius: 15px;
+    border: 3px solid var(--primary-color);
     padding: 30px;
-    box-shadow: var(--shadow);
+    box-shadow: 0 0 30px rgba(0, 221, 255, 0.3);
 }
 
 h1 {
     text-align: center;
     color: var(--primary-color);
     margin-bottom: 20px;
-    font-size: 2rem;
+    font-size: 3rem;
+    font-family: 'Spoqa Han Sans Neo', sans-serif;
+    text-shadow: 3px 3px 0 #000;
+    letter-spacing: -0.02em;
+    font-weight: 700;
 }
 
 .customize-main {
@@ -66,19 +73,24 @@ h1 {
 
 .preview-section h2 {
     margin-bottom: 20px;
-    color: var(--dark-color);
+    color: var(--accent-color);
+    font-family: 'Spoqa Han Sans Neo', sans-serif;
+    font-size: 2rem;
+    text-shadow: 2px 2px 0 #000;
+    font-weight: 700;
 }
 
 .character-preview {
     width: 200px;
     height: 200px;
-    background-color: rgba(240, 240, 240, 0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--primary-color);
 }
 
 .character-preview .avatar-container {
@@ -106,17 +118,22 @@ h1 {
 }
 
 .customize-option {
-    background-color: white;
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     padding: 15px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 221, 255, 0.3);
 }
 
 .customize-option h3 {
     margin-bottom: 15px;
     color: var(--accent-color);
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid var(--primary-color);
     padding-bottom: 5px;
+    font-family: 'Spoqa Han Sans Neo', sans-serif;
+    font-size: 1.6rem;
+    text-shadow: 2px 2px 0 #000;
+    font-weight: 700;
 }
 
 .items-grid {
@@ -135,15 +152,18 @@ h1 {
     cursor: pointer;
     border: 2px solid transparent;
     transition: all 0.2s ease;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .item-option:hover {
-    background-color: #f9f9f9;
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
 }
 
 .item-option.selected {
     border-color: var(--primary-color);
-    background-color: rgba(76, 175, 80, 0.1);
+    background-color: rgba(0, 221, 255, 0.2);
+    box-shadow: 0 0 10px rgba(0, 221, 255, 0.5);
 }
 
 .item-option img {
@@ -156,15 +176,17 @@ h1 {
 .item-option span {
     font-size: 0.8rem;
     text-align: center;
+    color: var(--light-color);
 }
 
 /* 플레이어 정보 */
 .player-info {
-    background-color: white;
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     padding: 15px;
     margin-bottom: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--primary-color);
 }
 
 .nickname-input {
@@ -200,39 +222,40 @@ h1 {
 }
 
 .btn-back, .btn-start {
-    flex: 1;
-    padding: 12px 20px;
-    border-radius: 30px;
+    padding: 12px 25px;
+    border-radius: 8px;
     border: none;
-    font-size: 1.1rem;
-    font-weight: bold;
+    font-family: 'Spoqa Han Sans Neo', sans-serif;
+    font-size: 1.4rem;
     cursor: pointer;
     text-align: center;
     text-decoration: none;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    letter-spacing: 1px;
 }
 
 .btn-back {
-    background-color: #f0f0f0;
-    color: var(--dark-color);
+    background-color: var(--dark-color);
+    color: var(--light-color);
+    border: 2px solid var(--light-color);
 }
 
 .btn-back:hover {
-    background-color: #e0e0e0;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
     transform: translateY(-2px);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-start {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--accent-color);
+    color: var(--dark-color);
 }
 
 .btn-start:hover {
-    background-color: #45a049;
+    background-color: #FFE44D;
     transform: translateY(-2px);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 12px rgba(255, 215, 0, 0.5);
 }
 
 /* 스크롤바 스타일 */
@@ -241,27 +264,27 @@ h1 {
 }
 
 .options-section::-webkit-scrollbar-track {
-    background-color: #f1f1f1;
+    background: rgba(0, 0, 0, 0.2);
     border-radius: 10px;
 }
 
 .options-section::-webkit-scrollbar-thumb {
-    background-color: #ddd;
+    background: var(--primary-color);
     border-radius: 10px;
 }
 
 .options-section::-webkit-scrollbar-thumb:hover {
-    background-color: #ccc;
+    background: #3EECFF;
 }
 
 /* 모바일 최적화 */
 @media (max-width: 600px) {
     .customize-container {
-        padding: 20px;
+        padding: 15px;
     }
     
     h1 {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
     }
     
     .action-buttons {
@@ -274,7 +297,21 @@ h1 {
     }
     
     .character-preview .avatar-container {
-        width: 120px;
-        height: 120px;
+        width: 100px;
+        height: 100px;
     }
+    
+    .customize-option h3 {
+        font-size: 0.9rem;
+    }
+    
+    .btn-back, .btn-start {
+        font-size: 0.8rem;
+        padding: 10px 20px;
+    }
+}
+
+.pixel-font {
+    font-family: 'VT323', monospace;
+    letter-spacing: 2px;
 } 

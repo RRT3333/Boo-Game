@@ -105,35 +105,49 @@ def save_player(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body) if request.content_type == 'application/json' else request.POST
-            
-            nickname = data.get('nickname', '익명의 학생')
+
             outfit = data.get('outfit', 'default')
             hat = data.get('hat', 'none')
             shoes = data.get('shoes', 'default')
-            
-            # 새 플레이어 생성
-            player = Player.objects.create(
-                nickname=nickname,
-                ip_address=request.META.get('REMOTE_ADDR', '0.0.0.0'),
-                outfit=outfit,
-                hat=hat,
-                shoes=shoes
-            )
-            
-            # 세션에 플레이어 ID 저장
-            request.session['player_id'] = str(player.id)
+
+            # 세션에 player_id가 있으면 기존 Player 사용
+            player_id = request.session.get('player_id')
+            player = None
+            if player_id:
+                try:
+                    player = Player.objects.get(id=player_id)
+                except Player.DoesNotExist:
+                    player = None
+
+            # 없으면 새로 생성, 닉네임은 항상 '익명의 학생'으로 설정
+            if not player:
+                player = Player.objects.create(
+                    nickname='익명의 학생',  # 닉네임은 기본값으로 설정
+                    ip_address=request.META.get('REMOTE_ADDR', '0.0.0.0'),
+                    outfit=outfit,
+                    hat=hat,
+                    shoes=shoes
+                )
+                request.session['player_id'] = str(player.id)
+
+            # 커스터마이징 정보 업데이트
+            player.outfit = outfit
+            player.hat = hat
+            player.shoes = shoes
+            player.save()
+
             request.session['outfit'] = outfit
             request.session['hat'] = hat
             request.session['shoes'] = shoes
-            
+
             return JsonResponse({
                 'status': 'success',
                 'player_id': str(player.id)
             })
-            
+
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-    
+
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 @csrf_exempt
@@ -150,14 +164,19 @@ def save_score(request):
             items_collected = int(data.get('items_collected', 0))
             obstacles_avoided = int(data.get('obstacles_avoided', 0))
             max_combo = int(data.get('max_combo', 0))
+            nickname = data.get('nickname', '익명의 학생')
             
             # 플레이어 가져오기
             try:
                 player = Player.objects.get(id=player_id)
+                # 닉네임이 변경되었다면 업데이트
+                if nickname != player.nickname:
+                    player.nickname = nickname
+                    player.save()
             except (Player.DoesNotExist, ValueError):
                 # 플레이어 ID가 유효하지 않으면 새 플레이어 생성
                 player = Player.objects.create(
-                    nickname='익명의 학생',
+                    nickname=nickname,
                     ip_address=request.META.get('REMOTE_ADDR', '0.0.0.0')
                 )
                 request.session['player_id'] = str(player.id)
@@ -232,3 +251,19 @@ def check_achievements(player, score):
             defaults={"description": "10 콤보를 달성하셨습니다!", "icon": "combo"}
         )
         PlayerAchievement.objects.get_or_create(player=player, achievement=achievement)
+
+@csrf_exempt
+def update_nickname(request):
+    """플레이어 닉네임만 업데이트하는 API"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body) if request.content_type == 'application/json' else request.POST
+            player_id = data.get('player_id')
+            nickname = data.get('nickname', '익명의 학생')
+            player = Player.objects.get(id=player_id)
+            player.nickname = nickname
+            player.save()
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)

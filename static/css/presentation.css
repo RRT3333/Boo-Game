@@ -1,7 +1,7 @@
 /* 발표용 리더보드 스타일 (21:9 와이드스크린 최적화) */
 :root {
     --primary-color: #4CAF50;
-    --accent-color: #FF9800;
+    --accent-color: #FFD700;
     --gold-color: #FFD700;
     --silver-color: #C0C0C0;
     --bronze-color: #CD7F32;
@@ -14,12 +14,21 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Spoqa Han Sans Neo', 'Arial', sans-serif;
+    letter-spacing: -0.02em;
+}
+
+.pixel-font {
+    font-family: 'VT323', monospace;
+    letter-spacing: 2px;
 }
 
 body {
-    background-color: var(--dark-color);
-    color: var(--dark-color);
+    margin: 0;
+    padding: 0;
+    font-family: 'Spoqa Han Sans Neo', 'Arial', sans-serif;
+    background-color: #121212;
+    color: #FAFAFA;
     min-height: 100vh;
     max-width: 100vw;
     overflow: hidden;
@@ -62,6 +71,8 @@ body {
     margin-bottom: 5px;
     color: var(--primary-color);
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    font-weight: 700;
+    letter-spacing: -0.02em;
 }
 
 .game-logo .tagline {
@@ -95,6 +106,8 @@ body {
     text-align: center;
     border-bottom: 3px solid var(--primary-color);
     padding-bottom: 10px;
+    font-weight: 700;
+    font-family: 'Spoqa Han Sans Neo', sans-serif;
 }
 
 .leaderboard-grid {
@@ -201,13 +214,14 @@ body {
 }
 
 .nickname {
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: bold;
     margin-bottom: 10px;
     color: var(--dark-color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-family: 'Spoqa Han Sans Neo', sans-serif;
 }
 
 .score-info {
@@ -250,9 +264,12 @@ body {
 }
 
 .qr-info h3 {
-    font-size: 2rem;
+    font-size: 2.6rem;
     margin-bottom: 10px;
     color: var(--primary-color);
+    font-weight: 700;
+    font-family: 'Spoqa Han Sans Neo', sans-serif;
+    letter-spacing: -0.02em;
 }
 
 .qr-info p {
