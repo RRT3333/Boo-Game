@@ -10,22 +10,30 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# .env 파일 자동 로드
+load_dotenv(os.path.join(BASE_DIR, '.env'))
+
+DJANGO_ENV = os.getenv('DJANGO_ENV', 'local')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-r!_#y@zh!s*%q9o=%9p2t+l2*t0-bv)iptfq5*+%5@f(5(u9%6'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    raise Exception('SECRET_KEY must be set in .env')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', '').split(',') if h.strip()]
 
 
 # Application definition
@@ -37,12 +45,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
+    'rest_framework',  # Django REST Framework
+    'drf_yasg',  # Swagger 생성을 위한 drf-yasg
+    'corsheaders',  # CORS 헤더 지원
     'game',
+    'developer',  # 개발자 도구용 앱
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS 미들웨어 (CommonMiddleware 전에 위치해야 함)
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -55,7 +69,10 @@ ROOT_URLCONF = 'boo_game.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'game' / 'templates',
+            BASE_DIR / 'developer' / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,6 +97,12 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+if DJANGO_ENV == 'production':
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.parse(os.getenv('DATABASE_URL'))
+    }
 
 
 # Password validation
@@ -119,10 +142,69 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
+    BASE_DIR / 'developer' / 'static',
 ]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = os.getenv('STATIC_ROOT', BASE_DIR / 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# CORS 설정
+CORS_ALLOW_ALL_ORIGINS = True  # 개발 환경에서만 사용. 프로덕션에서는 구체적인 도메인 지정 필요
+CORS_ALLOW_CREDENTIALS = True  # 쿠키를 포함한 요청 허용
+
+# 선택적으로 특정 도메인만 허용하려면 다음 설정 사용
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8000",
+#     "http://127.0.0.1:8000",
+# ]
+
+# Production 환경에서 CSRF 설정
+if DJANGO_ENV == 'production':
+    CSRF_TRUSTED_ORIGINS = [
+        'https://boogame.kr',
+        'https://www.boogame.kr',
+        'http://boogame.kr',
+        'http://www.boogame.kr',
+    ]
+    
+    # CORS 설정도 production 환경에 맞게 업데이트
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = [
+        'https://boogame.kr',
+        'https://www.boogame.kr',
+        'http://boogame.kr',
+        'http://www.boogame.kr',
+    ]
+
+# Swagger UI 설정
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        }
+    },
+    'DEFAULT_MODEL_RENDERING': 'example',
+    'DEFAULT_API_URL': 'http://localhost:8000',
+    'USE_SESSION_AUTH': False,
+    'PERSIST_AUTH': True,
+    'REFETCH_SCHEMA_WITH_AUTH': True,
+    'REFETCH_SCHEMA_ON_LOGOUT': True,
+}
+
+# Production 환경에서는 HTTPS API URL 사용
+if DJANGO_ENV == 'production':
+    SWAGGER_SETTINGS['DEFAULT_API_URL'] = 'https://boogame.kr'
+
+# REST Framework 설정
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+}

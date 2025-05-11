@@ -1,0 +1,469 @@
+{% extends "developer/base.html" %}
+
+{% block title %}Boo Game ERD{% endblock %}
+
+{% block header_title %}Boo Game 데이터베이스 구조 (ERD){% endblock %}
+{% block header_subtitle %}Entity Relationship Diagram - 게임 데이터베이스의 구조 및 관계 시각화{% endblock %}
+
+{% block extra_css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/developer.css' %}">
+<style>
+    .erd-container {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border-left: 4px solid #00DDFF;
+    }
+    
+    .mermaid {
+        background-color: #1a1a2e;
+        padding: 2rem;
+        border-radius: 8px;
+        text-align: center;
+        overflow-x: auto;
+    }
+    
+    .section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        border-left: 4px solid #00DDFF;
+    }
+    
+    .section h2 {
+        color: #00DDFF;
+        margin-top: 0;
+    }
+    
+    .table-card {
+        background-color: #222;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .table-card h3 {
+        color: #00DDFF;
+        margin-top: 0;
+        border-bottom: 1px solid #444;
+        padding-bottom: 0.5rem;
+    }
+    
+    .field-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .field-list li {
+        padding: 0.5rem 0;
+        border-bottom: 1px dashed #333;
+    }
+    
+    .field-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .field-type {
+        color: #FFD700;
+        font-size: 0.9em;
+        margin-left: 0.5rem;
+    }
+    
+    .field-constraint {
+        color: #00DDFF;
+        font-size: 0.8em;
+        border: 1px solid #00DDFF;
+        padding: 0 0.5rem;
+        border-radius: 4px;
+        margin-left: 0.5rem;
+    }
+    
+    .relationship-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .relationship-card {
+        flex: 1 1 300px;
+        background-color: rgba(0, 221, 255, 0.1);
+        border-radius: 8px;
+        padding: 1rem;
+        border: 1px solid rgba(0, 221, 255, 0.3);
+    }
+    
+    .code-example {
+        background-color: #111;
+        border-radius: 5px;
+        padding: 1rem;
+        margin: 1rem 0;
+        overflow-x: auto;
+        font-family: 'Consolas', monospace;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="erd-container">
+    <h2>데이터베이스 ERD 다이어그램</h2>
+    <p>아래 다이어그램은 Boo Game 데이터베이스의 구조와 테이블 간의 관계를 보여줍니다.</p>
+    
+    <div style="background-color: rgba(255, 215, 0, 0.1); border-left: 4px solid #FFD700; padding: 1rem; margin: 1rem 0; border-radius: 5px;">
+        <h4 style="color: #FFD700; margin-top: 0;">💡 ERD란 무엇인가요?</h4>
+        <p>ERD(Entity Relationship Diagram)는 데이터베이스의 구조를 시각적으로 표현한 다이어그램입니다. 데이터를 저장하는 테이블(Entity)과 테이블 간의 관계(Relationship)를 보여줍니다.</p>
+        
+        <h5 style="color: #e0e0e0;">다이어그램 읽는 방법</h5>
+        <ul>
+            <li><strong>박스</strong>: 각 박스는 데이터 테이블(Entity)를 나타냅니다.</li>
+            <li><strong>선</strong>: 테이블 간의 관계(Relationship)를 나타냅니다.</li>
+            <li><strong>||--o{</strong>: "일대다(1:N)" 관계를 나타냅니다. 하나의 레코드가 여러 레코드와 연결됨을 의미합니다.</li>
+            <li><strong>PK</strong>: Primary Key(기본 키)로, 각 레코드를 고유하게 식별하는 필드입니다.</li>
+            <li><strong>FK</strong>: Foreign Key(외래 키)로, 다른 테이블의 기본 키를 참조하는 필드입니다.</li>
+        </ul>
+    </div>
+    
+    <div class="mermaid">
+        erDiagram
+            Player ||--o{ Score : "has many"
+            Player ||--o{ PlayerAchievement : "has many"
+            Achievement ||--o{ PlayerAchievement : "belongs to"
+            
+            Player {
+                uuid id PK
+                string nickname
+                string ip_address
+                datetime created_at
+                string outfit
+                string hat
+                string shoes
+            }
+            
+            Score {
+                int id PK
+                uuid player_id FK
+                int score
+                int play_time
+                int max_stage
+                datetime created_at
+                int items_collected
+                int obstacles_avoided
+                int max_combo
+            }
+            
+            Achievement {
+                int id PK
+                string name
+                string description
+                string icon
+            }
+            
+            PlayerAchievement {
+                int id PK
+                uuid player_id FK
+                int achievement_id FK
+                datetime achieved_at
+            }
+    </div>
+</div>
+
+<div class="section">
+    <h2>주요 테이블 설명</h2>
+    
+    <div style="background-color: rgba(0, 221, 255, 0.1); border: 1px solid rgba(0, 221, 255, 0.3); padding: 1rem; margin-bottom: 1.5rem; border-radius: 5px;">
+        <h4 style="color: #00DDFF; margin-top: 0;">📘 데이터 타입 가이드</h4>
+        <p>각 필드는 특정 데이터 타입을 가집니다. 아래는 주요 데이터 타입에 대한 설명입니다:</p>
+        <ul style="column-count: 2; column-gap: 2rem;">
+            <li><strong>INTEGER</strong>: 정수(숫자) 값</li>
+            <li><strong>VARCHAR</strong>: 가변 길이 문자열 (괄호 안의 숫자는 최대 길이)</li>
+            <li><strong>TEXT</strong>: 긴 문자열 (길이 제한 없음)</li>
+            <li><strong>DATETIME</strong>: 날짜와 시간 정보</li>
+            <li><strong>BOOLEAN</strong>: 참/거짓 값</li>
+            <li><strong>UUID</strong>: 범용 고유 식별자 (128비트 값)</li>
+        </ul>
+    </div>
+    
+    <div class="table-card">
+        <h3>Player</h3>
+        <p>게임 플레이어의 정보를 저장하는 테이블입니다.</p>
+        
+        <ul class="field-list">
+            <li>id <span class="field-type">UUID</span> <span class="field-constraint">PRIMARY KEY</span></li>
+            <li>nickname <span class="field-type">VARCHAR(20)</span> <span class="field-constraint">DEFAULT "익명의 학생"</span></li>
+            <li>ip_address <span class="field-type">GenericIPAddressField</span></li>
+            <li>created_at <span class="field-type">DATETIME</span> <span class="field-constraint">AUTO_NOW_ADD</span></li>
+            <li>outfit <span class="field-type">VARCHAR(50)</span> <span class="field-constraint">DEFAULT "default"</span></li>
+            <li>hat <span class="field-type">VARCHAR(50)</span> <span class="field-constraint">DEFAULT "none"</span></li>
+            <li>shoes <span class="field-type">VARCHAR(50)</span> <span class="field-constraint">DEFAULT "default"</span></li>
+        </ul>
+    </div>
+    
+    <div class="table-card">
+        <h3>Score</h3>
+        <p>플레이어의 게임 점수를 저장하는 테이블입니다.</p>
+        
+        <ul class="field-list">
+            <li>id <span class="field-type">INTEGER</span> <span class="field-constraint">PRIMARY KEY</span></li>
+            <li>player <span class="field-type">UUID</span> <span class="field-constraint">FOREIGN KEY</span></li>
+            <li>score <span class="field-type">INTEGER</span> <span class="field-constraint">DEFAULT 0</span></li>
+            <li>play_time <span class="field-type">INTEGER</span> <span class="field-constraint">DEFAULT 0</span></li>
+            <li>max_stage <span class="field-type">INTEGER</span> <span class="field-constraint">DEFAULT 1</span></li>
+            <li>created_at <span class="field-type">DATETIME</span> <span class="field-constraint">AUTO_NOW_ADD</span></li>
+            <li>items_collected <span class="field-type">INTEGER</span> <span class="field-constraint">DEFAULT 0</span></li>
+            <li>obstacles_avoided <span class="field-type">INTEGER</span> <span class="field-constraint">DEFAULT 0</span></li>
+            <li>max_combo <span class="field-type">INTEGER</span> <span class="field-constraint">DEFAULT 0</span></li>
+        </ul>
+    </div>
+    
+    <div class="table-card">
+        <h3>Achievement</h3>
+        <p>게임 업적 정보를 저장하는 테이블입니다.</p>
+        
+        <ul class="field-list">
+            <li>id <span class="field-type">INTEGER</span> <span class="field-constraint">PRIMARY KEY</span></li>
+            <li>name <span class="field-type">VARCHAR(50)</span></li>
+            <li>description <span class="field-type">TEXT</span></li>
+            <li>icon <span class="field-type">VARCHAR(100)</span> <span class="field-constraint">DEFAULT "default"</span></li>
+        </ul>
+    </div>
+
+    <div class="table-card">
+        <h3>PlayerAchievement</h3>
+        <p>플레이어별 업적 달성 정보를 저장하는 테이블입니다.</p>
+        
+        <ul class="field-list">
+            <li>id <span class="field-type">INTEGER</span> <span class="field-constraint">PRIMARY KEY</span></li>
+            <li>player <span class="field-type">UUID</span> <span class="field-constraint">FOREIGN KEY</span></li>
+            <li>achievement <span class="field-type">INTEGER</span> <span class="field-constraint">FOREIGN KEY</span></li>
+            <li>achieved_at <span class="field-type">DATETIME</span> <span class="field-constraint">AUTO_NOW_ADD</span></li>
+            <li><span class="field-constraint">UNIQUE_TOGETHER (player, achievement)</span></li>
+        </ul>
+    </div>
+</div>
+
+<div class="section">
+    <h2>주요 관계</h2>
+    
+    <div style="text-align: center; margin-bottom: 1.5rem; background-color: #1a1a2e; padding: 1rem; border-radius: 8px;">
+        <h4 style="color: #FFD700;">데이터베이스 관계 유형</h4>
+        <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">
+            <div style="flex: 1; min-width: 200px; padding: 1rem; background-color: rgba(0,0,0,0.2); border-radius: 5px;">
+                <h5 style="color: #00DDFF;">일대일 (1:1)</h5>
+                <div style="font-size: 2rem; margin: 0.5rem 0;">🔵 ———— 🔵</div>
+                <p style="font-size: 0.9rem;">한 테이블의 레코드가 다른 테이블의 레코드 하나와 연결됩니다.</p>
+            </div>
+            <div style="flex: 1; min-width: 200px; padding: 1rem; background-color: rgba(0,0,0,0.2); border-radius: 5px;">
+                <h5 style="color: #00DDFF;">일대다 (1:N)</h5>
+                <div style="font-size: 2rem; margin: 0.5rem 0;">🔵 ———— 🔵🔵🔵</div>
+                <p style="font-size: 0.9rem;">한 테이블의 레코드가 다른 테이블의 여러 레코드와 연결됩니다.</p>
+            </div>
+            <div style="flex: 1; min-width: 200px; padding: 1rem; background-color: rgba(0,0,0,0.2); border-radius: 5px;">
+                <h5 style="color: #00DDFF;">다대다 (M:N)</h5>
+                <div style="font-size: 2rem; margin: 0.5rem 0;">🔵🔵 ———— 🔵🔵🔵</div>
+                <p style="font-size: 0.9rem;">양쪽 테이블의 레코드가 서로 여러 개와 연결됩니다. 중간 테이블이 필요합니다.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="relationship-container">
+        <div class="relationship-card">
+            <h4>Player 와 Score</h4>
+            <p>한 Player는 여러 개의 Score를 가질 수 있습니다. (1:N)</p>
+            <p>이 관계는 한 플레이어가 여러 번 게임을 플레이하고 점수를 기록할 수 있음을 나타냅니다.</p>
+        </div>
+        
+        <div class="relationship-card">
+            <h4>Player 와 PlayerAchievement</h4>
+            <p>한 Player는 여러 개의 PlayerAchievement를 가질 수 있습니다. (1:N)</p>
+            <p>이 관계는 한 플레이어가 여러 개의 업적을 달성할 수 있음을 나타냅니다.</p>
+        </div>
+        
+        <div class="relationship-card">
+            <h4>Achievement 와 PlayerAchievement</h4>
+            <p>한 Achievement는 여러 개의 PlayerAchievement를 가질 수 있습니다. (1:N)</p>
+            <p>이 관계는 한 업적이 여러 플레이어에게 달성될 수 있음을 나타냅니다.</p>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <h2>구현 예시 (Django 모델)</h2>
+    
+    <div style="background-color: rgba(255, 215, 0, 0.1); border-left: 4px solid #FFD700; padding: 1rem; margin-bottom: 1.5rem; border-radius: 5px;">
+        <h4 style="color: #FFD700; margin-top: 0;">🐍 Django 모델이란?</h4>
+        <p>Django 모델은 Python 클래스로, 데이터베이스 테이블의 구조를 정의합니다. 아래 코드는 ERD 다이어그램을 실제 Django 코드로 구현한 예시입니다.</p>
+        <ul>
+            <li><strong>models.Model</strong>: Django의 기본 모델 클래스로, 모든 모델이 상속받습니다.</li>
+            <li><strong>Field 타입</strong>: CharField, IntegerField 등은 데이터베이스 필드의 타입을 정의합니다.</li>
+            <li><strong>ForeignKey</strong>: 다른 테이블을 참조하는 외래 키 관계를 정의합니다.</li>
+            <li><strong>Meta 클래스</strong>: 모델의 메타데이터(정렬, 제약조건 등)를 정의합니다.</li>
+            <li><strong>__str__ 메서드</strong>: 모델 인스턴스의 문자열 표현을 정의합니다.</li>
+        </ul>
+    </div>
+    
+    <div class="code-example">
+        <pre><code class="python">from django.db import models
+import uuid
+
+class Player(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    nickname = models.CharField(max_length=20, default="익명의 학생")
+    ip_address = models.GenericIPAddressField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    # 커스터마이징 정보
+    outfit = models.CharField(max_length=50, default="default")
+    hat = models.CharField(max_length=50, default="none")
+    shoes = models.CharField(max_length=50, default="default")
+    
+    def __str__(self):
+        return f"{self.nickname} ({self.id})"
+
+class Score(models.Model):
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    score = models.IntegerField(default=0)
+    play_time = models.IntegerField(default=0, help_text="플레이 시간(초)")
+    max_stage = models.IntegerField(default=1, help_text="도달한 최대 스테이지")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    # 게임 통계
+    items_collected = models.IntegerField(default=0)
+    obstacles_avoided = models.IntegerField(default=0)
+    max_combo = models.IntegerField(default=0)
+    
+    class Meta:
+        ordering = ['-score']
+
+    def __str__(self):
+        return f"{self.player.nickname} - {self.score} 점 ({self.play_time}초)"
+
+class Achievement(models.Model):
+    """게임 업적 시스템"""
+    name = models.CharField(max_length=50)
+    description = models.TextField()
+    icon = models.CharField(max_length=100, default="default")
+    
+    def __str__(self):
+        return self.name
+
+class PlayerAchievement(models.Model):
+    """플레이어별 달성 업적"""
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE)
+    achieved_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('player', 'achievement')
+    
+    def __str__(self):
+        return f"{self.player.nickname} - {self.achievement.name}"</code></pre>
+    </div>
+</div>
+
+<div class="section">
+    <h2>데이터 관계 활용 예시</h2>
+    
+    <div style="margin: 1rem 0; padding: 0.5rem 1rem; background-color: rgba(0, 221, 255, 0.1); border-radius: 5px;">
+        <h4 style="color: #00DDFF;">💻 활용 예시 설명</h4>
+        <ul>
+            <li><strong>최고 점수 조회</strong>: 특정 플레이어의 최고 점수를 데이터베이스에서 가져옵니다.</li>
+            <li><strong>점수 기록</strong>: 플레이어의 모든 게임 플레이 기록을 날짜순으로 가져옵니다.</li>
+            <li><strong>커스터마이징</strong>: 플레이어의 캐릭터 커스터마이징 정보를 업데이트합니다.</li>
+        </ul>
+    </div>
+    
+    <div class="code-example">
+        <pre><code class="python"># 플레이어의 최고 점수 가져오기
+def get_player_highscore(player_id):
+    return Score.objects.filter(
+        player_id=player_id, 
+        is_highscore=True
+    ).first()
+
+# 플레이어의 모든 점수 히스토리 가져오기
+def get_player_score_history(player_id):
+    return Score.objects.filter(
+        player_id=player_id
+    ).order_by('-created_at')
+
+# 커스터마이징 정보 업데이트
+def update_player_customization(player_id, outfit, hat, shoes):
+    customization, created = Customization.objects.update_or_create(
+        player_id=player_id,
+        defaults={
+            'outfit': outfit,
+            'hat': hat,
+            'shoes': shoes
+        }
+    )
+    return customization</code></pre>
+    </div>
+</div>
+
+<!-- 추가: 실제 사용 사례 섹션 -->
+<div class="section">
+    <h2>ERD와 개발 연결하기</h2>
+    
+    <p>이 ERD 구조는 Boo Game의 다양한 기능을 지원합니다:</p>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+        <div style="background-color: #222; padding: 1.5rem; border-radius: 8px; border-top: 3px solid #00DDFF;">
+            <h4 style="color: #00DDFF;">🏆 리더보드 시스템</h4>
+            <p>Score 테이블의 데이터를 활용하여 최고 점수를 기준으로 플레이어 랭킹을 표시합니다.</p>
+            <div style="font-style: italic; font-size: 0.9rem; color: #aaa; margin-top: 0.5rem;">
+                활용 테이블: Player, Score
+            </div>
+        </div>
+        
+        <div style="background-color: #222; padding: 1.5rem; border-radius: 8px; border-top: 3px solid #00DDFF;">
+            <h4 style="color: #00DDFF;">👕 캐릭터 커스터마이징</h4>
+            <p>Player 테이블의 outfit, hat, shoes 필드를 활용하여 플레이어 캐릭터를 꾸밉니다.</p>
+            <div style="font-style: italic; font-size: 0.9rem; color: #aaa; margin-top: 0.5rem;">
+                활용 테이블: Player
+            </div>
+        </div>
+        
+        <div style="background-color: #222; padding: 1.5rem; border-radius: 8px; border-top: 3px solid #00DDFF;">
+            <h4 style="color: #00DDFF;">🥇 업적 시스템</h4>
+            <p>게임 내 특정 목표 달성 시 업적을 부여하고, 플레이어별 업적 달성 현황을 표시합니다.</p>
+            <div style="font-style: italic; font-size: 0.9rem; color: #aaa; margin-top: 0.5rem;">
+                활용 테이블: Achievement, PlayerAchievement
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block version_info %}
+<p>데이터베이스 ERD <span class="version-tag">v1.2.0</span></p>
+<p>마지막 업데이트: 2025년 5월 10일</p>
+<a href="{% url 'developer:index' %}" class="btn btn-primary mt-3" style="background-color: #00DDFF; color: white; text-decoration: none; padding: 8px 16px; border-radius: 5px; display: inline-block; margin-top: 10px;">개발자 허브로 돌아가기</a>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        mermaid.initialize({
+            theme: 'dark',
+            logLevel: 'error',
+            securityLevel: 'loose',
+            startOnLoad: true,
+            themeVariables: {
+                primaryColor: '#00DDFF',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#00DDFF',
+                lineColor: '#FFD700',
+                secondaryColor: '#1a1a2e',
+                tertiaryColor: '#222'
+            }
+        });
+    });
+</script>
+{% endblock %} 

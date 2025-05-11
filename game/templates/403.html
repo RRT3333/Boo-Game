@@ -1,0 +1,102 @@
+{% extends 'game/base.html' %}
+{% load static %}
+
+{% block title %}403 - 접근 권한 없음 | Boo의 졸업 대모험{% endblock %}
+
+{% block css %}
+<style>
+    body {
+        background-color: var(--dark-color);
+        background-image: linear-gradient(45deg, #121212, #1a1a2e);
+        color: var(--light-color);
+        font-family: 'Spoqa Han Sans Neo', 'Arial', sans-serif;
+    }
+    
+    .error-container {
+        max-width: 800px;
+        margin: 100px auto;
+        text-align: center;
+        padding: 30px;
+        background-color: rgba(18, 18, 18, 0.9);
+        border-radius: 15px;
+        border: 3px solid var(--accent-color);
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    }
+    
+    .error-code {
+        font-size: 120px;
+        font-weight: 700;
+        color: var(--accent-color);
+        margin: 0;
+        line-height: 1;
+        text-shadow: 3px 3px 0 #000;
+    }
+    
+    .error-message {
+        font-size: 24px;
+        margin: 20px 0;
+    }
+    
+    .error-description {
+        font-size: 18px;
+        margin-bottom: 30px;
+        opacity: 0.8;
+    }
+    
+    .boo-forbidden {
+        max-width: 200px;
+        margin: 20px auto;
+        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+        transform: translateY(-5px);
+    }
+    
+    .warning-sign {
+        position: absolute;
+        width: 250px;
+        height: 250px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0.1;
+        z-index: -1;
+    }
+    
+    .btn-home {
+        display: inline-block;
+        padding: 12px 25px;
+        background-color: var(--primary-color);
+        color: var(--dark-color);
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+    }
+    
+    .btn-home:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 221, 255, 0.5);
+    }
+    
+    :root {
+        --primary-color: #00DDFF;
+        --accent-color: #FFD700;
+        --dark-color: #121212;
+        --light-color: #FAFAFA;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <h1 class="error-code">4<span class="pixel-font">0</span>3</h1>
+    <img src="{% static 'assets/character/duck.png' %}" alt="Forbidden Boo" class="boo-forbidden">
+    <svg class="warning-sign" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#FFD700">
+        <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+    </svg>
+    <h2 class="error-message">접근 권한이 없습니다</h2>
+    <p class="error-description"><span class="pixel-font">Boo</span>가 출입 금지 구역에 있어요! 이 페이지에 접근할 권한이 없습니다.</p>
+    <a href="{% url 'game:index' %}" class="btn-home">홈으로 돌아가기</a>
+</div>
+{% endblock %} 

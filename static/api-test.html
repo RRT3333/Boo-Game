@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boo Game API 테스트</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #444;
+        }
+        .header h1 {
+            color: #00DDFF;
+            margin-bottom: 5px;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        .sidebar {
+            flex: 0 0 250px;
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .content {
+            flex: 1;
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .endpoint-link {
+            display: block;
+            padding: 8px 15px;
+            margin-bottom: 5px;
+            background-color: #333333;
+            text-decoration: none;
+            color: #e0e0e0;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .endpoint-link:hover, .endpoint-link.active {
+            background-color: #00DDFF;
+            color: #000;
+        }
+        .form-row {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #ccc;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #444;
+            border-radius: 3px;
+            font-family: inherit;
+            background-color: #333;
+            color: #e0e0e0;
+        }
+        textarea {
+            height: 150px;
+            font-family: monospace;
+        }
+        button {
+            background-color: #00DDFF;
+            color: #000;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #00c4e0;
+        }
+        .response {
+            margin-top: 20px;
+            border-top: 1px solid #444;
+            padding-top: 20px;
+        }
+        .response pre {
+            background-color: #333333;
+            padding: 15px;
+            border-radius: 3px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            color: #e0e0e0;
+        }
+        .method {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .get {
+            background-color: #61affe;
+            color: #000;
+        }
+        .post {
+            background-color: #49cc90;
+            color: #000;
+        }
+        .links {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .links a {
+            margin: 0 10px;
+            color: #00DDFF;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .links a:hover {
+            text-decoration: underline;
+            color: #00c4e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Boo Game API Test Client</h1>
+        <p>프론트엔드 개발자를 위한 API 테스트 도구</p>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <h3>API 엔드포인트</h3>
+            <div class="endpoint-link" data-endpoint="leaderboard" data-method="GET"><span class="method get">GET</span> 리더보드 조회</div>
+            <div class="endpoint-link" data-endpoint="save-player" data-method="POST"><span class="method post">POST</span> 플레이어 저장</div>
+            <div class="endpoint-link" data-endpoint="save-score" data-method="POST"><span class="method post">POST</span> 점수 저장</div>
+            <div class="endpoint-link" data-endpoint="update-nickname" data-method="POST"><span class="method post">POST</span> 닉네임 업데이트</div>
+            
+            <div class="links">
+                <a href="/swagger/" target="_blank">Swagger UI</a>
+                <a href="/redoc/" target="_blank">ReDoc</a>
+            </div>
+        </div>
+        
+        <div class="content">
+            <h2 id="endpoint-title">API 엔드포인트 선택</h2>
+            <p id="endpoint-description">왼쪽 메뉴에서 테스트할 API 엔드포인트를 선택하세요.</p>
+            
+            <div id="form-container" style="display: none;">
+                <form id="api-form">
+                    <div class="form-row">
+                        <label for="api-protocol">Protocol:</label>
+                        <select id="api-protocol">
+                            <option value="http">HTTP</option>
+                            <option value="https">HTTPS</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="api-url">API URL:</label>
+                        <input type="text" id="api-url" readonly>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="api-method">HTTP Method:</label>
+                        <input type="text" id="api-method" readonly>
+                    </div>
+                    
+                    <div class="form-row" id="payload-container" style="display: none;">
+                        <label for="api-payload">Request Body:</label>
+                        <textarea id="api-payload"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <button type="submit">요청 보내기</button>
+                    </div>
+                </form>
+                
+                <div class="response">
+                    <h3>응답</h3>
+                    <div id="response-status"></div>
+                    <pre id="response-json"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const endpoints = {
+                'leaderboard': {
+                    title: '리더보드 조회',
+                    description: '현재 저장된 최고 점수 리더보드를 조회합니다.',
+                    method: 'GET',
+                    url: '/game/api/v1/leaderboard/',
+                    payload: null
+                },
+                'save-player': {
+                    title: '플레이어 저장',
+                    description: '플레이어의 커스터마이징 정보를 저장합니다.',
+                    method: 'POST',
+                    url: '/game/api/v1/save-player/',
+                    payload: {
+                        outfit: 'casual',
+                        hat: 'cap',
+                        shoes: 'sneakers'
+                    }
+                },
+                'save-score': {
+                    title: '점수 저장',
+                    description: '게임 플레이 점수와 관련 정보를 저장합니다.',
+                    method: 'POST',
+                    url: '/game/api/v1/save-score/',
+                    payload: {
+                        player_id: '',  // 저장된 플레이어 ID 필요
+                        score: 1500,
+                        play_time: 120,
+                        max_stage: 3,
+                        items_collected: 25,
+                        obstacles_avoided: 42,
+                        max_combo: 8,
+                        nickname: '테스터'
+                    }
+                },
+                'update-nickname': {
+                    title: '닉네임 업데이트',
+                    description: '플레이어의 닉네임을 업데이트합니다.',
+                    method: 'POST',
+                    url: '/game/api/v1/update-nickname/',
+                    payload: {
+                        player_id: '',  // 저장된 플레이어 ID 필요
+                        nickname: '새닉네임'
+                    }
+                }
+            };
+            
+            let currentEndpoint = null;
+            
+            // 엔드포인트 클릭 이벤트
+            document.querySelectorAll('.endpoint-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    const endpointKey = this.dataset.endpoint;
+                    setActiveEndpoint(endpointKey);
+                });
+            });
+            
+            // 폼 제출 이벤트
+            document.getElementById('api-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const responseStatus = document.getElementById('response-status');
+                const responseJson = document.getElementById('response-json');
+                
+                responseStatus.textContent = '요청 처리 중...';
+                responseJson.textContent = '';
+                
+                try {
+                    const method = document.getElementById('api-method').value;
+                    let url = document.getElementById('api-url').value;
+                    const protocol = document.getElementById('api-protocol').value;
+                    
+                    // URL이 상대 경로인 경우 프로토콜 및 호스트 추가
+                    if (url.startsWith('/')) {
+                        // 현재 호스트 가져오기
+                        const host = window.location.host;
+                        url = `${protocol}://${host}${url}`;
+                    }
+                    
+                    const options = {
+                        method,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    };
+                    
+                    // POST 메소드이고 페이로드가 있으면 추가
+                    if (method === 'POST') {
+                        const payloadText = document.getElementById('api-payload').value;
+                        if (payloadText) {
+                            try {
+                                const payload = JSON.parse(payloadText);
+                                options.body = JSON.stringify(payload);
+                            } catch (err) {
+                                responseStatus.textContent = '오류: 유효하지 않은 JSON 페이로드';
+                                responseJson.textContent = err.message;
+                                return;
+                            }
+                        }
+                    }
+                    
+                    const response = await fetch(url, options);
+                    const data = await response.json();
+                    
+                    responseStatus.textContent = `상태 코드: ${response.status} ${response.statusText}`;
+                    responseJson.textContent = JSON.stringify(data, null, 2);
+                    
+                    // player_id가 있으면 저장 (다른 API에서 사용할 수 있게)
+                    if (data.player_id) {
+                        localStorage.setItem('lastPlayerId', data.player_id);
+                        
+                        // 다른 페이로드 업데이트
+                        if (endpoints['save-score'].payload) {
+                            endpoints['save-score'].payload.player_id = data.player_id;
+                        }
+                        if (endpoints['update-nickname'].payload) {
+                            endpoints['update-nickname'].payload.player_id = data.player_id;
+                        }
+                        
+                        // 현재 페이지 업데이트
+                        if (currentEndpoint) {
+                            setActiveEndpoint(currentEndpoint);
+                        }
+                    }
+                    
+                } catch (error) {
+                    responseStatus.textContent = '오류 발생';
+                    responseJson.textContent = error.message;
+                }
+            });
+            
+            // 엔드포인트 설정 함수
+            function setActiveEndpoint(key) {
+                currentEndpoint = key;
+                const endpoint = endpoints[key];
+                
+                // 이전에 활성화된 링크 비활성화
+                document.querySelectorAll('.endpoint-link').forEach(el => {
+                    el.classList.remove('active');
+                });
+                
+                // 현재 엔드포인트 활성화
+                document.querySelector(`[data-endpoint="${key}"]`).classList.add('active');
+                
+                // 타이틀과 설명 업데이트
+                document.getElementById('endpoint-title').textContent = endpoint.title;
+                document.getElementById('endpoint-description').textContent = endpoint.description;
+                
+                // 폼 필드 업데이트
+                document.getElementById('api-url').value = endpoint.url;
+                document.getElementById('api-method').value = endpoint.method;
+                
+                // 마지막으로 저장된 player_id 사용
+                const lastPlayerId = localStorage.getItem('lastPlayerId');
+                if (lastPlayerId && endpoint.payload && 'player_id' in endpoint.payload) {
+                    endpoint.payload.player_id = lastPlayerId;
+                }
+                
+                // 페이로드 처리
+                const payloadContainer = document.getElementById('payload-container');
+                const payloadField = document.getElementById('api-payload');
+                
+                if (endpoint.method === 'POST' && endpoint.payload) {
+                    payloadContainer.style.display = 'block';
+                    payloadField.value = JSON.stringify(endpoint.payload, null, 2);
+                } else {
+                    payloadContainer.style.display = 'none';
+                    payloadField.value = '';
+                }
+                
+                // 폼 표시
+                document.getElementById('form-container').style.display = 'block';
+                
+                // 응답 초기화
+                document.getElementById('response-status').textContent = '';
+                document.getElementById('response-json').textContent = '';
+            }
+        });
+    </script>
+    
+    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #444;">
+        <a href="/developer/" style="background-color: #00DDFF; color: black; text-decoration: none; padding: 10px 20px; border-radius: 5px; display: inline-block;">개발자 허브로 돌아가기</a>
+    </div>
+</body>
+</html> 
