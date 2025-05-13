@@ -1,0 +1,88 @@
+{% extends 'game/base.html' %}
+{% load static %}
+
+{% block title %}500 - 서버 오류 발생 | Boo의 졸업 대모험{% endblock %}
+
+{% block css %}
+<style>
+    body {
+        background-color: var(--dark-color);
+        background-image: linear-gradient(45deg, #121212, #1a1a2e);
+        color: var(--light-color);
+        font-family: 'Spoqa Han Sans Neo', 'Arial', sans-serif;
+    }
+    
+    .error-container {
+        max-width: 800px;
+        margin: 100px auto;
+        text-align: center;
+        padding: 30px;
+        background-color: rgba(18, 18, 18, 0.9);
+        border-radius: 15px;
+        border: 3px solid var(--danger-color);
+        box-shadow: 0 0 30px rgba(255, 23, 68, 0.3);
+    }
+    
+    .error-code {
+        font-size: 120px;
+        font-weight: 700;
+        color: var(--danger-color);
+        margin: 0;
+        line-height: 1;
+        text-shadow: 3px 3px 0 #000;
+    }
+    
+    .error-message {
+        font-size: 24px;
+        margin: 20px 0;
+    }
+    
+    .error-description {
+        font-size: 18px;
+        margin-bottom: 30px;
+        opacity: 0.8;
+    }
+    
+    .boo-error {
+        max-width: 200px;
+        margin: 20px auto;
+        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+        transform: rotate(15deg);
+    }
+    
+    .btn-home {
+        display: inline-block;
+        padding: 12px 25px;
+        background-color: var(--primary-color);
+        color: var(--dark-color);
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+    }
+    
+    .btn-home:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 221, 255, 0.5);
+    }
+    
+    :root {
+        --primary-color: #00DDFF;
+        --danger-color: #FF1744;
+        --dark-color: #121212;
+        --light-color: #FAFAFA;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <h1 class="error-code">5<span class="pixel-font">0</span>0</h1>
+    <img src="{% static 'assets/character/duck.png' %}" alt="Error Boo" class="boo-error">
+    <h2 class="error-message">서버 오류가 발생했습니다</h2>
+    <p class="error-description"><span class="pixel-font">Boo</span>가 장애물에 충돌했어요! 서버에 일시적인 문제가 발생했습니다.</p>
+    <a href="{% url 'game:index' %}" class="btn-home">홈으로 돌아가기</a>
+</div>
+{% endblock %} 

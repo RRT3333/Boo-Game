@@ -1,0 +1,252 @@
+/* Developer app common styles */
+:root {
+    --primary: #00DDFF;
+    --secondary: #FFD700;
+    --dark: #1a1a2e;
+    --light: #f5f5f5;
+    --success: #4CAF50;
+    --info: #2196F3;
+    --warning: #FFC107;
+    --danger: #FF5252;
+    --code-bg: #272822;
+    --code-color: #f8f8f2;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Spoqa Han Sans Neo', 'Arial', sans-serif;
+    background-color: var(--dark);
+    color: var(--light);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary);
+}
+
+header p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.1rem;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.card {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+    padding: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-header h2 {
+    font-size: 1.5rem;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+}
+
+.card-header h2 svg {
+    margin-right: 0.5rem;
+    min-width: 24px;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-body p {
+    margin-bottom: 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.6rem 1.2rem;
+    background-color: var(--primary);
+    color: var(--dark);
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.3s;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.btn:hover {
+    background-color: #00c4e0;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: var(--secondary);
+}
+
+.btn-secondary:hover {
+    background-color: #e6c300;
+}
+
+.btn-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.tag-api {
+    background-color: var(--info);
+    color: white;
+}
+
+.tag-frontend {
+    background-color: var(--success);
+    color: white;
+}
+
+.tag-backend {
+    background-color: var(--warning);
+    color: black;
+}
+
+.tag-docs {
+    background-color: var(--danger);
+    color: white;
+}
+
+.version-info {
+    margin-top: 3rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+.version-info p {
+    margin-bottom: 0.5rem;
+}
+
+.version-tag {
+    display: inline-block;
+    background-color: rgba(0, 221, 255, 0.2);
+    padding: 0.2rem 0.6rem;
+    border-radius: 15px;
+    margin-left: 0.5rem;
+}
+
+.debug-info {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    font-family: monospace;
+}
+
+pre {
+    background-color: var(--code-bg);
+    color: var(--code-color);
+    padding: 1rem;
+    border-radius: 5px;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+}
+
+code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+pre code {
+    background-color: transparent;
+    padding: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.links-list {
+    list-style: none;
+}
+
+.links-list li {
+    margin-bottom: 1rem;
+}
+
+.links-list a {
+    color: var(--light);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s;
+    font-size: 1.1rem;
+}
+
+.links-list a:hover {
+    color: var(--primary);
+}
+
+.links-list a svg {
+    margin-right: 0.5rem;
+    min-width: 24px;
+}
+
+.link-description {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-left: 29px;
+}
+
+.back-btn {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+} 

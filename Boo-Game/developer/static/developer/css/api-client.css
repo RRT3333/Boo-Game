@@ -1,0 +1,106 @@
+/* API Client Documentation Styles */
+.method {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.method-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.method-type {
+    background-color: var(--info);
+    color: white;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    margin-right: 1rem;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.method-type.post {
+    background-color: var(--success);
+}
+
+.method-type.get {
+    background-color: var(--info);
+}
+
+.method-name {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--secondary);
+}
+
+.param-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+}
+
+.param-table th, .param-table td {
+    text-align: left;
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.param-table th {
+    background-color: rgba(0, 0, 0, 0.2);
+    font-weight: bold;
+    color: var(--secondary);
+}
+
+.param-table tr:last-child td {
+    border-bottom: none;
+}
+
+.param-name {
+    font-family: 'Consolas', 'Monaco', monospace;
+    color: var(--primary);
+}
+
+.param-type {
+    color: var(--warning);
+    font-size: 0.9em;
+    font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.param-required {
+    color: var(--danger);
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.param-optional {
+    color: var(--success);
+    font-size: 0.8em;
+}
+
+.download-link {
+    display: inline-block;
+    margin-top: 1rem;
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.download-link:hover {
+    text-decoration: underline;
+}
+
+.notes {
+    background-color: rgba(255, 215, 0, 0.1);
+    border-left: 4px solid var(--secondary);
+    padding: 1rem;
+    margin: 1.5rem 0;
+    border-radius: 0 5px 5px 0;
+}
+
+.notes h4 {
+    color: var(--secondary);
+    margin-bottom: 0.5rem;
+} 
