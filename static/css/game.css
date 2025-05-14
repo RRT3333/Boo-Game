@@ -33,7 +33,7 @@ body {
     overflow: hidden;
 }
 
-/* 게임 컨테이너 */
+/* 게임 컨테이너 - 데스크톱 환경에서는 고정 크기로 유지 */
 .game-container {
     position: relative;
     width: 800px;
@@ -43,12 +43,17 @@ body {
     box-shadow: 0 0 30px rgba(0, 221, 255, 0.3);
     border: 2px solid #00DDFF;
     overflow: hidden;
+    margin: 0 auto; /* 중앙 정렬 */
+    left: 0 !important; /* 왼쪽 위치 초기화 */
+    right: 0 !important; /* 오른쪽 위치 초기화 */
 }
 
 #gameCanvas {
     width: 100%;
     height: 100%;
     display: block;
+    margin: 0 auto; /* 중앙 정렬 */
+    position: relative !important;
 }
 
 /* HUD (Heads-Up Display) */
@@ -205,7 +210,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: rgba(0, 0, 0, 0.95);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -214,6 +219,7 @@ body {
     color: white;
     z-index: 40;
     padding: 20px;
+    overflow-y: auto;
 }
 
 .game-over.hidden, .game-clear.hidden {
@@ -453,75 +459,323 @@ body {
     background-color: rgba(0, 0, 0, 0.95);
     border: 3px solid var(--primary-color);
     border-radius: 10px;
-    margin: 20px;
-    width: calc(100% - 40px);
-    height: calc(100% - 40px);
+    margin: 0;
+    width: 100%;
+    height: 100%;
 }
 
-/* 모바일 최적화 */
+/* 모바일 최적화 (세로 화면) */
 @media (max-width: 800px) {
+    /* 게임 컨테이너 전체 화면 설정 */
     .game-container {
         width: 100vw;
-        height: 75vw;
-        border-radius: 0;
+        height: 100vh;
         max-height: 100vh;
+        border-radius: 0;
+        border: none;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
     
+    body {
+        padding: 0;
+        margin: 0;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+        position: fixed;
+    }
+    
+    /* HUD 최적화 */
     .hud {
         padding: 10px;
     }
     
     .score, .timer {
         font-size: 16px;
+        font-weight: bold;
     }
     
     .health .heart {
         font-size: 20px;
     }
     
-    .stage-progress {
-        width: 100px;
-    }
-    
     .countdown {
-        font-size: 80px;
+        font-size: 70px;
     }
     
-    .game-over h2, .game-clear h2 {
-        font-size: 22px;
+    /* 게임 오버/클리어 화면 스타일 */
+    .game-over, .game-clear {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        overflow-y: auto;
+        background-color: rgba(0, 0, 0, 0.95);
+        -webkit-overflow-scrolling: touch;
+        z-index: 1000;
     }
     
-    .game-over p, .game-clear p {
-        font-size: 12px;
+    /* 게임 오버 콘텐츠 */
+    .game-over-content {
+        width: 100%;
+        max-width: 500px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
     
-    .retro-input-label {
-        font-size: 14px;
+    /* 게임 통계 영역 */
+    .game-stats {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    /* 입력 영역 */
+    .game-inputs {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    /* 닉네임 입력 컨테이너 */
+    .nickname-save-container {
+        width: 100%;
+        max-width: 350px;
+        margin: 10px 0;
+    }
+    
+    /* 레트로 입력 그룹 */
+    .retro-input-group {
+        padding: 15px;
+    }
+    
+    /* 입력 래퍼 */
+    .retro-input-wrapper {
+        flex-direction: column;
+        gap: 10px;
     }
     
     .retro-input-wrapper input {
-        font-size: 12px;
-        padding: 8px;
+        width: 100%;
+        height: 40px;
+        font-size: 16px;
     }
     
     .retro-button {
-        font-size: 10px;
-        padding: 8px 12px;
+        width: 100%;
+        height: 40px;
     }
     
-    .btn-restart, .btn-leaderboard, .btn-home {
-        font-size: 10px;
-        padding: 10px 15px;
-        min-width: 100px;
-    }
-    
+    /* 액션 버튼 */
     .action-buttons {
-        flex-direction: column;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+        width: 100%;
+        max-width: 350px;
+        justify-content: center;
+    }
+    
+    /* 버튼 스타일 */
+    .btn-restart, .btn-leaderboard, .btn-home {
+        flex: 1;
+        min-width: 0;
+        font-size: 14px;
+        padding: 10px;
+        white-space: nowrap;
+        min-height: 44px; /* 모바일 터치에 적합한 높이 */
     }
 }
 
-@media (max-width: 500px) {
+/* 스마트폰 가로 모드 최적화 */
+@media (max-width: 800px) and (max-height: 500px) {
+    /* HUD 요소 크기 조정 */
+    .hud {
+        padding: 5px;
+    }
+    
+    .score, .timer {
+        font-size: 14px;
+    }
+    
+    .health .heart {
+        font-size: 16px;
+    }
+    
+    /* 게임 오버 컨텐츠 */
+    .game-over h2, .game-clear h2 {
+        font-size: 20px;
+        margin: 5px 0;
+    }
+    
+    .game-over p, .game-clear p {
+        font-size: 14px;
+        margin: 3px 0;
+    }
+    
+    /* 입력 영역 조정 */
+    .retro-input-group {
+        padding: 10px;
+        margin: 5px 0;
+    }
+    
+    .retro-input-label {
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+    
+    .action-buttons {
+        margin-top: 10px;
+        gap: 5px;
+    }
+}
+
+/* 작은 모바일 화면 최적화 */
+@media (max-width: 380px) {
+    /* 제거하거나 다른 미디어 쿼리와 병합 */
+}
+
+/* 작은 모바일 화면 최적화 */
+@media (max-width: 400px) {
+    .game-over h2, .game-clear h2 {
+        font-size: 24px;
+        margin: 8px 0;
+    }
+    
+    .game-over p, .game-clear p {
+        font-size: 14px;
+        margin: 5px 0;
+    }
+    
+    .retro-input-label {
+        font-size: 18px;
+    }
+    
     .countdown {
         font-size: 60px;
+    }
+}
+
+/* 데스크톱 환경에서 캔버스 항상 중앙에 표시 */
+@media (min-width: 801px) {
+    body {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        overflow: hidden !important;
+        height: 100vh !important;
+        width: 100vw !important;
+    }
+    
+    .game-container {
+        margin: 0 auto !important;
+        left: 0 !important;
+        right: 0 !important;
+        position: relative !important;
+        transform: none !important;
+        width: 800px !important;
+        height: 600px !important;
+    }
+    
+    #gameCanvas {
+        margin: 0 auto !important;
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+}
+
+/* 교수님 이벤트 경고 스타일 */
+.game-warning {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #FF0000;
+    font-weight: bold;
+    font-size: 60px;
+    text-shadow: 3px 3px 2px rgba(0, 0, 0, 0.7);
+    z-index: 30;
+    text-align: center;
+    animation: warningPulse 0.5s infinite alternate;
+    font-family: 'Spoqa Han Sans Neo', sans-serif;
+}
+
+@keyframes warningPulse {
+    from { transform: translate(-50%, -50%) scale(1); text-shadow: 3px 3px 2px rgba(0, 0, 0, 0.7); }
+    to { transform: translate(-50%, -50%) scale(1.1); text-shadow: 5px 5px 5px rgba(0, 0, 0, 0.9); }
+}
+
+/* 교수님 이벤트 말풍선 스타일 */
+.professor-speech {
+    position: absolute;
+    bottom: 100px;
+    left: 220px;
+    background-color: white;
+    border-radius: 20px;
+    padding: 15px;
+    max-width: 250px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    z-index: 25;
+    font-size: 14px;
+    line-height: 1.4;
+    border: 2px solid #333;
+}
+
+.professor-speech:after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 20px;
+    border-width: 15px 15px 0;
+    border-style: solid;
+    border-color: white transparent;
+    display: block;
+    width: 0;
+}
+
+.professor-speech:before {
+    content: '';
+    position: absolute;
+    bottom: -18px;
+    left: 18px;
+    border-width: 17px 17px 0;
+    border-style: solid;
+    border-color: #333 transparent;
+    display: block;
+    width: 0;
+}
+
+/* 모바일 환경에서 교수님 이벤트 스타일 조정 */
+@media (max-width: 800px) {
+    .professor-speech {
+        bottom: 80px;
+        left: 160px;
+        max-width: 200px;
+        font-size: 12px;
+        padding: 10px;
+    }
+    
+    .game-warning {
+        font-size: 42px;
     }
 }

@@ -11,8 +11,39 @@
 {% block og_url %}https://boogame.kr/game/play/{% endblock %}
 {% block canonical_url %}https://boogame.kr/game/play/{% endblock %}
 
+{% block head_extra %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#121212">
+{% endblock %}
+
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/game.css' %}">
+<style>
+    /* 모바일에서 터치 최적화 */
+    @media (max-width: 800px) {
+        html, body {
+            touch-action: none;
+            overflow: hidden;
+            height: 100%;
+            position: fixed;
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* iOS에서 두 번 탭 방지 */
+        .game-container {
+            touch-action: manipulation;
+        }
+        
+        /* iOS에서 입력 필드 확대 방지 */
+        input {
+            font-size: 16px; /* iOS에서 확대 방지를 위한 최소 폰트 크기 */
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -52,55 +83,67 @@
     
     <!-- 게임 시작 카운트다운 -->
     <div class="countdown" id="countdown">
-        <span id="countdownNumber">3</span>
+        <span id="countdownNumber"></span>
     </div>
     
     <!-- 게임 오버 화면 -->
     <div class="game-over hidden" id="gameOver">
-        <h2 id="gameOverTitle">게임 오버!</h2>
-        <p>최종 점수: <span id="finalScore">0</span></p>
-        <p>플레이 시간: <span id="finalTime">0</span>초</p>
-        <p>스테이지: <span id="finalStage">교양관</span></p>
-        
-        <div class="achievement-unlocked hidden" id="achievementContainer">
-            <h3>업적 달성!</h3>
-            <div id="achievementsList"></div>
-        </div>
-
-        <!-- 이름 입력창 및 저장 버튼 추가 -->
-        <div class="nickname-save-container">
-            <div class="retro-input-group">
-                <div class="retro-input-label">YOUR NAME?</div>
-                <div class="retro-input-wrapper">
-                    <input type="text" id="gameOverNickname" maxlength="12" placeholder="익명의 학생">
-                    <button id="saveNicknameBtn" class="retro-button">SAVE</button>
+        <div class="game-over-content">
+            <div class="game-stats">
+                <h2 id="gameOverTitle">게임 오버!</h2>
+                <p>최종 점수: <span id="finalScore">0</span></p>
+                <p>플레이 시간: <span id="finalTime">0</span>초</p>
+                <p>스테이지: <span id="finalStage">교양관</span></p>
+                
+                <div class="achievement-unlocked hidden" id="achievementContainer">
+                    <h3>업적 달성!</h3>
+                    <div id="achievementsList"></div>
                 </div>
-                <div class="retro-hint">* 미입력시 '익명의 학생'으로 저장됩니다</div>
             </div>
-        </div>
-        
-        <div class="action-buttons">
-            <button id="restartButton" class="btn-restart">다시 시작</button>
-            <a href="{% url 'game:leaderboard' %}" class="btn-leaderboard">리더보드</a>
-            <a href="{% url 'game:index' %}" class="btn-home">홈으로</a>
+
+            <div class="game-inputs">
+                <!-- 이름 입력창 및 저장 버튼 -->
+                <div class="nickname-save-container">
+                    <div class="retro-input-group">
+                        <div class="retro-input-label">YOUR NAME?</div>
+                        <div class="retro-input-wrapper">
+                            <input type="text" id="gameOverNickname" maxlength="12" placeholder="익명의 학생">
+                            <button id="saveNicknameBtn" class="retro-button">SAVE</button>
+                        </div>
+                        <div class="retro-hint">* 미입력시 '익명의 학생'으로 저장됩니다</div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="restartButton" class="btn-restart">다시 시작</button>
+                    <a href="{% url 'game:leaderboard' %}" class="btn-leaderboard">리더보드</a>
+                    <a href="{% url 'game:index' %}" class="btn-home">홈으로</a>
+                </div>
+            </div>
         </div>
     </div>
     
     <!-- 게임 클리어 화면 -->
     <div class="game-clear hidden" id="gameClear">
-        <h2>축하합니다! 졸업이다!</h2>
-        <p>최종 점수: <span id="clearScore">0</span></p>
-        <p>플레이 시간: <span id="clearTime">0</span>초</p>
-        
-        <div class="achievement-unlocked hidden" id="clearAchievementContainer">
-            <h3>업적 달성!</h3>
-            <div id="clearAchievementsList"></div>
-        </div>
-        
-        <div class="action-buttons">
-            <button id="clearRestartButton" class="btn-restart">다시 시작</button>
-            <a href="{% url 'game:leaderboard' %}" class="btn-leaderboard">리더보드</a>
-            <a href="{% url 'game:index' %}" class="btn-home">홈으로</a>
+        <div class="game-over-content">
+            <div class="game-stats">
+                <h2>축하합니다! 졸업이다!</h2>
+                <p>최종 점수: <span id="clearScore">0</span></p>
+                <p>플레이 시간: <span id="clearTime">0</span>초</p>
+                
+                <div class="achievement-unlocked hidden" id="clearAchievementContainer">
+                    <h3>업적 달성!</h3>
+                    <div id="clearAchievementsList"></div>
+                </div>
+            </div>
+            
+            <div class="game-inputs">
+                <div class="action-buttons">
+                    <button id="clearRestartButton" class="btn-restart">다시 시작</button>
+                    <a href="{% url 'game:leaderboard' %}" class="btn-leaderboard">리더보드</a>
+                    <a href="{% url 'game:index' %}" class="btn-home">홈으로</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -141,6 +184,110 @@
 {% block scripts %}
 <script>
   window.PLAYER_ID = "{{ player_id|default:'' }}";
+  
+  // 모바일 터치 이벤트 최적화
+  document.addEventListener('DOMContentLoaded', function() {
+    // iOS에서 더블 탭 방지
+    document.addEventListener('touchmove', function(e) {
+      if (e.scale !== 1) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+    
+    // 게임 오버 화면에서 스크롤 가능하도록
+    const gameOverElement = document.getElementById('gameOver');
+    if (gameOverElement) {
+      gameOverElement.addEventListener('touchmove', function(e) {
+        e.stopPropagation();
+      }, { passive: true });
+    }
+    
+    // 닉네임 입력 필드 포커스 시 처리
+    const nicknameInput = document.getElementById('gameOverNickname');
+    if (nicknameInput) {
+      nicknameInput.addEventListener('focus', function() {
+        // 입력 필드가 화면에 보이도록 스크롤
+        setTimeout(function() {
+          nicknameInput.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }, 300);
+      });
+    }
+    
+    // 모바일 환경에서만 화면 최적화
+    function optimizeForMobile() {
+      const gameContainer = document.querySelector('.game-container');
+      const canvas = document.getElementById('gameCanvas');
+      
+      if (gameContainer && canvas && window.innerWidth <= 800) {
+        // 모바일 환경에서 전체 화면 설정
+        gameContainer.style.width = '100vw';
+        gameContainer.style.height = '100vh';
+        gameContainer.style.maxHeight = '100vh';
+        gameContainer.style.borderRadius = '0';
+        gameContainer.style.border = 'none';
+        
+        // 캔버스 크기 설정
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        
+        // 게임 크기 업데이트 (게임 인스턴스가 있는 경우)
+        if (window.gameInstance && typeof window.gameInstance.updateCanvasSize === 'function') {
+          window.gameInstance.updateCanvasSize();
+        }
+      } else if (gameContainer && canvas) {
+        // 데스크탑 환경에서 중앙 정렬
+        gameContainer.style.margin = '0 auto !important';
+        gameContainer.style.left = '0 !important';
+        gameContainer.style.right = '0 !important';
+        gameContainer.style.position = 'relative !important';
+        gameContainer.style.width = '800px !important';
+        gameContainer.style.height = '600px !important';
+        gameContainer.style.transform = 'none !important';
+        
+        canvas.style.margin = '0 auto !important';
+        canvas.style.position = 'relative !important';
+        canvas.style.left = 'auto !important';
+        canvas.style.width = '100% !important';
+        canvas.style.height = '100% !important';
+        
+        // 중앙 정렬을 위한 body 스타일
+        document.body.style.display = 'flex';
+        document.body.style.justifyContent = 'center';
+        document.body.style.alignItems = 'center';
+      }
+    }
+    
+    // 화면 크기 변경 및 초기 로드 시 최적화 적용
+    optimizeForMobile();
+    window.addEventListener('resize', optimizeForMobile);
+    
+    // 게임 재시작 시 중앙 정렬 유지
+    const restartButton = document.getElementById('restartButton');
+    if (restartButton) {
+      restartButton.addEventListener('click', function() {
+        // 약간의 지연을 두고 중앙 정렬 재적용
+        setTimeout(optimizeForMobile, 50);
+        setTimeout(optimizeForMobile, 100);
+        setTimeout(optimizeForMobile, 300);
+      });
+    }
+    
+    // 현재 PC에서 다시 시작 문제 해결을 위한 추가 코드
+    const clearRestartButton = document.getElementById('clearRestartButton');
+    if (clearRestartButton) {
+      clearRestartButton.addEventListener('click', function() {
+        setTimeout(optimizeForMobile, 50);
+        setTimeout(optimizeForMobile, 100);
+        setTimeout(optimizeForMobile, 300);
+      });
+    }
+    
+    // 로드 완료 후 중앙 정렬 확인
+    window.addEventListener('load', function() {
+      setTimeout(optimizeForMobile, 300);
+      setTimeout(optimizeForMobile, 500);
+    });
+  });
 </script>
-<script src="{% static 'js/game.js' %}"></script>
+<script type="module" src="{% static 'js/game.js' %}"></script>
 {% endblock %}
