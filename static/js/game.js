@@ -19,6 +19,12 @@ class Game {
         this.timer = null;  // 타이머 참조 추가
         this.elapsedGameTime = 0;  // 게임 시작 후 경과 시간
         
+        // 스테이지 관련 변수
+        this.currentStage = 1;
+        this.stageTransitioning = false;
+        this.stageTransitionProgress = 0; // 0-100% 전환 진행도
+        this.stageTransitionSpeed = 2; // 전환 속도
+
         // 프로페서 애니메이션 관련 변수
         this.professorShown = false;
         this.professorAnimationActive = false;
@@ -34,13 +40,30 @@ class Game {
             fGrade: new Image(),
             professor: new Image(),
             character: new Image(),
-            flyingCharacter: new Image()
+            flyingCharacter: new Image(),
+            backgrounds: []
         };
         this.images.aPlus.src = '/static/assets/items/a_plus.png';
         this.images.fGrade.src = '/static/assets/obstacles/f_grade.png';
         this.images.professor.src = '/static/assets/character/professor.png';
         this.images.character.src = '/static/assets/character/charcter.png';
         this.images.flyingCharacter.src = '/static/assets/character/flying_chracter.png';
+        
+        // 배경 이미지 로드
+        const backgroundPaths = [
+            '/static/assets/backgrounds/stage1_liberal.jpg',
+            '/static/assets/backgrounds/stage2_myungsu.jpg',
+            '/static/assets/backgrounds/stage3_engineering.jpg',
+            '/static/assets/backgrounds/stage4_baekyeon.jpg',
+            '/static/assets/backgrounds/stage5_dorm.jpg',
+            '/static/assets/backgrounds/stage6_gate.jpg'
+        ];
+        
+        backgroundPaths.forEach(path => {
+            const img = new Image();
+            img.src = path;
+            this.images.backgrounds.push(img);
+        });
         
         // 사운드 효과 로드
         this.sounds = {
@@ -156,6 +179,11 @@ class Game {
         this.lastCountdownTime = 0;
         this.elapsedGameTime = 0;  // 게임 경과 시간 초기화
         
+        // 스테이지 초기화
+        this.currentStage = 1;
+        this.stageTransitioning = false;
+        this.stageTransitionProgress = 0;
+        
         // 프로페서 애니메이션 초기화
         this.professorShown = false;
         this.professorAnimationActive = false;
@@ -218,6 +246,14 @@ class Game {
                                         warningEl.parentNode.removeChild(warningEl);
                                     }
                                 }, 3000);
+                            }
+                            
+                            // 스테이지 전환 확인 (10초마다)
+                            if (this.elapsedGameTime % 10 === 0 && this.elapsedGameTime > 0 && this.elapsedGameTime <= 50) {
+                                // 5번만 전환 (6단계까지)
+                                if (this.currentStage < 6) {
+                                    this.startStageTransition();
+                                }
                             }
                             
                             if (this.timeLeft === 0) {
@@ -295,6 +331,9 @@ class Game {
             this.backgroundX = 0;
         }
 
+        // 스테이지 전환 업데이트
+        this.updateStageTransition();
+
         // Update obstacles
         this.obstacles = this.obstacles.filter(obstacle => {
             obstacle.x -= 5;
@@ -342,16 +381,20 @@ class Game {
             if (elapsed < this.professorAnimationDuration) {
                 // 처음 2초 동안 등장
                 if (elapsed < this.professorAnimationDuration / 3) {
-                    this.professorX = Math.min(100, -200 + (elapsed / (this.professorAnimationDuration/3)) * 300);
+                    // 화면 중앙으로 이동 (화면 너비/2 - 교수님 이미지 너비/2)
+                    const centerX = this.canvas.width / 2 - 100;
+                    this.professorX = Math.min(centerX, -200 + (elapsed / (this.professorAnimationDuration/3)) * (centerX + 200));
                 } 
                 // 2초 동안 유지
                 else if (elapsed < this.professorAnimationDuration * 2/3) {
-                    this.professorX = 100;
+                    // 화면 중앙에 위치
+                    this.professorX = this.canvas.width / 2 - 100;
                 }
                 // 마지막 2초 동안 퇴장
                 else {
                     const reverseElapsed = elapsed - (this.professorAnimationDuration * 2/3);
-                    this.professorX = 100 - (reverseElapsed / (this.professorAnimationDuration/3)) * 300;
+                    const centerX = this.canvas.width / 2 - 100;
+                    this.professorX = centerX - (reverseElapsed / (this.professorAnimationDuration/3)) * (centerX + 200);
                 }
             } else {
                 this.professorAnimationActive = false;
@@ -371,8 +414,9 @@ class Game {
     drawGame() {
         // 항상 clearRect와 배경 그리기
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.fillStyle = '#87CEEB';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // 배경 그리기 (스테이지에 따라 다른 배경)
+        this.drawBackground();
 
         // Draw player (Boo) - 이미지로 교체 (상태에 따라 다른 이미지 사용)
         const characterImg = this.player.isFlying ? this.images.flyingCharacter : this.images.character;
@@ -614,6 +658,150 @@ class Game {
             }
         } catch (e) {
             console.log('Sound error:', e);
+        }
+    }
+
+    // 스테이지 전환 시작
+    startStageTransition() {
+        this.stageTransitioning = true;
+        this.stageTransitionProgress = 0;
+    }
+    
+    // 스테이지 전환 업데이트
+    updateStageTransition() {
+        if (!this.stageTransitioning) return;
+        
+        this.stageTransitionProgress += this.stageTransitionSpeed;
+        
+        if (this.stageTransitionProgress >= 100) {
+            // 전환 완료
+            this.stageTransitioning = false;
+            this.stageTransitionProgress = 0;
+            this.currentStage++;
+            
+            // 마지막 스테이지 체크
+            if (this.currentStage > 6) {
+                this.currentStage = 6;
+            }
+        }
+    }
+
+    // 배경 그리기 함수
+    drawBackground() {
+        // 기본 하늘 배경 그리기 (회색으로 변경)
+        this.ctx.fillStyle = 'rgba(200, 200, 200, 0.8)';  // 반투명 회색
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // 배경 이미지용 설정
+        const bgHeight = this.canvas.height * 0.7;  // 캔버스 높이의 70%만 사용 (더 낮춤)
+        const bgY = this.canvas.height - bgHeight;  // 하단에 배치
+        
+        // 전환 중이 아니면 현재 스테이지 배경만 그림
+        if (!this.stageTransitioning) {
+            // 현재 스테이지 배경 (0부터 시작하므로 -1)
+            const currentBg = this.images.backgrounds[this.currentStage - 1];
+            
+            // 배경 이미지 반복 그리기 (무한 스크롤)
+            if (currentBg && currentBg.complete) {
+                // 불투명도 원래대로
+                this.ctx.globalAlpha = 1;
+                
+                // 이미지 비율 유지
+                const bgRatio = currentBg.naturalWidth / currentBg.naturalHeight;
+                let renderWidth = this.canvas.width;
+                let renderHeight = renderWidth / bgRatio;
+                
+                // 높이가 설정한 영역보다 작으면 높이에 맞춤
+                if (renderHeight < bgHeight) {
+                    renderHeight = bgHeight;
+                    renderWidth = renderHeight * bgRatio;
+                }
+                
+                // X 오프셋 계산 (이미지 중앙 정렬)
+                const xOffset = (renderWidth - this.canvas.width) / 2;
+                
+                // 첫 번째 이미지
+                this.ctx.drawImage(
+                    currentBg, 
+                    this.backgroundX - xOffset, bgY, 
+                    renderWidth, renderHeight
+                );
+                // 두 번째 이미지 (연속적인 스크롤을 위해)
+                this.ctx.drawImage(
+                    currentBg, 
+                    this.backgroundX + this.canvas.width - xOffset, bgY, 
+                    renderWidth, renderHeight
+                );
+            }
+        } else {
+            // 전환 중일 때는 두 배경을 블렌딩
+            const currentBg = this.images.backgrounds[this.currentStage - 1];
+            const nextBg = this.images.backgrounds[this.currentStage];
+            
+            // 현재 배경 그리기
+            if (currentBg && currentBg.complete) {
+                // 현재 배경 알파 계산
+                this.ctx.globalAlpha = 1 - (this.stageTransitionProgress / 100);
+                
+                // 이미지 비율 유지
+                const bgRatio = currentBg.naturalWidth / currentBg.naturalHeight;
+                let renderWidth = this.canvas.width;
+                let renderHeight = renderWidth / bgRatio;
+                
+                // 높이가 설정한 영역보다 작으면 높이에 맞춤
+                if (renderHeight < bgHeight) {
+                    renderHeight = bgHeight;
+                    renderWidth = renderHeight * bgRatio;
+                }
+                
+                // X 오프셋 계산 (이미지 중앙 정렬)
+                const xOffset = (renderWidth - this.canvas.width) / 2;
+                
+                this.ctx.drawImage(
+                    currentBg, 
+                    this.backgroundX - xOffset, bgY, 
+                    renderWidth, renderHeight
+                );
+                this.ctx.drawImage(
+                    currentBg, 
+                    this.backgroundX + this.canvas.width - xOffset, bgY, 
+                    renderWidth, renderHeight
+                );
+            }
+            
+            // 다음 배경 그리기
+            if (nextBg && nextBg.complete) {
+                // 다음 배경 알파 계산
+                this.ctx.globalAlpha = this.stageTransitionProgress / 100;
+                
+                // 이미지 비율 유지
+                const bgRatio = nextBg.naturalWidth / nextBg.naturalHeight;
+                let renderWidth = this.canvas.width;
+                let renderHeight = renderWidth / bgRatio;
+                
+                // 높이가 설정한 영역보다 작으면 높이에 맞춤
+                if (renderHeight < bgHeight) {
+                    renderHeight = bgHeight;
+                    renderWidth = renderHeight * bgRatio;
+                }
+                
+                // X 오프셋 계산 (이미지 중앙 정렬)
+                const xOffset = (renderWidth - this.canvas.width) / 2;
+                
+                this.ctx.drawImage(
+                    nextBg, 
+                    this.backgroundX - xOffset, bgY, 
+                    renderWidth, renderHeight
+                );
+                this.ctx.drawImage(
+                    nextBg, 
+                    this.backgroundX + this.canvas.width - xOffset, bgY, 
+                    renderWidth, renderHeight
+                );
+            }
+            
+            // 알파값 초기화
+            this.ctx.globalAlpha = 1;
         }
     }
 }
