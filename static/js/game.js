@@ -25,6 +25,14 @@ class Game {
         this.stageTransitionProgress = 0; // 0-100% 전환 진행도
         this.stageTransitionSpeed = 2; // 전환 속도
 
+        // 커스터마이징 데이터 가져오기
+        const gameAssets = document.getElementById('gameAssets');
+        this.customization = {
+            outfit: gameAssets ? gameAssets.getAttribute('data-outfit') || 'default' : 'default',
+            hat: gameAssets ? gameAssets.getAttribute('data-hat') || 'none' : 'none',
+            shoes: gameAssets ? gameAssets.getAttribute('data-shoes') || 'default' : 'default'
+        };
+
         // 프로페서 애니메이션 관련 변수
         this.professorShown = false;
         this.professorAnimationActive = false;
@@ -41,13 +49,30 @@ class Game {
             professor: new Image(),
             character: new Image(),
             flyingCharacter: new Image(),
-            backgrounds: []
+            backgrounds: [],
+            // 커스터마이징 이미지
+            customization: {
+                outfit: new Image(),
+                hat: new Image(),
+                shoes: new Image()
+            }
         };
         this.images.aPlus.src = '/static/assets/items/a_plus.png';
         this.images.fGrade.src = '/static/assets/obstacles/f_grade.png';
         this.images.professor.src = '/static/assets/character/professor.png';
-        this.images.character.src = '/static/assets/character/charcter.png';
-        this.images.flyingCharacter.src = '/static/assets/character/flying_chracter.png';
+        this.images.character.src = '/static/assets/character/character.png';
+        this.images.flyingCharacter.src = '/static/assets/character/flying_character.png';
+        
+        // 커스터마이징 이미지 로드
+        if (this.customization.outfit !== 'default') {
+            this.images.customization.outfit.src = `/static/assets/customization/${this.customization.outfit}.png`;
+        }
+        if (this.customization.hat !== 'none') {
+            this.images.customization.hat.src = `/static/assets/customization/${this.customization.hat}.png`;
+        }
+        if (this.customization.shoes !== 'default') {
+            this.images.customization.shoes.src = `/static/assets/customization/${this.customization.shoes}.png`;
+        }
         
         // 배경 이미지 로드
         const backgroundPaths = [
@@ -427,6 +452,40 @@ class Game {
             this.player.width, 
             this.player.height
         );
+        
+        // 커스터마이징 아이템 그리기
+        // 의상 그리기
+        if (this.customization.outfit !== 'default' && this.images.customization.outfit.complete) {
+            this.ctx.drawImage(
+                this.images.customization.outfit,
+                this.player.x,
+                this.player.y,
+                this.player.width,
+                this.player.height
+            );
+        }
+        
+        // 모자 그리기
+        if (this.customization.hat !== 'none' && this.images.customization.hat.complete) {
+            this.ctx.drawImage(
+                this.images.customization.hat,
+                this.player.x,
+                this.player.y - 10, // 머리 위에 위치
+                this.player.width,
+                30 // 모자 높이 조정
+            );
+        }
+        
+        // 신발 그리기
+        if (this.customization.shoes !== 'default' && this.images.customization.shoes.complete) {
+            this.ctx.drawImage(
+                this.images.customization.shoes,
+                this.player.x,
+                this.player.y + this.player.height - 15, // 발 위치에 맞춤
+                this.player.width,
+                15 // 신발 높이 조정
+            );
+        }
 
         // Draw obstacles
         this.obstacles.forEach(obstacle => {
