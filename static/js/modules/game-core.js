@@ -500,6 +500,12 @@ export class Game {
     
     // 게임 재시작
     restart() {
+        console.log('재시작 메서드 호출됨 - 페이지 리로드 방식으로 변경');
+        
+        // 모바일 기기에서는 위치 새로고침을 사용하여 더 안정적으로 재시작
+        window.location.reload();
+        
+        // 아래 코드는 브라우저가 새로고침을 실행하지 않을 경우를 대비한 대체 코드임
         // UI 재설정
         handleGameRestart();
         
