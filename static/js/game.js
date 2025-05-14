@@ -18,6 +18,14 @@ class Game {
         this.isCountingDown = true;
         this.timer = null;  // 타이머 참조 추가
         
+        // 이미지 로드
+        this.images = {
+            aPlus: new Image(),
+            fGrade: new Image()
+        };
+        this.images.aPlus.src = '/static/assets/items/a_plus.png';
+        this.images.fGrade.src = '/static/assets/obstacles/f_grade.png';
+        
         // 사운드 효과 로드
         this.sounds = {
             jump: new Audio('/static/assets/sounds/jump.mp3'),
@@ -190,7 +198,7 @@ class Game {
     }
 
     spawnObstacle() {
-        if (Math.random() < 0.02) {
+        if (Math.random() < 0.05) {
             this.obstacles.push({
                 x: this.canvas.width,
                 y: Math.random() * (this.canvas.height - 40),
@@ -293,27 +301,47 @@ class Game {
 
         // Draw obstacles
         this.obstacles.forEach(obstacle => {
-            this.ctx.fillStyle = obstacle.type === 'F' ? '#FF0000' : '#000000';
-            this.ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-            if (typeof obstacle.type === 'string' && obstacle.type) {
-                this.ctx.fillStyle = '#FFFFFF';
-                this.ctx.font = '20px Arial';
-                this.ctx.fillText(obstacle.type, 
-                    obstacle.x + 15, 
-                    obstacle.y + 25);
+            if (obstacle.type === 'F') {
+                this.ctx.drawImage(
+                    this.images.fGrade,
+                    obstacle.x, 
+                    obstacle.y, 
+                    obstacle.width, 
+                    obstacle.height
+                );
+            } else {
+                this.ctx.fillStyle = '#000000';
+                this.ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                if (typeof obstacle.type === 'string' && obstacle.type) {
+                    this.ctx.fillStyle = '#FFFFFF';
+                    this.ctx.font = '20px Arial';
+                    this.ctx.fillText(obstacle.type, 
+                        obstacle.x + 15, 
+                        obstacle.y + 25);
+                }
             }
         });
 
         // Draw items
         this.items.forEach(item => {
-            this.ctx.fillStyle = item.type === 'A+' ? '#00FF00' : '#FFD700';
-            this.ctx.fillRect(item.x, item.y, item.width, item.height);
-            if (typeof item.type === 'string' && item.type) {
-                this.ctx.fillStyle = '#FFFFFF';
-                this.ctx.font = '16px Arial';
-                this.ctx.fillText(item.type, 
-                    item.x + 5, 
-                    item.y + 20);
+            if (item.type === 'A+') {
+                this.ctx.drawImage(
+                    this.images.aPlus,
+                    item.x, 
+                    item.y, 
+                    item.width, 
+                    item.height
+                );
+            } else {
+                this.ctx.fillStyle = '#FFD700';
+                this.ctx.fillRect(item.x, item.y, item.width, item.height);
+                if (typeof item.type === 'string' && item.type) {
+                    this.ctx.fillStyle = '#FFFFFF';
+                    this.ctx.font = '16px Arial';
+                    this.ctx.fillText(item.type, 
+                        item.x + 5, 
+                        item.y + 20);
+                }
             }
         });
     }
