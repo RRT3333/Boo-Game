@@ -104,4 +104,37 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.remove('highlight');
         });
     });
+    
+    // 모바일에서 QR 코드 토글 기능
+    const qrToggle = document.querySelector('.toggle-qr-mobile');
+    const qrCodeImage = document.querySelector('.qr-code-image');
+    
+    if (qrToggle && qrCodeImage) {
+        // 모바일인 경우 기본적으로 QR코드 숨기기
+        if (window.innerWidth <= 500) {
+            qrCodeImage.classList.remove('show');
+        } else {
+            qrCodeImage.classList.add('show');
+        }
+        
+        qrToggle.addEventListener('click', function() {
+            qrCodeImage.classList.toggle('show');
+            qrToggle.textContent = qrCodeImage.classList.contains('show') ? '▲' : '▼';
+        });
+    }
+    
+    // 창 크기 변경 감지
+    window.addEventListener('resize', function() {
+        if (qrCodeImage) {
+            if (window.innerWidth <= 500) {
+                if (!qrToggle.classList.contains('clicked')) {
+                    qrCodeImage.classList.remove('show');
+                    qrToggle.textContent = '▼';
+                }
+            } else {
+                qrCodeImage.classList.add('show');
+                qrToggle.textContent = '▲';
+            }
+        }
+    });
 }); 

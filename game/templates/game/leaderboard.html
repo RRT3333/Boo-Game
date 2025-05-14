@@ -82,8 +82,10 @@
     </div>
     
     <div class="qr-code">
-        <h3>QR코드로 공유하기</h3>
-        <img src="{% static 'assets/ui/qr_code.png' %}" alt="QR 코드">
+        <h3>QR코드로 공유하기 <span class="toggle-qr-mobile">▼</span></h3>
+        <div class="qr-code-image">
+            <img src="{% static 'assets/ui/qr_code.png' %}" alt="QR 코드">
+        </div>
     </div>
     
     <div class="action-buttons">
