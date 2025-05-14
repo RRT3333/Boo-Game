@@ -206,7 +206,7 @@ def get_leaderboard_data(request):
     """리더보드 데이터 API"""
     top_scores = Score.objects.values('player').annotate(
         best_score=Max('score')
-    ).order_by('-best_score')[:20]
+    ).order_by('-best_score')[:10]
     
     leaderboard_data = []
     for entry in top_scores:
@@ -217,6 +217,7 @@ def get_leaderboard_data(request):
             'nickname': player.nickname,
             'score': entry['best_score'],
             'time': best_game.play_time if best_game else 0,
+            'stage': best_game.max_stage if best_game else 1,
             'customization': {
                 'outfit': player.outfit,
                 'hat': player.hat,

@@ -27,6 +27,13 @@ body {
     background-image: linear-gradient(45deg, #121212, #1a1a2e);
 }
 
+@media (max-width: 768px) {
+    body {
+        padding: 0;
+        margin: 0;
+    }
+}
+
 .main-container {
     position: relative;
     width: 100%;
@@ -37,6 +44,12 @@ body {
     align-items: flex-start;
     padding: 20px 0;
     margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        padding: 10px 0;
+    }
 }
 
 .background-blur {
@@ -68,6 +81,13 @@ body {
     justify-content: space-between;
     gap: 20px;
     margin: 40px 0;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        width: 95%;
+        padding: 20px;
+    }
 }
 
 .game-logo {
@@ -164,6 +184,13 @@ body {
     border: 2px solid var(--primary-color);
 }
 
+@media (max-width: 768px) {
+    .mini-leaderboard {
+        padding: 10px;
+        margin-top: 15px;
+    }
+}
+
 .mini-leaderboard h3 {
     font-family: 'Spoqa Han Sans Neo', sans-serif;
     font-size: 1.6rem;
@@ -172,6 +199,13 @@ body {
     color: var(--accent-color);
     text-shadow: 2px 2px 0 #000;
     font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .mini-leaderboard h3 {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+    }
 }
 
 .top-players {
@@ -193,6 +227,12 @@ body {
     transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
+@media (max-width: 768px) {
+    .player-card {
+        padding: 8px;
+    }
+}
+
 .player-card.hover,
 .player-card:hover {
     border-color: var(--primary-color);
@@ -205,6 +245,14 @@ body {
     height: 50px;
     margin-right: 15px;
     position: relative;
+}
+
+@media (max-width: 480px) {
+    .player-avatar {
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+    }
 }
 
 .avatar-container {
@@ -236,6 +284,16 @@ body {
 .player-score {
     color: var(--accent-color);
     font-weight: bold;
+}
+
+@media (max-width: 480px) {
+    .player-name {
+        font-size: 0.9rem;
+    }
+    
+    .player-score {
+        font-size: 0.9rem;
+    }
 }
 
 .no-records {
@@ -339,16 +397,62 @@ body {
     
     .modal-content {
         width: 90%;
+        max-width: 90%;
+        padding: 15px;
+        max-height: 85vh;
+    }
+    
+    .main-buttons {
+        gap: 10px;
+    }
+    
+    .btn-start, .btn-leaderboard, .btn-howto {
+        padding: 12px 15px;
+        font-size: 1.1rem;
     }
 }
 
 @media (max-width: 480px) {
     .game-logo h1 {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
+    }
+    
+    .game-logo .tagline {
+        font-size: 1rem;
     }
     
     .main-buttons {
         width: 100%;
+        max-width: 100%;
+    }
+    
+    .btn-start, .btn-leaderboard, .btn-howto {
+        padding: 10px;
+        font-size: 1rem;
+    }
+    
+    .main-content {
+        padding: 15px 10px;
+    }
+    
+    .modal-content {
+        width: 95%;
+        max-width: 95%;
+        padding: 12px;
+        max-height: 90vh;
+    }
+    
+    .modal-content h2 {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+    }
+    
+    .how-to-section h3 {
+        font-size: 1.1rem;
+    }
+    
+    .how-to-section li, .how-to-section p {
+        font-size: 0.9rem;
     }
 }
 
