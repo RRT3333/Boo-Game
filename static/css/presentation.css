@@ -66,6 +66,17 @@ body {
     align-items: flex-start;
 }
 
+.title-link {
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    display: block;
+}
+
+.title-link:hover {
+    transform: scale(1.03);
+}
+
 .game-logo h1 {
     font-size: 3rem;
     margin-bottom: 5px;
