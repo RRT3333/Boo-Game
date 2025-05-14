@@ -17,6 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#121212">
+<meta name="format-detection" content="telephone=no">
 {% endblock %}
 
 {% block css %}
@@ -41,6 +42,13 @@
         /* iOS에서 입력 필드 확대 방지 */
         input {
             font-size: 16px; /* iOS에서 확대 방지를 위한 최소 폰트 크기 */
+        }
+        
+        /* 모바일에서 버튼 터치 영역 최적화 */
+        .btn-restart, .btn-leaderboard, .btn-home {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
     }
 </style>
@@ -115,9 +123,9 @@
                 </div>
                 
                 <div class="action-buttons">
-                    <button id="restartButton" class="btn-restart">다시 시작</button>
-                    <a href="{% url 'game:leaderboard' %}" class="btn-leaderboard">리더보드</a>
-                    <a href="{% url 'game:index' %}" class="btn-home">홈으로</a>
+                    <button id="restartButton" class="btn-restart" role="button" aria-label="다시 시작">다시 시작</button>
+                    <a href="{% url 'game:leaderboard' %}" class="btn-leaderboard" role="button" aria-label="리더보드">리더보드</a>
+                    <a href="{% url 'game:index' %}" class="btn-home" role="button" aria-label="홈으로">홈으로</a>
                 </div>
             </div>
         </div>
@@ -139,9 +147,9 @@
             
             <div class="game-inputs">
                 <div class="action-buttons">
-                    <button id="clearRestartButton" class="btn-restart">다시 시작</button>
-                    <a href="{% url 'game:leaderboard' %}" class="btn-leaderboard">리더보드</a>
-                    <a href="{% url 'game:index' %}" class="btn-home">홈으로</a>
+                    <button id="clearRestartButton" class="btn-restart" role="button" aria-label="다시 시작">다시 시작</button>
+                    <a href="{% url 'game:leaderboard' %}" class="btn-leaderboard" role="button" aria-label="리더보드">리더보드</a>
+                    <a href="{% url 'game:index' %}" class="btn-home" role="button" aria-label="홈으로">홈으로</a>
                 </div>
             </div>
         </div>
@@ -201,6 +209,26 @@
         e.stopPropagation();
       }, { passive: true });
     }
+    
+    // 버튼 탭 이벤트 최적화 - 지연 제거
+    const optimizeButton = (id) => {
+      const button = document.getElementById(id);
+      if (button) {
+        // 터치 지연 제거
+        button.addEventListener('touchstart', function() {
+          // 버튼 시각적 피드백
+          this.style.transform = 'scale(0.95)';
+        });
+        button.addEventListener('touchend', function() {
+          // 원래 상태로 복귀
+          this.style.transform = 'scale(1)';
+        });
+      }
+    };
+    
+    // 다시하기 버튼 최적화
+    optimizeButton('restartButton');
+    optimizeButton('clearRestartButton');
     
     // 닉네임 입력 필드 포커스 시 처리
     const nicknameInput = document.getElementById('gameOverNickname');

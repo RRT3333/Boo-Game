@@ -46,10 +46,28 @@ export function setupEventListeners(game) {
     }
     
     // 다시 시작 버튼에 이벤트 추가
-    document.getElementById('restartButton').addEventListener('click', () => game.restart());
+    const restartButton = document.getElementById('restartButton');
+    restartButton.addEventListener('click', () => game.restart());
+    
+    // 모바일에서 터치 이벤트 별도 추가 (클릭 이벤트가 제대로 동작하지 않는 경우 대비)
+    if (game.isMobile) {
+        restartButton.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            game.restart();
+        }, { passive: false });
+    }
+    
     const clearRestartButton = document.getElementById('clearRestartButton');
     if (clearRestartButton) {
         clearRestartButton.addEventListener('click', () => game.restart());
+        
+        // 모바일에서 터치 이벤트 별도 추가
+        if (game.isMobile) {
+            clearRestartButton.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                game.restart();
+            }, { passive: false });
+        }
     }
 }
 
