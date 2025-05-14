@@ -33,12 +33,14 @@ class Game {
             aPlus: new Image(),
             fGrade: new Image(),
             professor: new Image(),
-            character: new Image()
+            character: new Image(),
+            flyingCharacter: new Image()
         };
         this.images.aPlus.src = '/static/assets/items/a_plus.png';
         this.images.fGrade.src = '/static/assets/obstacles/f_grade.png';
         this.images.professor.src = '/static/assets/character/professor.png';
         this.images.character.src = '/static/assets/character/charcter.png';
+        this.images.flyingCharacter.src = '/static/assets/character/flying_chracter.png';
         
         // 사운드 효과 로드
         this.sounds = {
@@ -63,7 +65,8 @@ class Game {
             height: 50, // 고정
             velocity: 0,
             gravity: 0.5,
-            jumpForce: -10
+            jumpForce: -10,
+            isFlying: false // 날고 있는지 여부
         };
 
         // Game objects
@@ -127,6 +130,7 @@ class Game {
         if (e && (e.code === 'Space' || e.type === 'touchstart') || !e) {
             if (!this.gameOver) {
                 this.player.velocity = this.player.jumpForce;
+                this.player.isFlying = true; // 점프 시 날개 편 상태로 변경
                 
                 // 점프 사운드 재생
                 this.playSound('jump');
@@ -148,6 +152,7 @@ class Game {
         this.backgroundX = 0;
         this.player.y = 300;
         this.player.velocity = 0;
+        this.player.isFlying = false; // 초기 상태는 날개 접은 상태
         this.lastCountdownTime = 0;
         this.elapsedGameTime = 0;  // 게임 경과 시간 초기화
         
@@ -269,6 +274,9 @@ class Game {
         // Update player
         this.player.velocity += this.player.gravity;
         this.player.y += this.player.velocity;
+        
+        // 캐릭터 상태 업데이트 (상승 중이면 날개 편 상태, 하강 중이면 기본 상태)
+        this.player.isFlying = this.player.velocity < 0;
 
         // Keep player in bounds
         if (this.player.y > this.canvas.height - this.player.height) {
@@ -278,6 +286,7 @@ class Game {
         if (this.player.y < 0) {
             this.player.y = 0;
             this.player.velocity = 0;
+            this.player.isFlying = false; // 천장에 닿으면 날개 접기
         }
 
         // Update background
@@ -365,9 +374,10 @@ class Game {
         this.ctx.fillStyle = '#87CEEB';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Draw player (Boo) - 이미지로 교체
+        // Draw player (Boo) - 이미지로 교체 (상태에 따라 다른 이미지 사용)
+        const characterImg = this.player.isFlying ? this.images.flyingCharacter : this.images.character;
         this.ctx.drawImage(
-            this.images.character,
+            characterImg,
             this.player.x, 
             this.player.y, 
             this.player.width, 
