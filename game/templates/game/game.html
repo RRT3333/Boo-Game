@@ -83,14 +83,7 @@
     
     <!-- 게임 시작 카운트다운 -->
     <div class="countdown" id="countdown">
-        <span id="countdownNumber">3</span>
-    </div>
-    
-    <!-- 방향 전환 안내 (모바일 세로 모드) -->
-    <div class="orientation-message" id="orientationMessage" style="display: none;">
-        <div class="icon">📱</div>
-        <div class="text">화면을 가로로 돌려주세요!</div>
-        <div class="subtext">최상의 게임 경험을 위해 가로 방향을 권장합니다.</div>
+        <span id="countdownNumber"></span>
     </div>
     
     <!-- 게임 오버 화면 -->
@@ -201,12 +194,6 @@
       }
     }, { passive: false });
     
-    // 방향 메시지 제거 (세로 모드 지원)
-    const orientationMessage = document.getElementById('orientationMessage');
-    if (orientationMessage) {
-      orientationMessage.style.display = 'none';
-    }
-    
     // 게임 오버 화면에서 스크롤 가능하도록
     const gameOverElement = document.getElementById('gameOver');
     if (gameOverElement) {
@@ -226,16 +213,18 @@
       });
     }
     
-    // 모바일 세로 화면 최적화
-    function optimizeForPortrait() {
+    // 모바일 환경에서만 화면 최적화
+    function optimizeForMobile() {
       const gameContainer = document.querySelector('.game-container');
       const canvas = document.getElementById('gameCanvas');
       
       if (gameContainer && canvas && window.innerWidth <= 800) {
-        // 전체 화면 설정
+        // 모바일 환경에서 전체 화면 설정
         gameContainer.style.width = '100vw';
         gameContainer.style.height = '100vh';
         gameContainer.style.maxHeight = '100vh';
+        gameContainer.style.borderRadius = '0';
+        gameContainer.style.border = 'none';
         
         // 캔버스 크기 설정
         canvas.style.width = '100%';
@@ -245,13 +234,60 @@
         if (window.gameInstance && typeof window.gameInstance.updateCanvasSize === 'function') {
           window.gameInstance.updateCanvasSize();
         }
+      } else if (gameContainer && canvas) {
+        // 데스크탑 환경에서 중앙 정렬
+        gameContainer.style.margin = '0 auto !important';
+        gameContainer.style.left = '0 !important';
+        gameContainer.style.right = '0 !important';
+        gameContainer.style.position = 'relative !important';
+        gameContainer.style.width = '800px !important';
+        gameContainer.style.height = '600px !important';
+        gameContainer.style.transform = 'none !important';
+        
+        canvas.style.margin = '0 auto !important';
+        canvas.style.position = 'relative !important';
+        canvas.style.left = 'auto !important';
+        canvas.style.width = '100% !important';
+        canvas.style.height = '100% !important';
+        
+        // 중앙 정렬을 위한 body 스타일
+        document.body.style.display = 'flex';
+        document.body.style.justifyContent = 'center';
+        document.body.style.alignItems = 'center';
       }
     }
     
-    // 초기 최적화 및 resize 이벤트에 연결
-    optimizeForPortrait();
-    window.addEventListener('resize', optimizeForPortrait);
+    // 화면 크기 변경 및 초기 로드 시 최적화 적용
+    optimizeForMobile();
+    window.addEventListener('resize', optimizeForMobile);
+    
+    // 게임 재시작 시 중앙 정렬 유지
+    const restartButton = document.getElementById('restartButton');
+    if (restartButton) {
+      restartButton.addEventListener('click', function() {
+        // 약간의 지연을 두고 중앙 정렬 재적용
+        setTimeout(optimizeForMobile, 50);
+        setTimeout(optimizeForMobile, 100);
+        setTimeout(optimizeForMobile, 300);
+      });
+    }
+    
+    // 현재 PC에서 다시 시작 문제 해결을 위한 추가 코드
+    const clearRestartButton = document.getElementById('clearRestartButton');
+    if (clearRestartButton) {
+      clearRestartButton.addEventListener('click', function() {
+        setTimeout(optimizeForMobile, 50);
+        setTimeout(optimizeForMobile, 100);
+        setTimeout(optimizeForMobile, 300);
+      });
+    }
+    
+    // 로드 완료 후 중앙 정렬 확인
+    window.addEventListener('load', function() {
+      setTimeout(optimizeForMobile, 300);
+      setTimeout(optimizeForMobile, 500);
+    });
   });
 </script>
-<script src="{% static 'js/game.js' %}"></script>
+<script type="module" src="{% static 'js/game.js' %}"></script>
 {% endblock %}
