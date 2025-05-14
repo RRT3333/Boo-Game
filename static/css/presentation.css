@@ -362,4 +362,70 @@ body {
     .no-records {
         grid-column: span 3;
     }
+}
+
+/* 모바일 뷰 최적화 */
+@media (max-width: 768px) {
+    .presentation-container {
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+            "header"
+            "qr";
+    }
+    
+    .leaderboard-content {
+        display: none;
+    }
+    
+    .presentation-header {
+        padding: 15px;
+    }
+    
+    .game-logo h1 {
+        font-size: 1.8rem;
+    }
+    
+    .game-logo .tagline {
+        font-size: 1rem;
+    }
+    
+    .school-logo {
+        height: 60px;
+    }
+    
+    .qr-container {
+        flex-direction: column;
+        padding: 30px 20px;
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .qr-info {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .qr-info h3 {
+        font-size: 2rem;
+    }
+    
+    .qr-code img {
+        width: 200px;
+        height: 200px;
+    }
+}
+
+/* 아주 작은 모바일 화면 */
+@media (max-width: 480px) {
+    .game-logo h1 {
+        font-size: 1.5rem;
+    }
+    
+    .game-logo .tagline {
+        font-size: 0.9rem;
+    }
+    
+    .school-logo {
+        height: 50px;
+    }
 } 
