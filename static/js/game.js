@@ -191,26 +191,24 @@ class Game {
 
     spawnObstacle() {
         if (Math.random() < 0.02) {
-            const type = Math.random() < 0.7 ? 'F' : 'obstacle';
             this.obstacles.push({
                 x: this.canvas.width,
-                y: Math.random() * (this.canvas.height - 40), // 고정
-                width: 40, // 고정
-                height: 40, // 고정
-                type: type
+                y: Math.random() * (this.canvas.height - 40),
+                width: 40,
+                height: 40,
+                type: 'F'
             });
         }
     }
 
     spawnItem() {
         if (Math.random() < 0.01) {
-            const type = Math.random() < 0.7 ? 'A+' : 'coin';
             this.items.push({
                 x: this.canvas.width,
-                y: Math.random() * (this.canvas.height - 30), // 고정
-                width: 30, // 고정
-                height: 30, // 고정
-                type: type
+                y: Math.random() * (this.canvas.height - 30),
+                width: 30,
+                height: 30,
+                type: 'A+'
             });
         }
     }
@@ -222,8 +220,8 @@ class Game {
 
         // Keep player in bounds
         if (this.player.y > this.canvas.height - this.player.height) {
-            this.player.y = this.canvas.height - this.player.height;
-            this.player.velocity = 0;
+            this.endGame();
+            return;
         }
         if (this.player.y < 0) {
             this.player.y = 0;
