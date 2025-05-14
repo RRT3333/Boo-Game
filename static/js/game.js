@@ -17,14 +17,28 @@ class Game {
         this.countdownValue = 3;
         this.isCountingDown = true;
         this.timer = null;  // 타이머 참조 추가
+        this.elapsedGameTime = 0;  // 게임 시작 후 경과 시간
+        
+        // 프로페서 애니메이션 관련 변수
+        this.professorShown = false;
+        this.professorAnimationActive = false;
+        this.professorX = -200; // 화면 밖에서 시작
+        this.professorAnimationStart = 0;
+        this.professorAnimationDuration = 6000; // 총 6초 (등장 2초, 머무름 2초, 퇴장 2초)
+        this.fSpawnRate = 0.04; // F 등장 확률 초기값 4%
+        this.aPlusSpawnRate = 0.03; // A+ 등장 확률 (3배 증가)
         
         // 이미지 로드
         this.images = {
             aPlus: new Image(),
-            fGrade: new Image()
+            fGrade: new Image(),
+            professor: new Image(),
+            character: new Image()
         };
         this.images.aPlus.src = '/static/assets/items/a_plus.png';
         this.images.fGrade.src = '/static/assets/obstacles/f_grade.png';
+        this.images.professor.src = '/static/assets/character/professor.png';
+        this.images.character.src = '/static/assets/character/charcter.png';
         
         // 사운드 효과 로드
         this.sounds = {
@@ -135,6 +149,14 @@ class Game {
         this.player.y = 300;
         this.player.velocity = 0;
         this.lastCountdownTime = 0;
+        this.elapsedGameTime = 0;  // 게임 경과 시간 초기화
+        
+        // 프로페서 애니메이션 초기화
+        this.professorShown = false;
+        this.professorAnimationActive = false;
+        this.professorX = -200;
+        this.fSpawnRate = 0.04; // F 등장 확률 초기화 (4%)
+        this.aPlusSpawnRate = 0.03; // A+ 등장 확률 초기화 (3배로 증가)
 
         // Clear existing timer if any
         if (this.timer) {
@@ -170,7 +192,29 @@ class Game {
                     this.timer = setInterval(() => {
                         if (this.timeLeft > 0) {
                             this.timeLeft--;
+                            this.elapsedGameTime++; // 게임 경과 시간 증가
                             document.getElementById('gameTimer').textContent = this.timeLeft;
+                            
+                            // 게임 시작 후 20초에 교수님 등장
+                            if (this.elapsedGameTime === 20 && !this.professorShown) {
+                                this.professorShown = true;
+                                this.professorAnimationActive = true;
+                                this.professorAnimationStart = performance.now();
+                                
+                                // WARNING 표시
+                                const warningEl = document.createElement('div');
+                                warningEl.className = 'game-warning';
+                                warningEl.textContent = 'WARNING!';
+                                document.querySelector('.game-container').appendChild(warningEl);
+                                
+                                // 3초 후 WARNING 제거
+                                setTimeout(() => {
+                                    if (warningEl.parentNode) {
+                                        warningEl.parentNode.removeChild(warningEl);
+                                    }
+                                }, 3000);
+                            }
+                            
                             if (this.timeLeft === 0) {
                                 this.endGame();
                             }
@@ -198,7 +242,7 @@ class Game {
     }
 
     spawnObstacle() {
-        if (Math.random() < 0.05) {
+        if (Math.random() < this.fSpawnRate) {  // 변수로 관리하는 F 등장 확률 사용
             this.obstacles.push({
                 x: this.canvas.width,
                 y: Math.random() * (this.canvas.height - 40),
@@ -210,7 +254,7 @@ class Game {
     }
 
     spawnItem() {
-        if (Math.random() < 0.01) {
+        if (Math.random() < this.aPlusSpawnRate) {  // A+ 등장 확률 변수 사용
             this.items.push({
                 x: this.canvas.width,
                 y: Math.random() * (this.canvas.height - 30),
@@ -280,6 +324,32 @@ class Game {
         // Spawn new objects
         this.spawnObstacle();
         this.spawnItem();
+        
+        // 교수님 애니메이션 업데이트
+        if (this.professorAnimationActive) {
+            const now = performance.now();
+            const elapsed = now - this.professorAnimationStart;
+            
+            if (elapsed < this.professorAnimationDuration) {
+                // 처음 2초 동안 등장
+                if (elapsed < this.professorAnimationDuration / 3) {
+                    this.professorX = Math.min(100, -200 + (elapsed / (this.professorAnimationDuration/3)) * 300);
+                } 
+                // 2초 동안 유지
+                else if (elapsed < this.professorAnimationDuration * 2/3) {
+                    this.professorX = 100;
+                }
+                // 마지막 2초 동안 퇴장
+                else {
+                    const reverseElapsed = elapsed - (this.professorAnimationDuration * 2/3);
+                    this.professorX = 100 - (reverseElapsed / (this.professorAnimationDuration/3)) * 300;
+                }
+            } else {
+                this.professorAnimationActive = false;
+                this.professorX = -200; // 화면 밖으로
+                this.fSpawnRate = 0.055; // 교수님 사라진 후 F 확률 5.5%로 증가 (5%에서 5.5%로 변경)
+            }
+        }
     }
 
     checkCollision(rect1, rect2) {
@@ -295,9 +365,14 @@ class Game {
         this.ctx.fillStyle = '#87CEEB';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Draw player (Boo)
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
+        // Draw player (Boo) - 이미지로 교체
+        this.ctx.drawImage(
+            this.images.character,
+            this.player.x, 
+            this.player.y, 
+            this.player.width, 
+            this.player.height
+        );
 
         // Draw obstacles
         this.obstacles.forEach(obstacle => {
@@ -344,6 +419,39 @@ class Game {
                 }
             }
         });
+        
+        // 교수님 애니메이션 그리기
+        if (this.professorAnimationActive) {
+            // 교수님 이미지 그리기
+            const professorWidth = 200;
+            const professorHeight = 200;
+            this.ctx.drawImage(
+                this.images.professor,
+                this.professorX, 
+                this.canvas.height - professorHeight - 20, 
+                professorWidth, 
+                professorHeight
+            );
+            
+            // 말풍선 그리기
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            this.ctx.beginPath();
+            this.ctx.roundRect(this.professorX + professorWidth - 30, this.canvas.height - professorHeight - 70, 250, 50, 10);
+            this.ctx.fill();
+            
+            // 세모 말풍선 꼬리
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.professorX + professorWidth - 20, this.canvas.height - professorHeight - 25);
+            this.ctx.lineTo(this.professorX + professorWidth - 50, this.canvas.height - professorHeight - 45);
+            this.ctx.lineTo(this.professorX + professorWidth, this.canvas.height - professorHeight - 45);
+            this.ctx.closePath();
+            this.ctx.fill();
+            
+            // 텍스트 그리기
+            this.ctx.fillStyle = 'black';
+            this.ctx.font = 'bold 16px Arial';
+            this.ctx.fillText("자네 대학원 올 생각 없나?", this.professorX + professorWidth, this.canvas.height - professorHeight - 40);
+        }
     }
 
     gameLoop(timestamp) {
@@ -503,4 +611,27 @@ class Game {
 // Start game when page loads
 window.addEventListener('load', () => {
     new Game();
+    
+    // 경고 스타일 추가
+    const style = document.createElement('style');
+    style.textContent = `
+        .game-warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: red;
+            font-size: 48px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: warning-flash 0.5s infinite alternate;
+            z-index: 100;
+        }
+        
+        @keyframes warning-flash {
+            from { opacity: 0.5; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+        }
+    `;
+    document.head.appendChild(style);
 });
