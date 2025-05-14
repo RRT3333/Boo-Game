@@ -24,7 +24,8 @@ class Game {
             coin: new Audio('/static/assets/sounds/coin.mp3'),
             aplus: new Audio('/static/assets/sounds/aplus.mp3'),
             gameover: new Audio('/static/assets/sounds/gameover.mp3'),
-            save: new Audio('/static/assets/sounds/save.mp3')
+            save: new Audio('/static/assets/sounds/save.mp3'),
+            button: new Audio('/static/assets/sounds/button.mp3')
         };
         
         // 음량 설정
