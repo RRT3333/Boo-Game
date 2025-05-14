@@ -53,6 +53,7 @@ class Game {
             // 커스터마이징 이미지
             customization: {
                 outfit: new Image(),
+                flyingOutfit: new Image(), // 날개 편 상태의 의상
                 hat: new Image(),
                 shoes: new Image()
             }
@@ -65,7 +66,11 @@ class Game {
         
         // 커스터마이징 이미지 로드
         if (this.customization.outfit !== 'default') {
+            // 일반 의상 이미지 로드
             this.images.customization.outfit.src = `/static/assets/customization/${this.customization.outfit}.png`;
+            
+            // 날개 편 상태의 의상 이미지 로드 (flying 폴더 내에 있음)
+            this.images.customization.flyingOutfit.src = `/static/assets/customization/flying/flying_${this.customization.outfit}.png`;
         }
         if (this.customization.hat !== 'none') {
             this.images.customization.hat.src = `/static/assets/customization/${this.customization.hat}.png`;
@@ -452,15 +457,22 @@ class Game {
         );
         
         // 커스터마이징 아이템 그리기
-        // 의상 그리기
-        if (this.customization.outfit !== 'default' && this.images.customization.outfit.complete) {
-            this.ctx.drawImage(
-                this.images.customization.outfit,
-                this.player.x,
-                this.player.y,
-                this.player.width,
-                this.player.height
-            );
+        // 의상 그리기 - 날고 있는지 여부에 따라 다른 의상 적용
+        if (this.customization.outfit !== 'default') {
+            // 날고 있는 상태인지에 따라 다른 의상 이미지 사용
+            const outfitImg = this.player.isFlying && this.images.customization.flyingOutfit.complete ? 
+                            this.images.customization.flyingOutfit : 
+                            this.images.customization.outfit;
+            
+            if (outfitImg.complete) {
+                this.ctx.drawImage(
+                    outfitImg,
+                    this.player.x,
+                    this.player.y,
+                    this.player.width,
+                    this.player.height
+                );
+            }
         }
         
         // 모자 그리기
