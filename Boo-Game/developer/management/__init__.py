@@ -1,1 +1,0 @@
-# Developer app management package 
