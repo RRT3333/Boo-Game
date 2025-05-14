@@ -109,8 +109,8 @@ class Game {
         this.player = {
             x: 100,
             y: 300,
-            width: 50, // 고정
-            height: 50, // 고정
+            width: 70, // 50에서 70으로 키움
+            height: 70, // 50에서 70으로 키움
             velocity: 0,
             gravity: 0.5,
             jumpForce: -10,
@@ -465,12 +465,15 @@ class Game {
         
         // 모자 그리기
         if (this.customization.hat !== 'none' && this.images.customization.hat.complete) {
+            // 비니 모자일 경우 2픽셀 더 내림
+            const hatYOffset = this.customization.hat === 'beanie' ? 4 : 2;
+            
             this.ctx.drawImage(
                 this.images.customization.hat,
                 this.player.x,
-                this.player.y - 10, // 머리 위에 위치
+                this.player.y + hatYOffset, // 모자별 위치 조정
                 this.player.width,
-                30 // 모자 높이 조정
+                42 // 모자 높이 조정 (비율 유지)
             );
         }
         
@@ -479,9 +482,9 @@ class Game {
             this.ctx.drawImage(
                 this.images.customization.shoes,
                 this.player.x,
-                this.player.y + this.player.height - 15, // 발 위치에 맞춤
+                this.player.y + this.player.height - 21, // 발 위치에 맞춤 (비율 유지)
                 this.player.width,
-                15 // 신발 높이 조정
+                21 // 신발 높이 조정 (비율 유지)
             );
         }
 
