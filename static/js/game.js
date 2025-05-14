@@ -17,6 +17,53 @@ class Game {
         this.countdownValue = 3;
         this.isCountingDown = true;
         this.timer = null;  // 타이머 참조 추가
+        this.elapsedGameTime = 0;  // 게임 시작 후 경과 시간
+        
+        // 스테이지 관련 변수
+        this.currentStage = 1;
+        this.stageTransitioning = false;
+        this.stageTransitionProgress = 0; // 0-100% 전환 진행도
+        this.stageTransitionSpeed = 2; // 전환 속도
+
+        // 프로페서 애니메이션 관련 변수
+        this.professorShown = false;
+        this.professorAnimationActive = false;
+        this.professorX = -200; // 화면 밖에서 시작
+        this.professorAnimationStart = 0;
+        this.professorAnimationDuration = 6000; // 총 6초 (등장 2초, 머무름 2초, 퇴장 2초)
+        this.fSpawnRate = 0.04; // F 등장 확률 초기값 4%
+        this.aPlusSpawnRate = 0.03; // A+ 등장 확률 (3배 증가)
+        
+        // 이미지 로드
+        this.images = {
+            aPlus: new Image(),
+            fGrade: new Image(),
+            professor: new Image(),
+            character: new Image(),
+            flyingCharacter: new Image(),
+            backgrounds: []
+        };
+        this.images.aPlus.src = '/static/assets/items/a_plus.png';
+        this.images.fGrade.src = '/static/assets/obstacles/f_grade.png';
+        this.images.professor.src = '/static/assets/character/professor.png';
+        this.images.character.src = '/static/assets/character/charcter.png';
+        this.images.flyingCharacter.src = '/static/assets/character/flying_chracter.png';
+        
+        // 배경 이미지 로드
+        const backgroundPaths = [
+            '/static/assets/backgrounds/stage1_liberal.jpg',
+            '/static/assets/backgrounds/stage2_myungsu.jpg',
+            '/static/assets/backgrounds/stage3_engineering.jpg',
+            '/static/assets/backgrounds/stage4_baekyeon.jpg',
+            '/static/assets/backgrounds/stage5_dorm.jpg',
+            '/static/assets/backgrounds/stage6_gate.jpg'
+        ];
+        
+        backgroundPaths.forEach(path => {
+            const img = new Image();
+            img.src = path;
+            this.images.backgrounds.push(img);
+        });
         
         // 사운드 효과 로드
         this.sounds = {
@@ -41,7 +88,8 @@ class Game {
             height: 50, // 고정
             velocity: 0,
             gravity: 0.5,
-            jumpForce: -10
+            jumpForce: -10,
+            isFlying: false // 날고 있는지 여부
         };
 
         // Game objects
@@ -105,6 +153,7 @@ class Game {
         if (e && (e.code === 'Space' || e.type === 'touchstart') || !e) {
             if (!this.gameOver) {
                 this.player.velocity = this.player.jumpForce;
+                this.player.isFlying = true; // 점프 시 날개 편 상태로 변경
                 
                 // 점프 사운드 재생
                 this.playSound('jump');
@@ -126,7 +175,21 @@ class Game {
         this.backgroundX = 0;
         this.player.y = 300;
         this.player.velocity = 0;
+        this.player.isFlying = false; // 초기 상태는 날개 접은 상태
         this.lastCountdownTime = 0;
+        this.elapsedGameTime = 0;  // 게임 경과 시간 초기화
+        
+        // 스테이지 초기화
+        this.currentStage = 1;
+        this.stageTransitioning = false;
+        this.stageTransitionProgress = 0;
+        
+        // 프로페서 애니메이션 초기화
+        this.professorShown = false;
+        this.professorAnimationActive = false;
+        this.professorX = -200;
+        this.fSpawnRate = 0.04; // F 등장 확률 초기화 (4%)
+        this.aPlusSpawnRate = 0.03; // A+ 등장 확률 초기화 (3배로 증가)
 
         // Clear existing timer if any
         if (this.timer) {
@@ -162,7 +225,37 @@ class Game {
                     this.timer = setInterval(() => {
                         if (this.timeLeft > 0) {
                             this.timeLeft--;
+                            this.elapsedGameTime++; // 게임 경과 시간 증가
                             document.getElementById('gameTimer').textContent = this.timeLeft;
+                            
+                            // 게임 시작 후 20초에 교수님 등장
+                            if (this.elapsedGameTime === 20 && !this.professorShown) {
+                                this.professorShown = true;
+                                this.professorAnimationActive = true;
+                                this.professorAnimationStart = performance.now();
+                                
+                                // WARNING 표시
+                                const warningEl = document.createElement('div');
+                                warningEl.className = 'game-warning';
+                                warningEl.textContent = 'WARNING!';
+                                document.querySelector('.game-container').appendChild(warningEl);
+                                
+                                // 3초 후 WARNING 제거
+                                setTimeout(() => {
+                                    if (warningEl.parentNode) {
+                                        warningEl.parentNode.removeChild(warningEl);
+                                    }
+                                }, 3000);
+                            }
+                            
+                            // 스테이지 전환 확인 (10초마다)
+                            if (this.elapsedGameTime % 10 === 0 && this.elapsedGameTime > 0 && this.elapsedGameTime <= 50) {
+                                // 5번만 전환 (6단계까지)
+                                if (this.currentStage < 6) {
+                                    this.startStageTransition();
+                                }
+                            }
+                            
                             if (this.timeLeft === 0) {
                                 this.endGame();
                             }
@@ -190,7 +283,7 @@ class Game {
     }
 
     spawnObstacle() {
-        if (Math.random() < 0.02) {
+        if (Math.random() < this.fSpawnRate) {  // 변수로 관리하는 F 등장 확률 사용
             this.obstacles.push({
                 x: this.canvas.width,
                 y: Math.random() * (this.canvas.height - 40),
@@ -202,7 +295,7 @@ class Game {
     }
 
     spawnItem() {
-        if (Math.random() < 0.01) {
+        if (Math.random() < this.aPlusSpawnRate) {  // A+ 등장 확률 변수 사용
             this.items.push({
                 x: this.canvas.width,
                 y: Math.random() * (this.canvas.height - 30),
@@ -217,6 +310,9 @@ class Game {
         // Update player
         this.player.velocity += this.player.gravity;
         this.player.y += this.player.velocity;
+        
+        // 캐릭터 상태 업데이트 (상승 중이면 날개 편 상태, 하강 중이면 기본 상태)
+        this.player.isFlying = this.player.velocity < 0;
 
         // Keep player in bounds
         if (this.player.y > this.canvas.height - this.player.height) {
@@ -226,6 +322,7 @@ class Game {
         if (this.player.y < 0) {
             this.player.y = 0;
             this.player.velocity = 0;
+            this.player.isFlying = false; // 천장에 닿으면 날개 접기
         }
 
         // Update background
@@ -233,6 +330,9 @@ class Game {
         if (this.backgroundX <= -this.canvas.width) {
             this.backgroundX = 0;
         }
+
+        // 스테이지 전환 업데이트
+        this.updateStageTransition();
 
         // Update obstacles
         this.obstacles = this.obstacles.filter(obstacle => {
@@ -272,6 +372,36 @@ class Game {
         // Spawn new objects
         this.spawnObstacle();
         this.spawnItem();
+        
+        // 교수님 애니메이션 업데이트
+        if (this.professorAnimationActive) {
+            const now = performance.now();
+            const elapsed = now - this.professorAnimationStart;
+            
+            if (elapsed < this.professorAnimationDuration) {
+                // 처음 2초 동안 등장
+                if (elapsed < this.professorAnimationDuration / 3) {
+                    // 화면 중앙으로 이동 (화면 너비/2 - 교수님 이미지 너비/2)
+                    const centerX = this.canvas.width / 2 - 100;
+                    this.professorX = Math.min(centerX, -200 + (elapsed / (this.professorAnimationDuration/3)) * (centerX + 200));
+                } 
+                // 2초 동안 유지
+                else if (elapsed < this.professorAnimationDuration * 2/3) {
+                    // 화면 중앙에 위치
+                    this.professorX = this.canvas.width / 2 - 100;
+                }
+                // 마지막 2초 동안 퇴장
+                else {
+                    const reverseElapsed = elapsed - (this.professorAnimationDuration * 2/3);
+                    const centerX = this.canvas.width / 2 - 100;
+                    this.professorX = centerX - (reverseElapsed / (this.professorAnimationDuration/3)) * (centerX + 200);
+                }
+            } else {
+                this.professorAnimationActive = false;
+                this.professorX = -200; // 화면 밖으로
+                this.fSpawnRate = 0.055; // 교수님 사라진 후 F 확률 5.5%로 증가 (5%에서 5.5%로 변경)
+            }
+        }
     }
 
     checkCollision(rect1, rect2) {
@@ -284,38 +414,98 @@ class Game {
     drawGame() {
         // 항상 clearRect와 배경 그리기
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.fillStyle = '#87CEEB';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // 배경 그리기 (스테이지에 따라 다른 배경)
+        this.drawBackground();
 
-        // Draw player (Boo)
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
+        // Draw player (Boo) - 이미지로 교체 (상태에 따라 다른 이미지 사용)
+        const characterImg = this.player.isFlying ? this.images.flyingCharacter : this.images.character;
+        this.ctx.drawImage(
+            characterImg,
+            this.player.x, 
+            this.player.y, 
+            this.player.width, 
+            this.player.height
+        );
 
         // Draw obstacles
         this.obstacles.forEach(obstacle => {
-            this.ctx.fillStyle = obstacle.type === 'F' ? '#FF0000' : '#000000';
-            this.ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-            if (typeof obstacle.type === 'string' && obstacle.type) {
-                this.ctx.fillStyle = '#FFFFFF';
-                this.ctx.font = '20px Arial';
-                this.ctx.fillText(obstacle.type, 
-                    obstacle.x + 15, 
-                    obstacle.y + 25);
+            if (obstacle.type === 'F') {
+                this.ctx.drawImage(
+                    this.images.fGrade,
+                    obstacle.x, 
+                    obstacle.y, 
+                    obstacle.width, 
+                    obstacle.height
+                );
+            } else {
+                this.ctx.fillStyle = '#000000';
+                this.ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                if (typeof obstacle.type === 'string' && obstacle.type) {
+                    this.ctx.fillStyle = '#FFFFFF';
+                    this.ctx.font = '20px Arial';
+                    this.ctx.fillText(obstacle.type, 
+                        obstacle.x + 15, 
+                        obstacle.y + 25);
+                }
             }
         });
 
         // Draw items
         this.items.forEach(item => {
-            this.ctx.fillStyle = item.type === 'A+' ? '#00FF00' : '#FFD700';
-            this.ctx.fillRect(item.x, item.y, item.width, item.height);
-            if (typeof item.type === 'string' && item.type) {
-                this.ctx.fillStyle = '#FFFFFF';
-                this.ctx.font = '16px Arial';
-                this.ctx.fillText(item.type, 
-                    item.x + 5, 
-                    item.y + 20);
+            if (item.type === 'A+') {
+                this.ctx.drawImage(
+                    this.images.aPlus,
+                    item.x, 
+                    item.y, 
+                    item.width, 
+                    item.height
+                );
+            } else {
+                this.ctx.fillStyle = '#FFD700';
+                this.ctx.fillRect(item.x, item.y, item.width, item.height);
+                if (typeof item.type === 'string' && item.type) {
+                    this.ctx.fillStyle = '#FFFFFF';
+                    this.ctx.font = '16px Arial';
+                    this.ctx.fillText(item.type, 
+                        item.x + 5, 
+                        item.y + 20);
+                }
             }
         });
+        
+        // 교수님 애니메이션 그리기
+        if (this.professorAnimationActive) {
+            // 교수님 이미지 그리기
+            const professorWidth = 200;
+            const professorHeight = 200;
+            this.ctx.drawImage(
+                this.images.professor,
+                this.professorX, 
+                this.canvas.height - professorHeight - 20, 
+                professorWidth, 
+                professorHeight
+            );
+            
+            // 말풍선 그리기
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            this.ctx.beginPath();
+            this.ctx.roundRect(this.professorX + professorWidth - 30, this.canvas.height - professorHeight - 70, 250, 50, 10);
+            this.ctx.fill();
+            
+            // 세모 말풍선 꼬리
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.professorX + professorWidth - 20, this.canvas.height - professorHeight - 25);
+            this.ctx.lineTo(this.professorX + professorWidth - 50, this.canvas.height - professorHeight - 45);
+            this.ctx.lineTo(this.professorX + professorWidth, this.canvas.height - professorHeight - 45);
+            this.ctx.closePath();
+            this.ctx.fill();
+            
+            // 텍스트 그리기
+            this.ctx.fillStyle = 'black';
+            this.ctx.font = 'bold 16px Arial';
+            this.ctx.fillText("자네 대학원 올 생각 없나?", this.professorX + professorWidth, this.canvas.height - professorHeight - 40);
+        }
     }
 
     gameLoop(timestamp) {
@@ -470,9 +660,176 @@ class Game {
             console.log('Sound error:', e);
         }
     }
+
+    // 스테이지 전환 시작
+    startStageTransition() {
+        this.stageTransitioning = true;
+        this.stageTransitionProgress = 0;
+    }
+    
+    // 스테이지 전환 업데이트
+    updateStageTransition() {
+        if (!this.stageTransitioning) return;
+        
+        this.stageTransitionProgress += this.stageTransitionSpeed;
+        
+        if (this.stageTransitionProgress >= 100) {
+            // 전환 완료
+            this.stageTransitioning = false;
+            this.stageTransitionProgress = 0;
+            this.currentStage++;
+            
+            // 마지막 스테이지 체크
+            if (this.currentStage > 6) {
+                this.currentStage = 6;
+            }
+        }
+    }
+
+    // 배경 그리기 함수
+    drawBackground() {
+        // 기본 하늘 배경 그리기 (회색으로 변경)
+        this.ctx.fillStyle = 'rgba(200, 200, 200, 0.8)';  // 반투명 회색
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // 배경 이미지용 설정
+        const bgHeight = this.canvas.height * 0.7;  // 캔버스 높이의 70%만 사용 (더 낮춤)
+        const bgY = this.canvas.height - bgHeight;  // 하단에 배치
+        
+        // 전환 중이 아니면 현재 스테이지 배경만 그림
+        if (!this.stageTransitioning) {
+            // 현재 스테이지 배경 (0부터 시작하므로 -1)
+            const currentBg = this.images.backgrounds[this.currentStage - 1];
+            
+            // 배경 이미지 반복 그리기 (무한 스크롤)
+            if (currentBg && currentBg.complete) {
+                // 불투명도 원래대로
+                this.ctx.globalAlpha = 1;
+                
+                // 이미지 비율 유지
+                const bgRatio = currentBg.naturalWidth / currentBg.naturalHeight;
+                let renderWidth = this.canvas.width;
+                let renderHeight = renderWidth / bgRatio;
+                
+                // 높이가 설정한 영역보다 작으면 높이에 맞춤
+                if (renderHeight < bgHeight) {
+                    renderHeight = bgHeight;
+                    renderWidth = renderHeight * bgRatio;
+                }
+                
+                // X 오프셋 계산 (이미지 중앙 정렬)
+                const xOffset = (renderWidth - this.canvas.width) / 2;
+                
+                // 첫 번째 이미지
+                this.ctx.drawImage(
+                    currentBg, 
+                    this.backgroundX - xOffset, bgY, 
+                    renderWidth, renderHeight
+                );
+                // 두 번째 이미지 (연속적인 스크롤을 위해)
+                this.ctx.drawImage(
+                    currentBg, 
+                    this.backgroundX + this.canvas.width - xOffset, bgY, 
+                    renderWidth, renderHeight
+                );
+            }
+        } else {
+            // 전환 중일 때는 두 배경을 블렌딩
+            const currentBg = this.images.backgrounds[this.currentStage - 1];
+            const nextBg = this.images.backgrounds[this.currentStage];
+            
+            // 현재 배경 그리기
+            if (currentBg && currentBg.complete) {
+                // 현재 배경 알파 계산
+                this.ctx.globalAlpha = 1 - (this.stageTransitionProgress / 100);
+                
+                // 이미지 비율 유지
+                const bgRatio = currentBg.naturalWidth / currentBg.naturalHeight;
+                let renderWidth = this.canvas.width;
+                let renderHeight = renderWidth / bgRatio;
+                
+                // 높이가 설정한 영역보다 작으면 높이에 맞춤
+                if (renderHeight < bgHeight) {
+                    renderHeight = bgHeight;
+                    renderWidth = renderHeight * bgRatio;
+                }
+                
+                // X 오프셋 계산 (이미지 중앙 정렬)
+                const xOffset = (renderWidth - this.canvas.width) / 2;
+                
+                this.ctx.drawImage(
+                    currentBg, 
+                    this.backgroundX - xOffset, bgY, 
+                    renderWidth, renderHeight
+                );
+                this.ctx.drawImage(
+                    currentBg, 
+                    this.backgroundX + this.canvas.width - xOffset, bgY, 
+                    renderWidth, renderHeight
+                );
+            }
+            
+            // 다음 배경 그리기
+            if (nextBg && nextBg.complete) {
+                // 다음 배경 알파 계산
+                this.ctx.globalAlpha = this.stageTransitionProgress / 100;
+                
+                // 이미지 비율 유지
+                const bgRatio = nextBg.naturalWidth / nextBg.naturalHeight;
+                let renderWidth = this.canvas.width;
+                let renderHeight = renderWidth / bgRatio;
+                
+                // 높이가 설정한 영역보다 작으면 높이에 맞춤
+                if (renderHeight < bgHeight) {
+                    renderHeight = bgHeight;
+                    renderWidth = renderHeight * bgRatio;
+                }
+                
+                // X 오프셋 계산 (이미지 중앙 정렬)
+                const xOffset = (renderWidth - this.canvas.width) / 2;
+                
+                this.ctx.drawImage(
+                    nextBg, 
+                    this.backgroundX - xOffset, bgY, 
+                    renderWidth, renderHeight
+                );
+                this.ctx.drawImage(
+                    nextBg, 
+                    this.backgroundX + this.canvas.width - xOffset, bgY, 
+                    renderWidth, renderHeight
+                );
+            }
+            
+            // 알파값 초기화
+            this.ctx.globalAlpha = 1;
+        }
+    }
 }
 
 // Start game when page loads
 window.addEventListener('load', () => {
     new Game();
+    
+    // 경고 스타일 추가
+    const style = document.createElement('style');
+    style.textContent = `
+        .game-warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: red;
+            font-size: 48px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: warning-flash 0.5s infinite alternate;
+            z-index: 100;
+        }
+        
+        @keyframes warning-flash {
+            from { opacity: 0.5; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+        }
+    `;
+    document.head.appendChild(style);
 });
