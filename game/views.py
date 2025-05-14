@@ -9,10 +9,10 @@ from django.conf import settings
 
 def index_view(request):
     """메인 시작 페이지"""
-    # 리더보드 상위 5명 데이터
+    # 리더보드 상위 3명 데이터
     top_players = Score.objects.values('player').annotate(
         best_score=Max('score')
-    ).order_by('-best_score')[:5]
+    ).order_by('-best_score')[:3]
     
     top_players_data = []
     for entry in top_players:
