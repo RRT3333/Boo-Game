@@ -109,8 +109,8 @@ class Game {
         this.player = {
             x: 100,
             y: 300,
-            width: 50, // 고정
-            height: 50, // 고정
+            width: 70, // 50에서 70으로 키움
+            height: 70, // 50에서 70으로 키움
             velocity: 0,
             gravity: 0.5,
             jumpForce: -10,
@@ -350,11 +350,9 @@ class Game {
             this.player.isFlying = false; // 천장에 닿으면 날개 접기
         }
 
-        // Update background
+        // Update background - 리셋하지 않고 계속 감소하도록 변경
         this.backgroundX -= 2;
-        if (this.backgroundX <= -this.canvas.width) {
-            this.backgroundX = 0;
-        }
+        // 리셋 코드 제거 (backgroundX가 계속 감소하도록 둡니다)
 
         // 스테이지 전환 업데이트
         this.updateStageTransition();
@@ -467,12 +465,15 @@ class Game {
         
         // 모자 그리기
         if (this.customization.hat !== 'none' && this.images.customization.hat.complete) {
+            // 비니 모자일 경우 2픽셀 더 내림
+            const hatYOffset = this.customization.hat === 'beanie' ? 4 : 2;
+            
             this.ctx.drawImage(
                 this.images.customization.hat,
                 this.player.x,
-                this.player.y - 10, // 머리 위에 위치
+                this.player.y + hatYOffset, // 모자별 위치 조정
                 this.player.width,
-                30 // 모자 높이 조정
+                42 // 모자 높이 조정 (비율 유지)
             );
         }
         
@@ -481,9 +482,9 @@ class Game {
             this.ctx.drawImage(
                 this.images.customization.shoes,
                 this.player.x,
-                this.player.y + this.player.height - 15, // 발 위치에 맞춤
+                this.player.y + this.player.height - 21, // 발 위치에 맞춤 (비율 유지)
                 this.player.width,
-                15 // 신발 높이 조정
+                21 // 신발 높이 조정 (비율 유지)
             );
         }
 
@@ -747,12 +748,12 @@ class Game {
 
     // 배경 그리기 함수
     drawBackground() {
-        // 기본 하늘 배경 그리기 (회색으로 변경)
-        this.ctx.fillStyle = 'rgba(200, 200, 200, 0.8)';  // 반투명 회색
+        // 기본 하늘 배경 그리기
+        this.ctx.fillStyle = '#87CEEB';  // 하늘색으로 변경
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
         // 배경 이미지용 설정
-        const bgHeight = this.canvas.height * 0.7;  // 캔버스 높이의 70%만 사용 (더 낮춤)
+        const bgHeight = this.canvas.height * 0.7;  // 캔버스 높이의 70%만 사용
         const bgY = this.canvas.height - bgHeight;  // 하단에 배치
         
         // 전환 중이 아니면 현재 스테이지 배경만 그림
@@ -762,8 +763,8 @@ class Game {
             
             // 배경 이미지 반복 그리기 (무한 스크롤)
             if (currentBg && currentBg.complete) {
-                // 불투명도 원래대로
-                this.ctx.globalAlpha = 1;
+                // 불투명도 80%로 설정
+                this.ctx.globalAlpha = 0.8;
                 
                 // 이미지 비율 유지
                 const bgRatio = currentBg.naturalWidth / currentBg.naturalHeight;
@@ -779,18 +780,25 @@ class Game {
                 // X 오프셋 계산 (이미지 중앙 정렬)
                 const xOffset = (renderWidth - this.canvas.width) / 2;
                 
-                // 첫 번째 이미지
-                this.ctx.drawImage(
-                    currentBg, 
-                    this.backgroundX - xOffset, bgY, 
-                    renderWidth, renderHeight
-                );
-                // 두 번째 이미지 (연속적인 스크롤을 위해)
-                this.ctx.drawImage(
-                    currentBg, 
-                    this.backgroundX + this.canvas.width - xOffset, bgY, 
-                    renderWidth, renderHeight
-                );
+                // 정확한 반복 간격 계산
+                const actualWidth = renderWidth;
+                
+                // 모듈로 연산자 사용하여 정확한 위치 계산 (backgroundX 값이 계속 감소해도 순환하도록)
+                let x1 = (this.backgroundX % actualWidth) - xOffset;
+                if (x1 > 0) x1 -= actualWidth;
+                
+                // 화면을 완전히 채울 만큼 이미지 반복
+                while (x1 < this.canvas.width) {
+                    this.ctx.drawImage(
+                        currentBg, 
+                        x1, bgY, 
+                        renderWidth, renderHeight
+                    );
+                    x1 += actualWidth;
+                }
+                
+                // 알파값 초기화
+                this.ctx.globalAlpha = 1;
             }
         } else {
             // 전환 중일 때는 두 배경을 블렌딩
@@ -799,8 +807,8 @@ class Game {
             
             // 현재 배경 그리기
             if (currentBg && currentBg.complete) {
-                // 현재 배경 알파 계산
-                this.ctx.globalAlpha = 1 - (this.stageTransitionProgress / 100);
+                // 현재 배경 알파 계산 (80% 기준으로 페이드 아웃)
+                this.ctx.globalAlpha = (1 - (this.stageTransitionProgress / 100)) * 0.8;
                 
                 // 이미지 비율 유지
                 const bgRatio = currentBg.naturalWidth / currentBg.naturalHeight;
@@ -816,22 +824,27 @@ class Game {
                 // X 오프셋 계산 (이미지 중앙 정렬)
                 const xOffset = (renderWidth - this.canvas.width) / 2;
                 
-                this.ctx.drawImage(
-                    currentBg, 
-                    this.backgroundX - xOffset, bgY, 
-                    renderWidth, renderHeight
-                );
-                this.ctx.drawImage(
-                    currentBg, 
-                    this.backgroundX + this.canvas.width - xOffset, bgY, 
-                    renderWidth, renderHeight
-                );
+                // 정확한 반복 간격 계산
+                const actualWidth = renderWidth;
+                // 모듈로 연산자 사용하여 정확한 위치 계산 (backgroundX 값이 계속 감소해도 순환하도록)
+                let x1 = (this.backgroundX % actualWidth) - xOffset;
+                if (x1 > 0) x1 -= actualWidth;
+                
+                // 화면을 완전히 채울 만큼 이미지 반복
+                while (x1 < this.canvas.width) {
+                    this.ctx.drawImage(
+                        currentBg, 
+                        x1, bgY, 
+                        renderWidth, renderHeight
+                    );
+                    x1 += actualWidth;
+                }
             }
             
             // 다음 배경 그리기
             if (nextBg && nextBg.complete) {
-                // 다음 배경 알파 계산
-                this.ctx.globalAlpha = this.stageTransitionProgress / 100;
+                // 다음 배경 알파 계산 (80% 기준으로 페이드 인)
+                this.ctx.globalAlpha = (this.stageTransitionProgress / 100) * 0.8;
                 
                 // 이미지 비율 유지
                 const bgRatio = nextBg.naturalWidth / nextBg.naturalHeight;
@@ -847,16 +860,21 @@ class Game {
                 // X 오프셋 계산 (이미지 중앙 정렬)
                 const xOffset = (renderWidth - this.canvas.width) / 2;
                 
-                this.ctx.drawImage(
-                    nextBg, 
-                    this.backgroundX - xOffset, bgY, 
-                    renderWidth, renderHeight
-                );
-                this.ctx.drawImage(
-                    nextBg, 
-                    this.backgroundX + this.canvas.width - xOffset, bgY, 
-                    renderWidth, renderHeight
-                );
+                // 정확한 반복 간격 계산
+                const actualWidth = renderWidth;
+                // 모듈로 연산자 사용하여 정확한 위치 계산 (backgroundX 값이 계속 감소해도 순환하도록)
+                let x1 = (this.backgroundX % actualWidth) - xOffset;
+                if (x1 > 0) x1 -= actualWidth;
+                
+                // 화면을 완전히 채울 만큼 이미지 반복
+                while (x1 < this.canvas.width) {
+                    this.ctx.drawImage(
+                        nextBg, 
+                        x1, bgY, 
+                        renderWidth, renderHeight
+                    );
+                    x1 += actualWidth;
+                }
             }
             
             // 알파값 초기화
