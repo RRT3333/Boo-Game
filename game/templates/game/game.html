@@ -201,91 +201,56 @@
       }
     }, { passive: false });
     
-    // 화면 방향 확인 및 메시지 표시
-    function checkOrientation() {
-      const orientationMessage = document.getElementById('orientationMessage');
-      const gameInstance = window.gameInstance; // 게임 인스턴스 참조
-      
-      // 모바일 기기 확인 (가로 크기가 800px 이하)
-      if (window.innerWidth <= 800) {
-        // 세로 모드 확인 (가로 < 세로)
-        const isLandscape = window.innerWidth >= window.innerHeight;
-        
-        if (!isLandscape) {
-          // 세로 모드일 때 안내 메시지 표시
-          if (orientationMessage) orientationMessage.style.display = 'flex';
-        } else {
-          // 가로 모드일 때 안내 메시지 숨김
-          if (orientationMessage) orientationMessage.style.display = 'none';
-          
-          // 가로 모드에서 게임이 진행 중이면 캔버스 크기 업데이트 시도
-          if (gameInstance && typeof gameInstance.updateCanvasSize === 'function') {
-            gameInstance.updateCanvasSize();
-            
-            // 게임 오버 상태라면 레이아웃도 업데이트
-            if (gameInstance.gameOver) {
-              gameInstance.setupGameOverLayout();
-            }
-          }
-        }
-      } else {
-        // 데스크톱에서는 방향 메시지 숨김
-        if (orientationMessage) orientationMessage.style.display = 'none';
-      }
-      
-      // 높이가 매우 작은 경우 (가로 모드이지만 폰트 크기 축소 필요한 경우)
-      if (window.innerHeight < 400) {
-        document.body.classList.add('very-small-height');
-      } else {
-        document.body.classList.remove('very-small-height');
-      }
+    // 방향 메시지 제거 (세로 모드 지원)
+    const orientationMessage = document.getElementById('orientationMessage');
+    if (orientationMessage) {
+      orientationMessage.style.display = 'none';
     }
     
-    // 초기 방향 확인
-    checkOrientation();
-    
-    // 방향 변경 이벤트 리스너
-    window.addEventListener('resize', checkOrientation);
-    window.addEventListener('orientationchange', function() {
-      // iOS에서는 방향 변경 후 지연이 있을 수 있으므로 약간의 지연 후 체크
-      setTimeout(checkOrientation, 300);
-    });
-    
-    // 게임 오버 화면에서 터치 스크롤 허용
+    // 게임 오버 화면에서 스크롤 가능하도록
     const gameOverElement = document.getElementById('gameOver');
-    const gameOverContent = document.querySelector('.game-over-content');
-    
     if (gameOverElement) {
       gameOverElement.addEventListener('touchmove', function(e) {
         e.stopPropagation();
       }, { passive: true });
     }
     
-    if (gameOverContent) {
-      gameOverContent.addEventListener('touchmove', function(e) {
-        e.stopPropagation();
-      }, { passive: true });
-    }
-    
-    // iOS에서 입력 필드 포커스 시 처리
+    // 닉네임 입력 필드 포커스 시 처리
     const nicknameInput = document.getElementById('gameOverNickname');
     if (nicknameInput) {
       nicknameInput.addEventListener('focus', function() {
-        // iOS에서는 포커스 시 위치 조정이 필요할 수 있음
-        if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-          setTimeout(function() {
-            // 입력 필드가 화면에 보이도록 스크롤
-            nicknameInput.scrollIntoView({behavior: 'smooth', block: 'center'});
-            
-            // iOS에서는 스크롤이 제대로 작동하지 않을 수 있으므로 위치 직접 조정 
-            const scrollContainer = document.querySelector('.game-over');
-            if (scrollContainer) {
-              scrollContainer.scrollTop = nicknameInput.offsetTop - 100;
-            }
-          }, 300);
-        }
+        // 입력 필드가 화면에 보이도록 스크롤
+        setTimeout(function() {
+          nicknameInput.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }, 300);
       });
     }
+    
+    // 모바일 세로 화면 최적화
+    function optimizeForPortrait() {
+      const gameContainer = document.querySelector('.game-container');
+      const canvas = document.getElementById('gameCanvas');
+      
+      if (gameContainer && canvas && window.innerWidth <= 800) {
+        // 전체 화면 설정
+        gameContainer.style.width = '100vw';
+        gameContainer.style.height = '100vh';
+        gameContainer.style.maxHeight = '100vh';
+        
+        // 캔버스 크기 설정
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        
+        // 게임 크기 업데이트 (게임 인스턴스가 있는 경우)
+        if (window.gameInstance && typeof window.gameInstance.updateCanvasSize === 'function') {
+          window.gameInstance.updateCanvasSize();
+        }
+      }
+    }
+    
+    // 초기 최적화 및 resize 이벤트에 연결
+    optimizeForPortrait();
+    window.addEventListener('resize', optimizeForPortrait);
   });
 </script>
 <script src="{% static 'js/game.js' %}"></script>

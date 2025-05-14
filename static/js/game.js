@@ -11,11 +11,11 @@ class Game {
         // 캔버스 비율 유지하면서 화면에 맞추기
         this.updateCanvasSize();
         
-        // 모바일 환경에 맞게 일부 설정값 조정
-        if (this.isMobile) {
-            this.fSpawnRate = 0.035; // 모바일에서는 F 등장 확률을 약간 낮춤 (4%에서 3.5%로)
-            this.aPlusSpawnRate = 0.033; // A+ 등장 확률 살짝 높임
-        }
+        // 게임 설정 - 모바일/데스크톱 구분 없이 동일하게 설정
+        this.fSpawnRate = 0.04;  // F 등장 확률 (4%)
+        this.aPlusSpawnRate = 0.03; // A+ 등장 확률 (3%)
+        this.jumpForce = -10;  // 점프력
+        this.gravity = 0.5;    // 중력
 
         // Game state
         this.score = 0;
@@ -48,8 +48,6 @@ class Game {
         this.professorX = -200; // 화면 밖에서 시작
         this.professorAnimationStart = 0;
         this.professorAnimationDuration = 6000; // 총 6초 (등장 2초, 머무름 2초, 퇴장 2초)
-        this.fSpawnRate = 0.04; // F 등장 확률 초기값 4%
-        this.aPlusSpawnRate = 0.03; // A+ 등장 확률 (3배 증가)
         
         // 게임 통계
         this.itemsCollected = 0;
@@ -126,14 +124,14 @@ class Game {
 
         // Player (Boo)
         this.player = {
-            x: 100,
-            y: 300,
-            width: 70, // 50에서 70으로 키움
-            height: 70, // 50에서 70으로 키움
+            x: this.isMobile ? 80 : 100, // 모바일에서는 왼쪽에 더 가깝게
+            y: this.isMobile ? this.canvas.height * 0.4 : 300, // 모바일에서는 화면 상단 40% 위치
+            width: 70,
+            height: 70,
             velocity: 0,
-            gravity: 0.5,
-            jumpForce: -10,
-            isFlying: false // 날고 있는지 여부
+            gravity: 0.5, // 모든 환경에서 동일한 중력 적용
+            jumpForce: -10, // 모든 환경에서 동일한 점프력 적용
+            isFlying: false
         };
 
         // Game objects
@@ -195,33 +193,39 @@ class Game {
         window.gameInstance = this;
     }
     
-    // 캔버스 크기 업데이트 (모바일 대응)
+    // 캔버스 크기 업데이트 (모바일 대응 - 세로 화면 최적화)
     updateCanvasSize() {
         const container = this.canvas.parentElement;
         const containerWidth = container.clientWidth;
         const containerHeight = container.clientHeight;
         
         if (this.isMobile) {
-            // 모바일에서는 컨테이너에 맞추고 비율 유지
+            // 모바일에서는 컨테이너에 맞추기 (세로 모드 최적화)
             this.canvas.width = containerWidth;
             this.canvas.height = containerHeight;
             
-            // 가로 모드 확인
-            const isLandscape = window.innerWidth > window.innerHeight;
-            
-            // 방향 메시지 표시 여부 결정
+            // 방향 관련 안내 메시지 제거
             const orientationMsg = document.getElementById('orientationMessage');
             if (orientationMsg) {
-                orientationMsg.style.display = isLandscape ? 'none' : 'flex';
+                orientationMsg.style.display = 'none';
             }
             
-            // 게임 요소 조정 - 캐릭터 위치 조정
-            if (isLandscape && this.player) {
-                // 화면에 맞게 플레이어 위치 조정 (세로로 중앙에 가깝게)
-                if (this.player.y > containerHeight - 100) {
-                    this.player.y = Math.min(containerHeight / 2 + 50, containerHeight - 100);
-                }
+            // 게임 요소 비율 조정
+            if (this.player) {
+                // 세로 모드에서의 플레이어 위치 조정
+                const newPlayerY = Math.min(
+                    this.player.y,
+                    containerHeight - this.player.height - 10
+                );
+                this.player.y = newPlayerY;
+                
+                // 플레이어 위치 조정 (가로 방향 - x축)
+                this.player.x = Math.min(containerWidth * 0.2, 100);
             }
+        } else {
+            // 데스크톱에서는 고정 크기 유지
+            this.canvas.width = this.baseWidth;
+            this.canvas.height = this.baseHeight;
         }
     }
 
@@ -249,7 +253,19 @@ class Game {
         this.obstacles = [];
         this.items = [];
         this.backgroundX = 0;
-        this.player.y = 300;
+        
+        // 플레이어 위치 초기화 (세로 모드 최적화)
+        const container = this.canvas.parentElement;
+        if (this.isMobile) {
+            // 세로 모드에서는 플레이어를 화면 좌측 중간에 위치
+            this.player.x = Math.min(container.clientWidth * 0.2, 100);
+            this.player.y = container.clientHeight * 0.4; // 화면 상단에서 40% 위치
+        } else {
+            // 데스크톱에서는 기존 위치 유지
+            this.player.x = 100;
+            this.player.y = 300;
+        }
+        
         this.player.velocity = 0;
         this.player.isFlying = false; // 초기 상태는 날개 접은 상태
         this.lastCountdownTime = 0;
@@ -329,12 +345,13 @@ class Game {
                                 warningEl.className = 'game-warning';
                                 warningEl.textContent = 'WARNING!';
                                 
-                                // 모바일에서는 크기 조정
+                                // 모바일에서는 크기 조정 - 더 잘 보이게
                                 if (this.isMobile) {
-                                    warningEl.style.fontSize = '36px';
-                                    warningEl.style.padding = '10px 20px';
-                                    warningEl.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
-                                    warningEl.style.border = '2px solid red';
+                                    warningEl.style.fontSize = '40px';
+                                    warningEl.style.padding = '15px 25px';
+                                    warningEl.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
+                                    warningEl.style.border = '3px solid red';
+                                    warningEl.style.boxShadow = '0 0 15px rgba(255, 0, 0, 0.7)';
                                 }
                                 
                                 document.querySelector('.game-container').appendChild(warningEl);
@@ -383,11 +400,16 @@ class Game {
 
     spawnObstacle() {
         if (Math.random() < this.fSpawnRate) {  // 변수로 관리하는 F 등장 확률 사용
+            // 세로 모드에서는 화면 오른쪽 전체에서 생성
+            const yPos = this.isMobile ? 
+                Math.random() * (this.canvas.height - 60) : // 모바일(세로)
+                Math.random() * (this.canvas.height - 40);  // 데스크톱(가로)
+            
             this.obstacles.push({
                 x: this.canvas.width,
-                y: Math.random() * (this.canvas.height - 40),
-                width: 40,
-                height: 40,
+                y: yPos,
+                width: this.isMobile ? 40 : 40, // 크기 유지
+                height: this.isMobile ? 40 : 40,
                 type: 'F'
             });
         }
@@ -395,11 +417,16 @@ class Game {
 
     spawnItem() {
         if (Math.random() < this.aPlusSpawnRate) {  // A+ 등장 확률 변수 사용
+            // 세로 모드에서는 화면 오른쪽 전체에서 생성
+            const yPos = this.isMobile ? 
+                Math.random() * (this.canvas.height - 50) : // 모바일(세로)
+                Math.random() * (this.canvas.height - 30);  // 데스크톱(가로)
+            
             this.items.push({
                 x: this.canvas.width,
-                y: Math.random() * (this.canvas.height - 30),
-                width: 30,
-                height: 30,
+                y: yPos,
+                width: this.isMobile ? 30 : 30, // 크기 유지
+                height: this.isMobile ? 30 : 30,
                 type: 'A+'
             });
         }
@@ -431,9 +458,13 @@ class Game {
         // 스테이지 전환 업데이트
         this.updateStageTransition();
 
+        // 모바일(세로)에서의 이동 속도 조정
+        const obstacleSpeed = this.isMobile ? 6 : 5;
+        const itemSpeed = this.isMobile ? 4 : 3;
+
         // Update obstacles
         this.obstacles = this.obstacles.filter(obstacle => {
-            obstacle.x -= 5;
+            obstacle.x -= obstacleSpeed;  // 세로 모드에서는 더 빠르게 이동
             if (this.checkCollision(this.player, obstacle)) {
                 this.health--;
                 document.querySelectorAll('.heart')[this.health].style.opacity = '0.2';
@@ -451,7 +482,7 @@ class Game {
 
         // Update items
         this.items = this.items.filter(item => {
-            item.x -= 3;
+            item.x -= itemSpeed;  // 세로 모드에서는 더 빠르게 이동
             if (this.checkCollision(this.player, item)) {
                 if (item.type === 'A+') {
                     this.score += 100;
@@ -472,39 +503,7 @@ class Game {
         
         // 교수님 애니메이션 업데이트
         if (this.professorAnimationActive) {
-            const now = performance.now();
-            const elapsed = now - this.professorAnimationStart;
-            
-            // 교수님 크기 계산 - 모바일에서는 작게
-            const professorWidth = this.isMobile ? Math.min(150, this.canvas.width * 0.25) : 200;
-            
-            if (elapsed < this.professorAnimationDuration) {
-                // 처음 2초 동안 등장
-                if (elapsed < this.professorAnimationDuration / 3) {
-                    // 화면 중앙으로 이동 (화면 너비/2 - 교수님 이미지 너비/2)
-                    const centerX = this.canvas.width / 2 - professorWidth / 2;
-                    this.professorX = Math.min(centerX, -professorWidth + (elapsed / (this.professorAnimationDuration/3)) * (centerX + professorWidth));
-                } 
-                // 2초 동안 유지
-                else if (elapsed < this.professorAnimationDuration * 2/3) {
-                    // 화면 중앙에 위치 (모바일에서는 약간 왼쪽으로)
-                    this.professorX = this.isMobile ? 
-                        this.canvas.width / 2 - professorWidth * 0.75 : 
-                        this.canvas.width / 2 - professorWidth / 2;
-                }
-                // 마지막 2초 동안 퇴장
-                else {
-                    const reverseElapsed = elapsed - (this.professorAnimationDuration * 2/3);
-                    const startX = this.isMobile ? 
-                        this.canvas.width / 2 - professorWidth * 0.75 : 
-                        this.canvas.width / 2 - professorWidth / 2;
-                    this.professorX = startX - (reverseElapsed / (this.professorAnimationDuration/3)) * (startX + professorWidth);
-                }
-            } else {
-                this.professorAnimationActive = false;
-                this.professorX = -professorWidth; // 화면 밖으로
-                this.fSpawnRate = 0.055; // 교수님 사라진 후 F 확률 5.5%로 증가 (5%에서 5.5%로 변경)
-            }
+            this.updateProfessorAnimation();
         }
     }
 
@@ -624,12 +623,12 @@ class Game {
         
         // 교수님 애니메이션 그리기
         if (this.professorAnimationActive) {
-            // 교수님 이미지 그리기 (모바일에서는 크기 조정)
-            let professorWidth = this.isMobile ? Math.min(150, this.canvas.width * 0.25) : 200;
-            let professorHeight = this.isMobile ? Math.min(150, this.canvas.height * 0.25) : 200;
+            // 교수님 이미지 그리기 (모바일에서는 크기 조정하여 더 크게)
+            let professorWidth = this.isMobile ? Math.min(180, this.canvas.width * 0.35) : 200;
+            let professorHeight = this.isMobile ? Math.min(180, this.canvas.height * 0.35) : 200;
             
             // 화면 높이에 따라 교수님 위치 조정 (모바일에서 잘리지 않도록)
-            const bottomMargin = this.isMobile ? 10 : 20;
+            const bottomMargin = this.isMobile ? 20 : 20;
             const professorY = this.canvas.height - professorHeight - bottomMargin;
             
             this.ctx.drawImage(
@@ -641,9 +640,9 @@ class Game {
             );
             
             // 말풍선 크기 및 위치 계산 (모바일에서는 크기 조정)
-            const bubbleWidth = this.isMobile ? Math.min(200, this.canvas.width * 0.4) : 250;
-            const bubbleHeight = this.isMobile ? 40 : 50;
-            const bubbleMargin = this.isMobile ? 40 : 70;
+            const bubbleWidth = this.isMobile ? Math.min(220, this.canvas.width * 0.5) : 250;
+            const bubbleHeight = this.isMobile ? 50 : 50;
+            const bubbleMargin = this.isMobile ? 50 : 70;
             const bubbleX = this.professorX + professorWidth - 30;
             const bubbleY = professorY - bubbleMargin;
             
@@ -651,10 +650,15 @@ class Game {
             const adjustedBubbleX = Math.min(bubbleX, this.canvas.width - bubbleWidth - 10);
             
             // 말풍선 그리기
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'; // 더 불투명하게
             this.ctx.beginPath();
             this.ctx.roundRect(adjustedBubbleX, bubbleY, bubbleWidth, bubbleHeight, 10);
             this.ctx.fill();
+            
+            // 말풍선 테두리 추가 (모바일에서 더 잘 보이게)
+            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+            this.ctx.lineWidth = 2;
+            this.ctx.stroke();
             
             // 세모 말풍선 꼬리
             this.ctx.beginPath();
@@ -662,10 +666,12 @@ class Game {
             this.ctx.lineTo(this.professorX + professorWidth - 50, professorY - 25);
             this.ctx.lineTo(this.professorX + professorWidth - 10, professorY - 25);
             this.ctx.closePath();
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
             this.ctx.fill();
+            this.ctx.stroke();
             
-            // 텍스트 크기 조정
-            const fontSize = this.isMobile ? 14 : 16;
+            // 텍스트 크기 조정 - 모바일에서 더 크게
+            const fontSize = this.isMobile ? 16 : 16;
             
             // 텍스트 그리기
             this.ctx.fillStyle = 'black';
@@ -730,23 +736,32 @@ class Game {
         document.getElementById('finalTime').textContent = (60 - this.timeLeft) || 0;
         document.getElementById('finalStage').textContent = `스테이지 ${this.currentStage}`;
         
+        // 모바일에서는 방향 안내 메시지 숨기기
+        const orientationMsg = document.getElementById('orientationMessage');
+        if (orientationMsg) {
+            orientationMsg.style.display = 'none';
+        }
+        
+        // 모바일에서는 body 스크롤 허용
+        if (this.isMobile) {
+            document.body.style.overflow = 'auto';
+            document.body.style.position = 'static';
+            
+            // 게임 캔버스 숨기기
+            this.canvas.style.display = 'none';
+        }
+        
         // 게임오버 화면 표시
         const gameOverElement = document.querySelector('.game-over');
         gameOverElement.classList.remove('hidden');
         
         // 모바일 화면 레이아웃 처리
         this.setupGameOverLayout();
-
-        // 모바일에서는 방향 안내 메시지 숨기기
-        if (this.isMobile) {
-            const orientationMsg = document.getElementById('orientationMessage');
-            if (orientationMsg) {
-                orientationMsg.style.display = 'none';
-            }
-            
-            // 모바일에서 게임 캔버스 숨기기 (게임오버 화면이 더 잘 보이도록)
-            this.canvas.style.display = 'none';
-        }
+        
+        // 게임오버 화면이 보이도록 스크롤
+        setTimeout(() => {
+            gameOverElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
 
         // 닉네임 입력 필드에 포커스 (모바일 외에서만)
         if (!this.isMobile) {
@@ -845,89 +860,87 @@ class Game {
     setupGameOverLayout() {
         if (!this.isMobile) return;
         
-        // 모바일 환경에 맞게 스타일 조정
-        document.body.style.overflow = 'auto';
-        document.body.style.position = 'static';
-        
-        // 화면 너비가 높이보다 넓은지 확인 (가로 모드)
-        const isLandscape = window.innerWidth > window.innerHeight;
-        
-        // 게임오버 콘텐츠 요소 가져오기
-        const gameOverContent = document.querySelector('.game-over-content');
-        const gameStats = document.querySelector('.game-stats');
-        const gameInputs = document.querySelector('.game-inputs');
+        // 모바일 환경에서 게임오버 화면 설정 - 단순화
         const gameOver = document.querySelector('.game-over');
-        
-        if (gameOverContent && gameStats && gameInputs) {
-            if (isLandscape) {
-                // 가로 모드: 좌우 배치
-                gameOverContent.style.flexDirection = 'row';
-                gameOverContent.style.alignItems = 'center';
-                gameOverContent.style.maxHeight = '100vh';
-                gameOverContent.style.padding = '10px';
-                gameStats.style.textAlign = 'right';
-                gameStats.style.paddingRight = '10px';
-                gameStats.style.flex = '1';
-                gameInputs.style.paddingLeft = '10px';
-                gameInputs.style.flex = '1';
-                
-                // 전체 게임오버 화면 조정
-                if (gameOver) {
-                    gameOver.style.overflowY = 'auto';
-                    gameOver.style.display = 'flex';
-                    gameOver.style.justifyContent = 'center';
-                    gameOver.style.alignItems = 'center';
-                }
-            } else {
-                // 세로 모드: 상하 배치
+        if (gameOver) {
+            // 항상 스크롤 가능하도록 설정
+            gameOver.style.overflowY = 'auto';
+            gameOver.style.maxHeight = '100vh';
+            gameOver.style.display = 'block';
+            gameOver.style.padding = '20px 10px';
+            
+            // 게임오버 콘텐츠 요소 가져오기
+            const gameOverContent = gameOver.querySelector('.game-over-content');
+            const gameStats = gameOver.querySelector('.game-stats');
+            const gameInputs = gameOver.querySelector('.game-inputs');
+            
+            if (gameOverContent) {
+                // 기본 세로 레이아웃 적용 (단순화)
                 gameOverContent.style.flexDirection = 'column';
                 gameOverContent.style.alignItems = 'center';
-                gameOverContent.style.maxHeight = 'calc(100vh - 40px)';
-                gameOverContent.style.overflowY = 'auto';
-                gameStats.style.textAlign = 'center';
-                gameStats.style.padding = '10px 0';
-                gameStats.style.flex = 'none';
-                gameInputs.style.padding = '10px 0';
-                gameInputs.style.flex = 'none';
+                gameOverContent.style.width = '100%';
+                gameOverContent.style.maxWidth = '100%';
                 
-                // 전체 게임오버 화면 조정
-                if (gameOver) {
-                    gameOver.style.overflowY = 'auto';
-                    gameOver.style.display = 'flex';
-                    gameOver.style.justifyContent = 'flex-start';
-                    gameOver.style.paddingTop = '20px';
+                if (gameStats) {
+                    gameStats.style.width = '100%';
+                    gameStats.style.marginBottom = '20px';
+                    gameStats.style.textAlign = 'center';
+                }
+                
+                if (gameInputs) {
+                    gameInputs.style.width = '100%';
+                    gameInputs.style.maxWidth = '400px';
                 }
             }
             
-            // 닉네임 입력 컨테이너 최적화
-            const nicknameContainer = document.querySelector('.nickname-save-container');
+            // 닉네임 입력 컨테이너
+            const nicknameContainer = gameOver.querySelector('.nickname-save-container');
             if (nicknameContainer) {
-                nicknameContainer.style.width = isLandscape ? '90%' : '100%';
-                nicknameContainer.style.margin = isLandscape ? '0 auto' : '10px auto';
+                nicknameContainer.style.width = '100%';
+                nicknameContainer.style.margin = '10px auto';
             }
             
-            // 닉네임 입력란과 버튼 최적화
-            const inputWrapper = document.querySelector('.retro-input-wrapper');
+            // 입력란과 버튼
+            const inputWrapper = gameOver.querySelector('.retro-input-wrapper');
             if (inputWrapper) {
-                inputWrapper.style.flexDirection = isLandscape ? 'row' : 'column';
+                inputWrapper.style.flexDirection = 'column';
+                inputWrapper.style.width = '100%';
                 
-                const nicknameInput = document.getElementById('gameOverNickname');
-                const saveButton = document.getElementById('saveNicknameBtn');
+                const nicknameInput = inputWrapper.querySelector('input');
+                const saveButton = inputWrapper.querySelector('button');
                 
-                if (nicknameInput && saveButton) {
-                    if (isLandscape) {
-                        nicknameInput.style.flex = '1';
-                        saveButton.style.width = 'auto';
-                    } else {
-                        nicknameInput.style.width = '100%';
-                        saveButton.style.width = '100%';
-                    }
+                if (nicknameInput) {
+                    nicknameInput.style.width = '100%';
+                    nicknameInput.style.marginBottom = '10px';
                 }
+                
+                if (saveButton) {
+                    saveButton.style.width = '100%';
+                }
+            }
+            
+            // 액션 버튼
+            const actionButtons = gameOver.querySelector('.action-buttons');
+            if (actionButtons) {
+                actionButtons.style.width = '100%';
+                actionButtons.style.display = 'flex';
+                actionButtons.style.justifyContent = 'center';
+                actionButtons.style.gap = '10px';
+                actionButtons.style.marginTop = '20px';
+                
+                // 각 버튼의 크기 조정
+                const buttons = actionButtons.querySelectorAll('button, a');
+                buttons.forEach(button => {
+                    button.style.flex = '1';
+                    button.style.minWidth = 'auto';
+                    button.style.textAlign = 'center';
+                });
             }
         }
     }
 
     restart() {
+        // 게임오버 화면 숨기기
         document.querySelector('.game-over').classList.add('hidden');
         
         // 모든 모달 요소 숨기기
@@ -940,24 +953,33 @@ class Game {
             warning.remove();
         }
         
-        // 모바일 환경에서 body 스타일 초기화
-        if (this.isMobile) {
-            document.body.style.overflow = 'hidden';
-            document.body.style.position = 'fixed';
-            window.scrollTo(0, 0);
-            
-            // 캔버스 다시 표시
-            this.canvas.style.display = 'block';
-            
-            // 현재 방향 확인하여 메시지 표시
-            const isLandscape = window.innerWidth > window.innerHeight;
-            const orientationMsg = document.getElementById('orientationMessage');
-            if (orientationMsg) {
-                orientationMsg.style.display = isLandscape ? 'none' : 'flex';
-            }
+        // 게임 컨테이너와 캔버스 초기화
+        const gameContainer = document.querySelector('.game-container');
+        if (gameContainer) {
+            // 스크롤 위치 초기화
+            gameContainer.scrollTop = 0;
         }
         
+        // body 스타일 초기화
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        window.scrollTo(0, 0);
+        
+        // 캔버스 다시 표시
+        this.canvas.style.display = 'block';
+        
+        // 방향 메시지 업데이트 (세로 모드일 때만 표시)
+        const orientationMsg = document.getElementById('orientationMessage');
+        if (orientationMsg && this.isMobile) {
+            const isPortrait = window.innerWidth < window.innerHeight;
+            orientationMsg.style.display = isPortrait ? 'flex' : 'none';
+        }
+        
+        // 게임 초기화
         this.init();
+        
+        // 캔버스 크기 업데이트
+        this.updateCanvasSize();
     }
 
     getCookie(name) {
@@ -1022,9 +1044,18 @@ class Game {
         this.ctx.fillStyle = '#87CEEB';  // 하늘색으로 변경
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // 배경 이미지용 설정
-        const bgHeight = this.canvas.height * 0.7;  // 캔버스 높이의 70%만 사용
-        const bgY = this.canvas.height - bgHeight;  // 하단에 배치
+        // 세로 모드에서는 배경 크기와 위치 조정
+        let bgHeight, bgY;
+        
+        if (this.isMobile) {
+            // 모바일 세로 모드: 화면 하단에 배경 이미지 표시
+            bgHeight = this.canvas.height * 0.5;  // 화면 높이의 50%
+            bgY = this.canvas.height - bgHeight;   // 하단에 배치
+        } else {
+            // 데스크톱 가로 모드: 기존 비율 유지
+            bgHeight = this.canvas.height * 0.7;  // 화면 높이의 70%
+            bgY = this.canvas.height - bgHeight;  // 하단에 배치
+        }
         
         // 전환 중이 아니면 현재 스테이지 배경만 그림
         if (!this.stageTransitioning) {
@@ -1038,13 +1069,29 @@ class Game {
                 
                 // 이미지 비율 유지
                 const bgRatio = currentBg.naturalWidth / currentBg.naturalHeight;
-                let renderWidth = this.canvas.width;
-                let renderHeight = renderWidth / bgRatio;
+                let renderWidth, renderHeight;
                 
-                // 높이가 설정한 영역보다 작으면 높이에 맞춤
-                if (renderHeight < bgHeight) {
+                // 세로 모드에서 크기 조정 - 비율 유지하면서 맞추기
+                if (this.isMobile) {
+                    // 세로 모드에서는 높이를 기준으로 너비 계산하여 비율 유지
                     renderHeight = bgHeight;
                     renderWidth = renderHeight * bgRatio;
+                    
+                    // 너비가 화면보다 작으면 화면 너비에 맞추고 높이 조정
+                    if (renderWidth < this.canvas.width) {
+                        renderWidth = this.canvas.width;
+                        renderHeight = renderWidth / bgRatio;
+                    }
+                } else {
+                    // 데스크톱에서는 기존 로직 유지
+                    renderWidth = this.canvas.width;
+                    renderHeight = renderWidth / bgRatio;
+                    
+                    // 높이가 설정한 영역보다 작으면 높이에 맞춤
+                    if (renderHeight < bgHeight) {
+                        renderHeight = bgHeight;
+                        renderWidth = renderHeight * bgRatio;
+                    }
                 }
                 
                 // X 오프셋 계산 (이미지 중앙 정렬)
@@ -1071,84 +1118,162 @@ class Game {
                 this.ctx.globalAlpha = 1;
             }
         } else {
-            // 전환 중일 때는 두 배경을 블렌딩
+            // 전환 중일 때는 두 배경을 블렌딩 (세로 모드에도 동일하게 적용)
             const currentBg = this.images.backgrounds[this.currentStage - 1];
             const nextBg = this.images.backgrounds[this.currentStage];
             
-            // 현재 배경 그리기
-            if (currentBg && currentBg.complete) {
-                // 현재 배경 알파 계산 (80% 기준으로 페이드 아웃)
-                this.ctx.globalAlpha = (1 - (this.stageTransitionProgress / 100)) * 0.8;
+            // 현재 배경과 다음 배경 모두 세로 모드에 맞게 조정
+            this.drawTransitionBackground(currentBg, nextBg, bgY, bgHeight);
+        }
+    }
+
+    // 배경 전환 그리기 함수 (세로 모드 대응)
+    drawTransitionBackground(currentBg, nextBg, bgY, bgHeight) {
+        if (currentBg && currentBg.complete) {
+            // 현재 배경 알파 계산 (80% 기준으로 페이드 아웃)
+            this.ctx.globalAlpha = (1 - (this.stageTransitionProgress / 100)) * 0.8;
+            
+            // 이미지 비율 유지
+            const bgRatio = currentBg.naturalWidth / currentBg.naturalHeight;
+            let renderWidth, renderHeight;
+            
+            // 세로 모드에서 크기 조정 - 비율 유지하면서 맞추기
+            if (this.isMobile) {
+                // 세로 모드에서는 높이를 기준으로 너비 계산하여 비율 유지
+                renderHeight = bgHeight;
+                renderWidth = renderHeight * bgRatio;
                 
-                // 이미지 비율 유지
-                const bgRatio = currentBg.naturalWidth / currentBg.naturalHeight;
-                let renderWidth = this.canvas.width;
-                let renderHeight = renderWidth / bgRatio;
+                // 너비가 화면보다 작으면 화면 너비에 맞추고 높이 조정
+                if (renderWidth < this.canvas.width) {
+                    renderWidth = this.canvas.width;
+                    renderHeight = renderWidth / bgRatio;
+                }
+            } else {
+                // 데스크톱에서는 기존 로직 유지
+                renderWidth = this.canvas.width;
+                renderHeight = renderWidth / bgRatio;
                 
                 // 높이가 설정한 영역보다 작으면 높이에 맞춤
                 if (renderHeight < bgHeight) {
                     renderHeight = bgHeight;
                     renderWidth = renderHeight * bgRatio;
                 }
-                
-                // X 오프셋 계산 (이미지 중앙 정렬)
-                const xOffset = (renderWidth - this.canvas.width) / 2;
-                
-                // 정확한 반복 간격 계산
-                const actualWidth = renderWidth;
-                // 모듈로 연산자 사용하여 정확한 위치 계산 (backgroundX 값이 계속 감소해도 순환하도록)
-                let x1 = (this.backgroundX % actualWidth) - xOffset;
-                if (x1 > 0) x1 -= actualWidth;
-                
-                // 화면을 완전히 채울 만큼 이미지 반복
-                while (x1 < this.canvas.width) {
-                    this.ctx.drawImage(
-                        currentBg, 
-                        x1, bgY, 
-                        renderWidth, renderHeight
-                    );
-                    x1 += actualWidth;
-                }
             }
             
-            // 다음 배경 그리기
-            if (nextBg && nextBg.complete) {
-                // 다음 배경 알파 계산 (80% 기준으로 페이드 인)
-                this.ctx.globalAlpha = (this.stageTransitionProgress / 100) * 0.8;
+            // X 오프셋 계산 (이미지 중앙 정렬)
+            const xOffset = (renderWidth - this.canvas.width) / 2;
+            
+            // 정확한 반복 간격 계산
+            const actualWidth = renderWidth;
+            
+            // 모듈로 연산자 사용하여 정확한 위치 계산
+            let x1 = (this.backgroundX % actualWidth) - xOffset;
+            if (x1 > 0) x1 -= actualWidth;
+            
+            // 화면을 완전히 채울 만큼 이미지 반복
+            while (x1 < this.canvas.width) {
+                this.ctx.drawImage(
+                    currentBg, 
+                    x1, bgY, 
+                    renderWidth, renderHeight
+                );
+                x1 += actualWidth;
+            }
+        }
+        
+        // 다음 배경 그리기
+        if (nextBg && nextBg.complete) {
+            // 다음 배경 알파 계산 (80% 기준으로 페이드 인)
+            this.ctx.globalAlpha = (this.stageTransitionProgress / 100) * 0.8;
+            
+            // 이미지 비율 유지
+            const bgRatio = nextBg.naturalWidth / nextBg.naturalHeight;
+            let renderWidth, renderHeight;
+            
+            // 세로 모드에서 크기 조정 - 비율 유지하면서 맞추기
+            if (this.isMobile) {
+                // 세로 모드에서는 높이를 기준으로 너비 계산하여 비율 유지
+                renderHeight = bgHeight;
+                renderWidth = renderHeight * bgRatio;
                 
-                // 이미지 비율 유지
-                const bgRatio = nextBg.naturalWidth / nextBg.naturalHeight;
-                let renderWidth = this.canvas.width;
-                let renderHeight = renderWidth / bgRatio;
+                // 너비가 화면보다 작으면 화면 너비에 맞추고 높이 조정
+                if (renderWidth < this.canvas.width) {
+                    renderWidth = this.canvas.width;
+                    renderHeight = renderWidth / bgRatio;
+                }
+            } else {
+                // 데스크톱에서는 기존 로직 유지
+                renderWidth = this.canvas.width;
+                renderHeight = renderWidth / bgRatio;
                 
                 // 높이가 설정한 영역보다 작으면 높이에 맞춤
                 if (renderHeight < bgHeight) {
                     renderHeight = bgHeight;
                     renderWidth = renderHeight * bgRatio;
                 }
-                
-                // X 오프셋 계산 (이미지 중앙 정렬)
-                const xOffset = (renderWidth - this.canvas.width) / 2;
-                
-                // 정확한 반복 간격 계산
-                const actualWidth = renderWidth;
-                // 모듈로 연산자 사용하여 정확한 위치 계산 (backgroundX 값이 계속 감소해도 순환하도록)
-                let x1 = (this.backgroundX % actualWidth) - xOffset;
-                if (x1 > 0) x1 -= actualWidth;
-                
-                // 화면을 완전히 채울 만큼 이미지 반복
-                while (x1 < this.canvas.width) {
-                    this.ctx.drawImage(
-                        nextBg, 
-                        x1, bgY, 
-                        renderWidth, renderHeight
-                    );
-                    x1 += actualWidth;
-                }
             }
             
-            // 알파값 초기화
-            this.ctx.globalAlpha = 1;
+            // X 오프셋 계산 (이미지 중앙 정렬)
+            const xOffset = (renderWidth - this.canvas.width) / 2;
+            
+            // 정확한 반복 간격 계산
+            const actualWidth = renderWidth;
+            
+            // 모듈로 연산자 사용하여 정확한 위치 계산
+            let x1 = (this.backgroundX % actualWidth) - xOffset;
+            if (x1 > 0) x1 -= actualWidth;
+            
+            // 화면을 완전히 채울 만큼 이미지 반복
+            while (x1 < this.canvas.width) {
+                this.ctx.drawImage(
+                    nextBg, 
+                    x1, bgY, 
+                    renderWidth, renderHeight
+                );
+                x1 += actualWidth;
+            }
+        }
+        
+        // 알파값 초기화
+        this.ctx.globalAlpha = 1;
+    }
+
+    updateProfessorAnimation() {
+        const now = performance.now();
+        const elapsed = now - this.professorAnimationStart;
+        
+        // 교수님 크기 계산 - 모바일에서는 화면에 맞게 조정
+        const professorWidth = this.isMobile ? 
+            Math.min(180, this.canvas.width * 0.35) : 200; // 모바일에서 더 크게 표시
+        const professorHeight = this.isMobile ? 
+            Math.min(180, this.canvas.height * 0.35) : 200; // 모바일에서 더 크게 표시
+        
+        if (elapsed < this.professorAnimationDuration) {
+            // 처음 2초 동안 등장
+            if (elapsed < this.professorAnimationDuration / 3) {
+                // 화면 중앙으로 이동 (화면 너비/2 - 교수님 이미지 너비/2)
+                const centerX = this.canvas.width / 2 - professorWidth / 2;
+                this.professorX = Math.min(centerX, -professorWidth + (elapsed / (this.professorAnimationDuration/3)) * (centerX + professorWidth));
+            } 
+            // 2초 동안 유지
+            else if (elapsed < this.professorAnimationDuration * 2/3) {
+                // 화면 중앙에 위치 (모바일에서는 약간 왼쪽으로)
+                this.professorX = this.isMobile ? 
+                    this.canvas.width / 2 - professorWidth * 0.6 : // 모바일에서 더 중앙에 가깝게
+                    this.canvas.width / 2 - professorWidth / 2;
+            }
+            // 마지막 2초 동안 퇴장
+            else {
+                const reverseElapsed = elapsed - (this.professorAnimationDuration * 2/3);
+                const startX = this.isMobile ? 
+                    this.canvas.width / 2 - professorWidth * 0.6 : // 모바일에서 더 중앙에 가깝게 
+                    this.canvas.width / 2 - professorWidth / 2;
+                this.professorX = startX - (reverseElapsed / (this.professorAnimationDuration/3)) * (startX + professorWidth);
+            }
+        } else {
+            this.professorAnimationActive = false;
+            this.professorX = -professorWidth; // 화면 밖으로
+            this.fSpawnRate = 0.055; // 교수님 사라진 후 F 확률 5.5%로 증가
         }
     }
 }

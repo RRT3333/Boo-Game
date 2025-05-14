@@ -459,15 +459,16 @@ body {
     height: 100%;
 }
 
-/* 모바일 최적화 (일반적인 모바일) */
+/* 모바일 최적화 (세로 화면) */
 @media (max-width: 800px) {
-    /* 가로모드 기준 레이아웃 */
+    /* 게임 컨테이너 전체 화면 설정 */
     .game-container {
         width: 100vw;
         height: 100vh;
         max-height: 100vh;
         border-radius: 0;
         border: none;
+        overflow: hidden;
     }
     
     body {
@@ -481,147 +482,152 @@ body {
         position: fixed;
     }
     
-    /* HUD 스타일 조정 */
+    /* HUD 최적화 */
     .hud {
         padding: 10px;
     }
     
     .score, .timer {
         font-size: 16px;
+        font-weight: bold;
     }
     
     .health .heart {
         font-size: 20px;
     }
     
-    .stage-progress {
-        width: 100px;
-    }
-    
     .countdown {
-        font-size: 80px;
+        font-size: 70px;
     }
     
-    /* 게임 오버 화면 모바일 최적화 */
+    /* 방향 메시지 숨김 (세로 모드 지원) */
+    .orientation-message {
+        display: none !important;
+    }
+    
+    /* 게임 오버/클리어 화면 스타일 */
     .game-over, .game-clear {
         position: fixed;
         top: 0;
         left: 0;
-        width: 100vw;
-        height: 100vh;
+        width: 100%;
+        height: 100%;
         margin: 0;
-        padding: 16px;
+        padding: 20px;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
-        border: none;
-        border-radius: 0;
-        overflow-y: auto; /* 스크롤 가능하게 */
-        -webkit-overflow-scrolling: touch; /* iOS 스크롤 부드럽게 */
+        overflow-y: auto;
+        background-color: rgba(0, 0, 0, 0.95);
+        -webkit-overflow-scrolling: touch;
+        z-index: 1000;
     }
     
-    /* 게임 오버 콘텐츠 최적화 */
+    /* 게임 오버 콘텐츠 */
     .game-over-content {
         width: 100%;
-        max-width: 800px;
+        max-width: 500px;
+        padding: 10px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 10px;
     }
     
-    /* 게임 오버 내용 최적화 */
-    .game-over h2, .game-clear h2 {
-        font-size: 28px;
+    /* 게임 통계 영역 */
+    .game-stats {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    /* 입력 영역 */
+    .game-inputs {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    /* 닉네임 입력 컨테이너 */
+    .nickname-save-container {
+        width: 100%;
+        max-width: 350px;
         margin: 10px 0;
     }
     
-    .game-over p, .game-clear p {
-        font-size: 16px;
-    }
-    
-    /* 닉네임 입력 영역 모바일 최적화 */
-    .nickname-save-container {
-        width: 100%;
-        max-width: 320px;
-        transform: scale(0.95);
-    }
-    
+    /* 레트로 입력 그룹 */
     .retro-input-group {
         padding: 15px;
     }
     
-    .retro-input-label {
-        font-size: 20px;
-    }
-    
+    /* 입력 래퍼 */
     .retro-input-wrapper {
         flex-direction: column;
-        gap: 8px;
+        gap: 10px;
     }
     
     .retro-input-wrapper input {
         width: 100%;
-        font-size: 16px;
-        padding: 8px;
         height: 40px;
+        font-size: 16px;
     }
     
     .retro-button {
         width: 100%;
-        font-size: 16px;
-        padding: 8px;
         height: 40px;
     }
     
-    /* 액션 버튼 모바일 최적화 */
+    /* 액션 버튼 */
     .action-buttons {
+        display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
         width: 100%;
-        max-width: 320px;
-        gap: 8px;
-        margin-top: 16px;
+        max-width: 350px;
+        justify-content: center;
     }
     
+    /* 버튼 스타일 */
     .btn-restart, .btn-leaderboard, .btn-home {
-        min-width: 0;
         flex: 1;
+        min-width: 0;
         font-size: 14px;
-        padding: 10px 10px;
+        padding: 10px;
         white-space: nowrap;
+        min-height: 44px; /* 모바일 터치에 적합한 높이 */
     }
 }
 
 /* 스마트폰 가로 모드 최적화 */
 @media (max-width: 800px) and (max-height: 500px) {
-    /* 가로 모드 최적화 (가로로 긴 화면) */
-    .game-container {
-        width: 100vw;
-        height: 100vh;
+    /* HUD 요소 크기 조정 */
+    .hud {
+        padding: 5px;
     }
     
-    /* 게임 오버 화면을 가로모드에 맞게 조정 */
-    .nickname-save-container {
-        margin: 5px 0;
+    .score, .timer {
+        font-size: 14px;
     }
     
-    .retro-input-wrapper {
-        flex-direction: row;
+    .health .heart {
+        font-size: 16px;
     }
     
+    /* 게임 오버 컨텐츠 */
     .game-over h2, .game-clear h2 {
-        font-size: 22px;
+        font-size: 20px;
         margin: 5px 0;
     }
     
     .game-over p, .game-clear p {
         font-size: 14px;
-        margin: 2px 0;
+        margin: 3px 0;
     }
     
+    /* 입력 영역 조정 */
     .retro-input-group {
         padding: 10px;
         margin: 5px 0;
@@ -629,156 +635,34 @@ body {
     
     .retro-input-label {
         font-size: 16px;
-        margin-bottom: 8px;
+        margin-bottom: 5px;
     }
     
     .action-buttons {
         margin-top: 10px;
-    }
-    
-    /* 게임오버 화면 가로 모드 레이아웃 */
-    .game-over-content {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        height: auto;
-        min-height: 0;
-        padding: 5px;
-        gap: 10px;
-    }
-    
-    .game-stats {
-        flex: 1;
-        max-width: 200px;
-        padding: 5px 10px;
-    }
-    
-    .game-inputs {
-        flex: 1;
-        min-width: 300px;
-        padding: 5px;
-    }
-    
-    /* 스크롤 최적화 */
-    .game-over, .game-clear {
-        overflow-y: auto;
-        padding: 5px;
-        justify-content: center;
-    }
-}
-
-/* 작은 모바일 화면 최적화 (iPhone SE 등) */
-@media (max-width: 380px) {
-    .countdown {
-        font-size: 60px;
-    }
-    
-    .health .heart {
-        font-size: 16px;
-    }
-    
-    .score, .timer {
-        font-size: 14px;
-    }
-    
-    .hud {
-        padding: 5px;
-    }
-    
-    .hud-top, .hud-bottom {
         gap: 5px;
     }
-    
-    .game-over h2, .game-clear h2 {
-        font-size: 20px;
-    }
-    
-    .game-over p, .game-clear p {
-        font-size: 14px;
-    }
-    
-    .retro-input-label {
-        font-size: 16px;
-    }
-    
-    .retro-input-wrapper input,
-    .retro-button {
-        font-size: 14px;
-        height: 36px;
-    }
-    
-    .btn-restart, .btn-leaderboard, .btn-home {
-        font-size: 12px;
-        padding: 8px;
-    }
 }
 
-/* 매우 작은 높이 대응 (스마트폰 가로 모드 중 높이가 매우 작은 경우) */
-.very-small-height .game-over-content {
-    padding: 0;
-    margin: 0;
-}
-
-.very-small-height .game-over h2, 
-.very-small-height .game-clear h2 {
-    font-size: 18px;
-    margin: 2px 0;
-}
-
-.very-small-height .game-over p, 
-.very-small-height .game-clear p {
-    font-size: 12px;
-    margin: 2px 0;
-}
-
-.very-small-height .retro-input-group {
-    padding: 5px;
-    margin: 2px 0;
-}
-
-.very-small-height .retro-input-label {
-    font-size: 14px;
-    margin-bottom: 2px;
-}
-
-.very-small-height .retro-input-wrapper {
-    gap: 4px;
-}
-
-.very-small-height .retro-hint {
-    font-size: 10px;
-    margin-top: 2px;
-}
-
-.very-small-height .action-buttons {
-    margin-top: 4px;
-    gap: 4px;
-}
-
-.very-small-height .btn-restart, 
-.very-small-height .btn-leaderboard, 
-.very-small-height .btn-home {
-    font-size: 11px;
-    padding: 6px;
-    min-height: 28px;
+/* 작은 모바일 화면 최적화 */
+@media (max-width: 380px) {
+    /* 제거하거나 다른 미디어 쿼리와 병합 */
 }
 
 /* 방향 전환 메시지 */
 .orientation-message {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: rgba(0, 0, 0, 0.95);
     color: white;
     display: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 2000;
     padding: 20px;
     text-align: center;
 }
@@ -792,11 +676,13 @@ body {
 .orientation-message .text {
     font-size: 24px;
     font-weight: bold;
+    margin: 10px 0;
 }
 
 .orientation-message .subtext {
     font-size: 16px;
     margin-top: 10px;
+    max-width: 80%;
 }
 
 @keyframes rotate {
@@ -805,4 +691,33 @@ body {
     50% { transform: rotate(90deg); }
     75% { transform: rotate(90deg); }
     100% { transform: rotate(0deg); }
+}
+
+/* 작은 모바일 화면 최적화 */
+@media (max-width: 400px) {
+    .game-over h2, .game-clear h2 {
+        font-size: 24px;
+        margin: 8px 0;
+    }
+    
+    .game-over p, .game-clear p {
+        font-size: 14px;
+        margin: 5px 0;
+    }
+    
+    .retro-input-label {
+        font-size: 18px;
+    }
+    
+    .countdown {
+        font-size: 60px;
+    }
+    
+    .orientation-message .text {
+        font-size: 20px;
+    }
+    
+    .orientation-message .subtext {
+        font-size: 14px;
+    }
 }
