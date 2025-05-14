@@ -297,91 +297,108 @@ export function setupGameOverLayout() {
 
 // 게임 재시작 UI 처리
 export function handleGameRestart() {
-    // 게임오버 화면 숨기기
-    document.querySelector('.game-over').classList.add('hidden');
+    console.log('게임 재시작 UI 처리 시작');
     
-    // 모든 모달 요소 숨기기
-    const gameClear = document.querySelector('.game-clear');
-    if (gameClear) gameClear.classList.add('hidden');
-    
-    // 경고 메시지 제거
-    const warning = document.querySelector('.warning');
-    if (warning) {
-        warning.remove();
-    }
-    
-    // 말풍선 제거
-    const speechBubble = document.querySelector('.professor-speech');
-    if (speechBubble) {
-        speechBubble.remove();
-    }
-    
-    // 게임 컨테이너와 캔버스 초기화
-    const gameContainer = document.querySelector('.game-container');
-    const canvas = document.getElementById('gameCanvas');
-    
-    if (gameContainer) {
-        // 스크롤 위치 초기화
-        gameContainer.scrollTop = 0;
-        
-        // 중앙 정렬 강제 적용
-        gameContainer.style.margin = '0 auto !important';
-        gameContainer.style.left = '0 !important';
-        gameContainer.style.right = '0 !important';
-        gameContainer.style.position = 'relative !important';
-        
-        // CSS 속성 리셋
-        gameContainer.style.removeProperty('transform');
-        gameContainer.style.removeProperty('translate');
-        
-        // 데스크톱에서는 고정 크기 유지
-        if (window.innerWidth > 800) {
-            gameContainer.style.width = '800px';
-            gameContainer.style.height = '600px';
-            gameContainer.style.maxWidth = '800px';
-            gameContainer.style.maxHeight = '600px';
+    try {
+        // 게임오버 화면 숨기기
+        const gameOverEl = document.querySelector('.game-over');
+        if (gameOverEl) {
+            gameOverEl.classList.add('hidden');
         }
-    }
-    
-    // 캔버스 스타일 재설정
-    if (canvas) {
-        canvas.style.display = 'block';
-        canvas.style.margin = '0 auto !important';
-        canvas.style.position = 'relative !important';
-        canvas.style.left = '0 !important';
-        canvas.style.right = '0 !important';
         
-        // 모바일이 아닌 경우 크기 재설정
-        if (window.innerWidth > 800) {
-            canvas.style.width = '100%';
-            canvas.style.height = '100%';
+        // 모든 모달 요소 숨기기
+        const gameClear = document.querySelector('.game-clear');
+        if (gameClear) {
+            gameClear.classList.add('hidden');
         }
-    }
-    
-    // 화면 중앙에 위치시키기 위한 추가 설정
-    if (window.innerWidth > 800) {
-        document.body.style.display = 'flex';
-        document.body.style.justifyContent = 'center';
-        document.body.style.alignItems = 'center';
-    }
-    
-    // body 스타일 초기화
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    window.scrollTo(0, 0);
-    
-    // CSS 강제 리페인트를 위한 타임아웃
-    setTimeout(() => {
+        
+        // 경고 메시지 제거
+        const warning = document.querySelector('.warning');
+        if (warning) {
+            warning.remove();
+        }
+        
+        // 말풍선 제거
+        const speechBubble = document.querySelector('.professor-speech');
+        if (speechBubble) {
+            speechBubble.remove();
+        }
+        
+        // 게임 컨테이너와 캔버스 초기화
+        const gameContainer = document.querySelector('.game-container');
+        const canvas = document.getElementById('gameCanvas');
+        
+        // 모바일 환경 감지
+        const isMobile = window.innerWidth <= 800;
+        
         if (gameContainer) {
-            gameContainer.style.margin = '0 auto !important';
-            gameContainer.style.left = '0 !important';
-            gameContainer.style.right = '0 !important';
+            // 스크롤 위치 초기화
+            gameContainer.scrollTop = 0;
+            
+            // 모바일과 데스크톱에 따라 다른 스타일 적용
+            if (isMobile) {
+                // 모바일 환경에서는 전체 화면 설정
+                gameContainer.style.width = '100vw';
+                gameContainer.style.height = '100vh';
+                gameContainer.style.margin = '0';
+                gameContainer.style.padding = '0';
+                gameContainer.style.position = 'fixed';
+                gameContainer.style.top = '0';
+                gameContainer.style.left = '0';
+                gameContainer.style.borderRadius = '0';
+                gameContainer.style.border = 'none';
+            } else {
+                // 데스크톱에서는 고정 크기 유지
+                gameContainer.style.margin = '0 auto';
+                gameContainer.style.left = '0';
+                gameContainer.style.right = '0';
+                gameContainer.style.position = 'relative';
+                gameContainer.style.width = '800px';
+                gameContainer.style.height = '600px';
+                gameContainer.style.maxWidth = '800px';
+                gameContainer.style.maxHeight = '600px';
+            }
+            
+            // CSS 속성 리셋
+            gameContainer.style.removeProperty('transform');
+            gameContainer.style.removeProperty('translate');
         }
         
+        // 캔버스 스타일 재설정
         if (canvas) {
-            canvas.style.margin = '0 auto !important';
-            canvas.style.position = 'relative !important';
-            canvas.style.left = '0 !important';
+            canvas.style.display = 'block';
+            
+            if (isMobile) {
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+            } else {
+                canvas.style.margin = '0 auto';
+                canvas.style.position = 'relative';
+                canvas.style.left = '0';
+                canvas.style.right = '0';
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+            }
         }
-    }, 50);
+        
+        // 화면 중앙에 위치시키기 위한 추가 설정
+        if (!isMobile) {
+            document.body.style.display = 'flex';
+            document.body.style.justifyContent = 'center';
+            document.body.style.alignItems = 'center';
+        }
+        
+        // body 스타일 초기화
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        document.body.style.height = '100%';
+        document.body.style.margin = '0';
+        document.body.style.padding = '0';
+        window.scrollTo(0, 0);
+        
+        console.log('게임 재시작 UI 처리 완료');
+    } catch (error) {
+        console.error('게임 재시작 UI 처리 중 오류 발생:', error);
+    }
 } 
