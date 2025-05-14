@@ -466,18 +466,14 @@ body {
         font-size: 1.1rem;
     }
     
-    .qr-code {
-        padding: 10px;
-    }
-    
     .qr-code h3 {
         font-size: 1rem;
-        margin-bottom: 5px;
+        margin-bottom: 8px;
     }
     
     .qr-code img {
-        width: 100px;
-        height: 100px;
+        width: 80px;
+        height: 80px;
         margin: 5px;
         padding: 5px;
     }
@@ -486,4 +482,34 @@ body {
 .pixel-font {
     font-family: 'VT323', monospace;
     letter-spacing: 2px;
+}
+
+/* QR 코드 토글 스타일 */
+.toggle-qr-mobile {
+    display: none;
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    margin-left: 5px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.qr-code-image {
+    transition: max-height 0.4s ease;
+    overflow: hidden;
+    max-height: 200px;
+}
+
+@media (max-width: 500px) {
+    .toggle-qr-mobile {
+        display: inline-block;
+    }
+    
+    .qr-code-image {
+        max-height: 0;
+    }
+    
+    .qr-code-image.show {
+        max-height: 100px;
+    }
 } 
