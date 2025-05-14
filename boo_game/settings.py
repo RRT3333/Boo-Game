@@ -91,6 +91,7 @@ WSGI_APPLICATION = 'boo_game.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# 기본 설정: 개발 환경(Windows)에서는 SQLite 사용
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -98,11 +99,43 @@ DATABASES = {
     }
 }
 
+# 프로덕션 환경(Linux)에서만 PostgreSQL 사용
 if DJANGO_ENV == 'production':
-    import dj_database_url
     DATABASES = {
-        'default': dj_database_url.parse(os.getenv('DATABASE_URL'))
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',  # 기본 psycopg2 설정
+            'NAME': os.getenv('DB_NAME', ''),
+            'USER': os.getenv('DB_USER', ''),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', ''),
+            'PORT': os.getenv('DB_PORT', '5432'),
+            'OPTIONS': {
+                'sslmode': os.getenv('DB_SSL_MODE', 'prefer')
+            },
+        }
     }
+    
+    # 대체 설정: psycopg3를 사용하는 경우 주석 해제
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.postgresql',
+    #         'NAME': os.getenv('DB_NAME', ''),
+    #         'USER': os.getenv('DB_USER', ''),
+    #         'PASSWORD': os.getenv('DB_PASSWORD', ''),
+    #         'HOST': os.getenv('DB_HOST', ''),
+    #         'PORT': os.getenv('DB_PORT', '5432'),
+    #         'OPTIONS': {
+    #             'sslmode': os.getenv('DB_SSL_MODE', 'prefer')
+    #         },
+    #         'CONN_MAX_AGE': 600,
+    #         'CONN_HEALTH_CHECKS': True,
+    #     }
+    # }
+    
+    # DATABASE_URL 환경변수를 사용하는 경우 (Heroku, Railway 등 PaaS에서 주로 사용)
+    if os.getenv('DATABASE_URL'):
+        import dj_database_url
+        DATABASES['default'] = dj_database_url.parse(os.getenv('DATABASE_URL'))
 
 
 # Password validation
