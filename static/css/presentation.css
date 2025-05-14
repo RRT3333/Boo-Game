@@ -128,6 +128,8 @@ body {
     flex-direction: column;
     transition: transform 0.3s ease;
     position: relative;
+    height: auto;
+    min-height: 300px;
 }
 
 .player-card:hover {
@@ -188,16 +190,19 @@ body {
 }
 
 .player-avatar {
-    padding: 20px;
+    padding: 30px 20px;
     display: flex;
     justify-content: center;
     background-color: #f9f9f9;
+    flex: 1;
+    align-items: center;
 }
 
 .avatar-container {
     position: relative;
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
 }
 
 .character-base, .character-outfit, .character-hat, .character-shoes {
@@ -211,10 +216,14 @@ body {
     padding: 15px;
     text-align: center;
     background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100px;
 }
 
 .nickname {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: bold;
     margin-bottom: 10px;
     color: var(--dark-color);
@@ -222,12 +231,14 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     font-family: 'Spoqa Han Sans Neo', sans-serif;
+    padding: 0 5px;
 }
 
 .score-info {
     display: flex;
     justify-content: space-between;
     font-size: 1.2rem;
+    padding: 0 5px;
 }
 
 .score {

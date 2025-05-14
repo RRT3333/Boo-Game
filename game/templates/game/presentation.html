@@ -30,19 +30,19 @@
                     <!-- 플레이어 커스터마이징된 아바타 표시 -->
                     <div class="avatar-container">
                         <img src="{% static 'assets/character/duck.png' %}" alt="캐릭터" class="character-base">
-                        {% if score.outfit != 'default' %}
+                        {% if score.outfit != 'default' and score.outfit != 'none' %}
                         <img src="{% static 'assets/customization/'|add:score.outfit|add:'.png' %}" alt="의상" class="character-outfit">
                         {% endif %}
                         {% if score.hat != 'none' %}
                         <img src="{% static 'assets/customization/'|add:score.hat|add:'.png' %}" alt="모자" class="character-hat">
                         {% endif %}
-                        {% if score.shoes != 'default' %}
+                        {% if score.shoes != 'default' and score.shoes != 'none' %}
                         <img src="{% static 'assets/customization/'|add:score.shoes|add:'.png' %}" alt="신발" class="character-shoes">
                         {% endif %}
                     </div>
                 </div>
                 <div class="player-info">
-                    <h3 class="nickname">{{ score.nickname }}</h3>
+                    <h3 class="nickname" title="{{ score.nickname }}">{{ score.nickname }}</h3>
                     <div class="score-info">
                         <span class="score">{{ score.score }}점</span>
                         <span class="time">{{ score.time }}초</span>
