@@ -70,10 +70,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // 초기값 설정 함수
+    function initializePreview() {
+        // 처음에는 기본값 설정
+        updatePreview('outfit', selectedOutfit, previewOutfit);
+        updatePreview('hat', selectedHat, previewHat);
+        updatePreview('shoes', selectedShoes, previewShoes);
+        
+        // 기본 선택된 아이템에 선택 효과 적용 (이미 HTML에서 selected 클래스가 적용되어 있음)
+    }
+    
     // 이벤트 리스너 초기화
     setupOptions(outfitOptions, 'outfit', previewOutfit);
     setupOptions(hatOptions, 'hat', previewHat);
     setupOptions(shoesOptions, 'shoes', previewShoes);
+    
+    // 초기값 미리보기 적용
+    initializePreview();
     
     // 게임 시작 버튼 이벤트
     if (startGameBtn) {
