@@ -289,41 +289,34 @@ class Game {
         this.ctx.fillStyle = '#87CEEB';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // 이미지 에셋을 로드하고 캐싱하는 함수 (첫 실행시에만 실행)
-        if (!this.images) {
-            this.images = {
-                player: new Image(),
-                obstacles: {
-                    'F': new Image(),
-                    'obstacle': new Image()
-                },
-                items: {
-                    'A+': new Image(),
-                    'coin': new Image()
-                }
-            };
-            
-            // 이미지 소스 설정
-            this.images.player.src = '/static/assets/character/duck.png';
-            this.images.obstacles['F'].src = '/static/assets/obstacles/f_grade.png';
-            this.images.obstacles['obstacle'].src = '/static/assets/obstacles/program.png';
-            this.images.items['A+'].src = '/static/assets/items/a_plus.png';
-            this.images.items['coin'].src = '/static/assets/items/coin.png';
-        }
-
         // Draw player (Boo)
-        this.ctx.drawImage(this.images.player, this.player.x, this.player.y, this.player.width, this.player.height);
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
 
         // Draw obstacles
         this.obstacles.forEach(obstacle => {
-            const obstacleImg = this.images.obstacles[obstacle.type] || this.images.obstacles['obstacle'];
-            this.ctx.drawImage(obstacleImg, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            this.ctx.fillStyle = obstacle.type === 'F' ? '#FF0000' : '#000000';
+            this.ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            if (typeof obstacle.type === 'string' && obstacle.type) {
+                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.font = '20px Arial';
+                this.ctx.fillText(obstacle.type, 
+                    obstacle.x + 15, 
+                    obstacle.y + 25);
+            }
         });
 
         // Draw items
         this.items.forEach(item => {
-            const itemImg = this.images.items[item.type] || this.images.items['coin'];
-            this.ctx.drawImage(itemImg, item.x, item.y, item.width, item.height);
+            this.ctx.fillStyle = item.type === 'A+' ? '#00FF00' : '#FFD700';
+            this.ctx.fillRect(item.x, item.y, item.width, item.height);
+            if (typeof item.type === 'string' && item.type) {
+                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.font = '16px Arial';
+                this.ctx.fillText(item.type, 
+                    item.x + 5, 
+                    item.y + 20);
+            }
         });
     }
 
