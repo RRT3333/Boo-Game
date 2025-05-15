@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 from . import api
+from django.views.generic.base import RedirectView
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 app_name = 'game'
 
@@ -20,4 +22,10 @@ urlpatterns = [
     path('api/v1/save-score/', api.save_score_api, name='api_save_score'),
     path('api/v1/leaderboard/', api.get_leaderboard_api, name='api_leaderboard'),
     path('api/v1/update-nickname/', api.update_nickname_api, name='api_update_nickname'),
+    
+    # favicon.ico 요청 처리
+    path('favicon.ico', RedirectView.as_view(
+        url=staticfiles_storage.url('images/favicon/favicon.ico'),
+        permanent=True
+    )),
 ] 
