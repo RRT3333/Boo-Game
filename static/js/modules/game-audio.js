@@ -94,7 +94,8 @@ export function initAudio() {
         aplus: `${basePath}aplus.${supportedFormat}`,
         gameover: `${basePath}gameover.${supportedFormat}`,
         save: `${basePath}save.${supportedFormat}`,
-        button: `${basePath}button.${supportedFormat}`
+        button: `${basePath}button.${supportedFormat}`,
+        background_music: `${basePath}background_music.${supportedFormat}`
     };
     
     // 풀 초기화 (아직 오디오 객체는 생성하지 않음)
