@@ -126,19 +126,66 @@ body {
 }
 
 .stage-progress {
-    height: 10px;
-    width: 150px;
+    height: 30px;
+    width: 200px;
     background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 5px;
+    border-radius: 10px;
     overflow: hidden;
+    position: relative;
+    border: 2px solid var(--primary-color);
 }
 
 .progress-bar {
     height: 100%;
     width: 0%;
-    background-color: var(--primary-color);
+    background-color: rgba(0, 221, 255, 0.3);
     border-radius: 5px;
     transition: width 0.5s ease;
+}
+
+.flying-character {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    height: 25px;
+    transition: left 0.5s ease;
+    z-index: 10;
+    animation: floating 1.5s ease-in-out infinite;
+}
+
+@keyframes floating {
+    0% {
+        transform: translateY(-50%);
+    }
+    50% {
+        transform: translateY(-60%);
+    }
+    100% {
+        transform: translateY(-50%);
+    }
+}
+
+.stage-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 200px;
+    font-size: 8px;
+    color: white;
+    margin-bottom: 2px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.stage-labels span {
+    transform: translateX(-50%);
+}
+
+.stage-labels span:first-child {
+    transform: translateX(0);
+}
+
+.stage-labels span:last-child {
+    transform: translateX(-90%);
 }
 
 /* 이벤트 알림 */
@@ -741,7 +788,6 @@ body {
 /* 교수님 이벤트 경고 스타일 */
 .game-warning {
     position: absolute;
-    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     color: #FF0000;
@@ -822,4 +868,24 @@ body {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
     filter: brightness(1.1);
     transition: all 0.05s ease;
+}
+
+/* 추가 경고 메시지 스타일 */
+.game-sub-warning {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+    color: #FFFF00;
+    font-weight: bold;
+    font-size: 22px;
+    text-shadow: 2px 2px 1px rgba(0, 0, 0, 0.9);
+    z-index: 100;
+    text-align: center;
+    animation: warningPulse 0.5s infinite alternate;
+    font-family: 'Spoqa Han Sans Neo', sans-serif;
+    white-space: nowrap;
+    background-color: rgba(255, 0, 0, 0.3);
+    padding: 5px 12px;
+    border-radius: 5px;
+    pointer-events: none;
 }

@@ -1,11 +1,11 @@
 /**
  * 게임 이벤트 관련 모듈
- * 게임 내 이벤트 처리를 담당합니다.
+ * 게임 내 이벤트 및 사용자 상호작용 처리를 담당합니다.
  */
 
+import { createObstacle, createItem } from './game-entities.js';
 import { showWarning } from './game-ui.js';
 import { playSound } from './game-audio.js';
-import { createObstacle, createItem } from './game-entities.js';
 
 // 모바일 환경 감지
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -222,18 +222,8 @@ export function startGameTimer(gameState, callbacks) {
                     onProfessorAppear();
                 }
                 
-                // WARNING 표시 (원래 코드로 변경)
-                const warningEl = document.createElement('div');
-                warningEl.className = 'game-warning';
-                warningEl.textContent = 'WARNING!';
-                document.querySelector('.game-container').appendChild(warningEl);
-                
-                // 3초 후 WARNING 제거
-                setTimeout(() => {
-                    if (warningEl.parentNode) {
-                        warningEl.parentNode.removeChild(warningEl);
-                    }
-                }, 3000);
+                // showWarning 함수 직접 호출
+                showWarning(gameState.isMobile);
             }
             
             // 스테이지 전환 확인 (10초마다)

@@ -6,7 +6,7 @@
 import { createPlayer, updateProfessorAnimation } from './game-entities.js';
 import { drawGame, drawCountdown } from './game-renderer.js';
 import { updateGamePhysics } from './game-physics.js';
-import { updateCanvasSize, showCountdown, updateCountdown, updateScore, updateTimer, updateHealth, setupGameOverScreen, handleGameRestart } from './game-ui.js';
+import { updateCanvasSize, showCountdown, updateCountdown, updateScore, updateTimer, updateHealth, setupGameOverScreen, handleGameRestart, updateStageProgress } from './game-ui.js';
 import { handleInput, spawnObstacle, spawnItem, startStageTransition, setupEventListeners, startGameTimer } from './game-events.js';
 import { initAudio, playSound } from './game-audio.js';
 import { saveGameResult, setupNicknameButton } from './game-api.js';
@@ -254,6 +254,7 @@ export class Game {
         updateHealth(this.health);
         updateScore(this.score);
         updateTimer(this.timeLeft);
+        updateStageProgress(this.currentStage, 0);
         
         // 모바일 환경 초기화
         if (this.isMobile) {
@@ -388,11 +389,15 @@ export class Game {
                     },
                     onStageChanged: (newStage) => {
                         this.currentStage = newStage;
+                        updateStageProgress(this.currentStage, 0);
                     },
                     onGameOver: () => {
                         this.endGame();
                     }
                 });
+                
+                // 스테이지 UI 업데이트 추가
+                updateStageProgress(this.currentStage, this.stageTransitionProgress);
                 
                 // 게임 상태 업데이트
                 this.obstacles = gameState.obstacles;
