@@ -58,10 +58,18 @@ export function showCountdown(show) {
 
 // 경고 표시
 export function showWarning(isMobile) {
+    console.log("경고 메시지 표시 함수 실행");
+    
     // 기존 경고 제거
     const existingWarning = document.querySelector('.game-warning');
     if (existingWarning) {
         existingWarning.remove();
+    }
+    
+    // 추가 경고 메시지 제거
+    const existingSubWarning = document.querySelector('.game-sub-warning');
+    if (existingSubWarning) {
+        existingSubWarning.remove();
     }
     
     // 새 경고 생성
@@ -69,29 +77,55 @@ export function showWarning(isMobile) {
     warningEl.className = 'game-warning';
     warningEl.textContent = 'WARNING!';
     
-    // 모바일에서는 크기 조정 - 더 잘 보이게
+    // 난이도 상승 경고 메시지 생성
+    const difficultyEl = document.createElement('div');
+    difficultyEl.className = 'game-sub-warning';
+    difficultyEl.innerHTML = '※ 난이도가 올라갑니다.';
+    
+    // 모바일과 데스크톱에 따라 위치 조정
     if (isMobile) {
+        // 모바일 - 화면 상단에 배치
         warningEl.style.fontSize = '40px';
-        warningEl.style.padding = '15px 25px';
-        warningEl.style.backgroundColor = 'rgba(255, 0, 0, 0.7)';
-        warningEl.style.border = '3px solid red';
-        warningEl.style.boxShadow = '0 0 15px rgba(255, 0, 0, 0.7)';
+        warningEl.style.top = '20%';
+        
+        difficultyEl.style.fontSize = '18px';
+        difficultyEl.style.top = '28%';
+    } else {
+        // 데스크톱 - 화면 중앙 상단에 배치
+        warningEl.style.fontSize = '60px';
+        warningEl.style.top = '25%';
+        
+        difficultyEl.style.fontSize = '22px';
+        difficultyEl.style.top = '35%';
     }
     
     // 게임 컨테이너에 추가
-    document.querySelector('.game-container').appendChild(warningEl);
+    const gameContainer = document.querySelector('.game-container');
+    gameContainer.appendChild(warningEl);
+    gameContainer.appendChild(difficultyEl);
     
-    // 이미 몇 초 후 자동으로 사라지도록 설정
+    console.log("경고 메시지 요소들 추가 완료");
+    
+    // 일정 시간 후 제거
     setTimeout(() => {
         if (warningEl && warningEl.parentNode) {
-            // 서서히 사라지는 효과
             warningEl.style.transition = 'opacity 0.5s ease-out';
             warningEl.style.opacity = '0';
             
-            // 완전히 제거
             setTimeout(() => {
                 if (warningEl.parentNode) {
                     warningEl.parentNode.removeChild(warningEl);
+                }
+            }, 500);
+        }
+        
+        if (difficultyEl && difficultyEl.parentNode) {
+            difficultyEl.style.transition = 'opacity 0.5s ease-out';
+            difficultyEl.style.opacity = '0';
+            
+            setTimeout(() => {
+                if (difficultyEl.parentNode) {
+                    difficultyEl.parentNode.removeChild(difficultyEl);
                 }
             }, 500);
         }
@@ -318,6 +352,17 @@ export function handleGameRestart() {
             warning.remove();
         }
         
+        // 경고와 서브 경고 메시지 제거
+        const gameWarning = document.querySelector('.game-warning');
+        if (gameWarning) {
+            gameWarning.remove();
+        }
+        
+        const gameSubWarning = document.querySelector('.game-sub-warning');
+        if (gameSubWarning) {
+            gameSubWarning.remove();
+        }
+        
         // 말풍선 제거
         const speechBubble = document.querySelector('.professor-speech');
         if (speechBubble) {
@@ -400,5 +445,44 @@ export function handleGameRestart() {
         console.log('게임 재시작 UI 처리 완료');
     } catch (error) {
         console.error('게임 재시작 UI 처리 중 오류 발생:', error);
+    }
+}
+
+// 스테이지 이름 변환 함수
+function getStageName(stageNumber) {
+    const stageNames = [
+        '교양관', '명수당', '공학관', '백년관', '기숙사', '정문'
+    ];
+    return stageNames[stageNumber - 1] || '교양관';
+}
+
+// 스테이지 진행 상태 업데이트
+export function updateStageProgress(currentStage, progress) {
+    // 진행도 계산 (0-100%)
+    const progressPercentage = progress;
+    
+    // 스테이지 이름 업데이트
+    const currentStageEl = document.getElementById('currentStage');
+    if (currentStageEl) {
+        currentStageEl.textContent = getStageName(currentStage);
+    }
+    
+    // 진행 바 업데이트
+    const progressBarEl = document.getElementById('stageProgress');
+    if (progressBarEl) {
+        progressBarEl.style.width = `${progressPercentage}%`;
+    }
+    
+    // 캐릭터 위치 업데이트
+    const flyingCharacterEl = document.getElementById('flyingCharacter');
+    if (flyingCharacterEl) {
+        // 스테이지별 위치 계산 (0-100%)
+        const stageWidth = 100 / 5; // 5개 구간
+        const baseProgress = (currentStage - 1) * stageWidth;
+        const currentProgress = baseProgress + (progressPercentage / 100 * stageWidth);
+        const characterPosition = Math.min(currentProgress, 100);
+        
+        // 캐릭터 위치 설정
+        flyingCharacterEl.style.left = `${characterPosition}%`;
     }
 } 
