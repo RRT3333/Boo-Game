@@ -8,6 +8,16 @@
 static/
   ├── css/              # 스타일시트 파일
   ├── js/               # 자바스크립트 파일
+  │   ├── modules/      # 모듈화된 게임 코드
+  │   │   ├── game-core.js      # 게임 핵심 로직
+  │   │   ├── game-entities.js  # 게임 객체 관리
+  │   │   ├── game-events.js    # 게임 이벤트 처리
+  │   │   ├── game-physics.js   # 게임 물리 엔진
+  │   │   ├── game-renderer.js  # 게임 렌더링
+  │   │   ├── game-ui.js        # 게임 UI 관리
+  │   │   ├── game-audio.js     # 게임 오디오 시스템
+  │   │   └── game-api.js       # 게임 API 통신
+  │   └── game.js       # 게임 진입점
   └── assets/           # 게임 에셋
       ├── character/     # 캐릭터 기본 이미지
       ├── customization/ # 커스터마이징 아이템 이미지
@@ -32,23 +42,40 @@ static/
 | aplus.mp3 | A+ 획득 시 재생 | MP3 | 0.5 |
 | gameover.mp3 | 게임 오버 시 재생 | MP3 | 0.5 |
 | save.mp3 | 닉네임 저장 시 재생 | MP3 | 0.5 |
+| button.mp3 | 버튼 클릭 시 재생 | MP3 | 0.5 |
 
 ### 사운드 파일 추가 방법
 
 1. MP3 또는 WAV 형식의 사운드 파일을 `static/assets/sounds/` 폴더에 배치
-2. `game.js` 파일의 `this.sounds` 객체에 새 사운드 추가
+2. `game-audio.js` 모듈의 `soundPaths` 객체에 새 사운드 추가
 3. `playSound()` 함수를 사용하여 적절한 시점에 재생
 
 ```javascript
-// 사운드 추가 예시
-this.sounds = {
+// 사운드 추가 예시 (game-audio.js)
+const soundPaths = {
     // 기존 사운드...
-    newSound: new Audio('/static/assets/sounds/newSound.mp3')
+    newSound: `${basePath}newSound.${supportedFormat}`
 };
 
-// 사운드 재생 예시
-this.playSound('newSound');
+// 다른 모듈에서 사운드 재생 예시
+import { playSound } from './game-audio.js';
+
+// 사운드 재생
+playSound(sounds, 'newSound');
 ```
+
+## 게임 모듈 구조
+
+게임 코드는 다음과 같은 모듈로 구성되어 있습니다:
+
+- **game-core.js**: 게임의 핵심 클래스와 로직을 담당
+- **game-entities.js**: 플레이어, 장애물, 아이템 등의 객체를 관리
+- **game-events.js**: 게임 내 이벤트 처리를 담당
+- **game-physics.js**: 게임 내 모든 물리 엔진과 상태 업데이트를 담당
+- **game-renderer.js**: 게임 화면 렌더링을 담당
+- **game-ui.js**: 게임 내 UI 요소 및 화면 관리를 담당
+- **game-audio.js**: 게임 내 사운드 효과를 관리
+- **game-api.js**: 서버 API 통신을 담당
 
 ## 이미지 및 스프라이트
 
@@ -112,7 +139,17 @@ this.playSound('newSound');
 - 닉네임 미입력 시 '익명의 학생'으로 자동 저장
 - 게임 오버 화면에서 레트로 스타일 콘솔 입력 UI를 통해 입력
 - 최대 길이는 12자
-- 닉네임 저장 시 `/game/api/update-nickname/` API 호출
+- 닉네임 저장 시 `/game/api/update-nickname/` API 호출 (game-api.js 모듈에서 처리)
+
+## 모바일 최적화
+
+게임은 모바일 환경에서도 최적화되어 있습니다:
+
+- 반응형 캔버스 크기 조정
+- 터치 입력 최적화 (디바운싱 적용)
+- 모바일 기기에 맞는 UI 배치
+- 가로 모드 권장 (orientation 감지)
+- 모바일에서 더 큰 오디오 볼륨 (0.7)
 
 ## 추가 리소스
 
@@ -125,7 +162,7 @@ this.playSound('newSound');
 
 1. 새 에셋 준비 (이미지/사운드)
 2. 적절한 폴더에 파일 배치
-3. 필요한 코드 업데이트 (CSS/JS)
+3. 필요한 코드 업데이트 (해당 모듈 파일)
 4. 로컬 테스트
 5. 변경사항 커밋 및 푸시
 
