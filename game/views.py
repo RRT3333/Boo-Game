@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import uuid
 from django.conf import settings
+import os
 
 def index_view(request):
     """메인 시작 페이지"""
@@ -268,3 +269,16 @@ def update_nickname(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+# Nginx에서 favicon.ico를 서빙하도록 주석 처리
+"""
+def serve_favicon(request):
+    favicon_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'favicon', 'favicon.ico')
+    try:
+        with open(favicon_path, 'rb') as f:
+            return HttpResponse(f.read(), content_type='image/x-icon')
+    except FileNotFoundError:
+        raise Http404("Favicon not found")
+    except Exception as e:
+        raise Http404(f"Error serving favicon: {str(e)}")
+"""
