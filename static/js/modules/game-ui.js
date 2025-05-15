@@ -401,4 +401,43 @@ export function handleGameRestart() {
     } catch (error) {
         console.error('게임 재시작 UI 처리 중 오류 발생:', error);
     }
+}
+
+// 스테이지 이름 변환 함수
+function getStageName(stageNumber) {
+    const stageNames = [
+        '교양관', '명수당', '공학관', '백년관', '기숙사', '정문'
+    ];
+    return stageNames[stageNumber - 1] || '교양관';
+}
+
+// 스테이지 진행 상태 업데이트
+export function updateStageProgress(currentStage, progress) {
+    // 진행도 계산 (0-100%)
+    const progressPercentage = progress;
+    
+    // 스테이지 이름 업데이트
+    const currentStageEl = document.getElementById('currentStage');
+    if (currentStageEl) {
+        currentStageEl.textContent = getStageName(currentStage);
+    }
+    
+    // 진행 바 업데이트
+    const progressBarEl = document.getElementById('stageProgress');
+    if (progressBarEl) {
+        progressBarEl.style.width = `${progressPercentage}%`;
+    }
+    
+    // 캐릭터 위치 업데이트
+    const flyingCharacterEl = document.getElementById('flyingCharacter');
+    if (flyingCharacterEl) {
+        // 스테이지별 위치 계산 (0-100%)
+        const stageWidth = 100 / 5; // 5개 구간
+        const baseProgress = (currentStage - 1) * stageWidth;
+        const currentProgress = baseProgress + (progressPercentage / 100 * stageWidth);
+        const characterPosition = Math.min(currentProgress, 100);
+        
+        // 캐릭터 위치 설정
+        flyingCharacterEl.style.left = `${characterPosition}%`;
+    }
 } 
