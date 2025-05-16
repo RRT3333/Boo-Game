@@ -583,6 +583,7 @@ body {
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
     }
     
     /* 게임 통계 영역 */
@@ -598,6 +599,7 @@ body {
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
     }
     
     /* 닉네임 입력 컨테이너 */
@@ -640,48 +642,76 @@ body {
     .action-buttons {
         display: flex;
         flex-direction: row;
+        justify-content: center;
+        align-items: center;
         flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 20px;
+        gap: 15px;
+        margin-top: 25px;
+        margin-bottom: 10px;
         width: 100%;
         max-width: 350px;
-        justify-content: center;
     }
     
     /* 버튼 스타일 */
     .btn-restart, .btn-leaderboard, .btn-home {
         flex: 1;
-        min-width: 0;
-        font-size: 16px;
-        padding: 14px 8px;
+        min-width: 95px;
+        font-size: 18px;
+        font-family: 'Spoqa Han Sans Neo', sans-serif;
+        font-weight: 600;
+        padding: 16px 10px;
         white-space: nowrap;
-        min-height: 58px;
-        margin: 8px;
+        min-height: 60px;
+        margin: 5px;
         z-index: 999;
-        border-radius: 8px;
-        font-weight: 400;
-        text-shadow: none;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        border: 2px solid rgba(255, 255, 255, 0.4);
         -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        letter-spacing: -0.02em;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
     
-    /* 다시하기 버튼 특별 강조 - 볼드체 제거 */
+    /* 다시하기 버튼 특별 강조 */
     .btn-restart {
-        font-weight: 400;
-        font-size: 17px;
-        background-color: #00C8FF;
-        color: #111;
-        box-shadow: 0 0 12px rgba(0, 200, 255, 0.5);
+        background-color: #00DDFF;
+        color: #000;
+        font-weight: 600;
+        box-shadow: 0 0 15px rgba(0, 221, 255, 0.5);
+        letter-spacing: -0.02em;
+        border-color: rgba(255, 255, 255, 0.7);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        transform: scale(1.02);
+        transform: scale(1.05);
+    }
+    
+    /* 리더보드 버튼 강조 */
+    .btn-leaderboard {
+        background-color: #FFD700;
+        color: #000;
+        font-weight: 600;
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+    }
+    
+    /* 홈으로 버튼 스타일 */
+    .btn-home {
+        background-color: #FAFAFA;
+        color: #000;
+        font-weight: 600;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
     }
 
     /* 버튼 활성 상태 */
-    .btn-restart:active, .btn-leaderboard:active, .btn-home:active {
+    .btn-restart:active, .btn-restart.active,
+    .btn-leaderboard:active, .btn-leaderboard.active,
+    .btn-home:active, .btn-home.active {
         transform: scale(0.95);
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        opacity: 0.9;
+        transition: all 0.1s ease;
     }
 }
 
@@ -722,9 +752,17 @@ body {
         margin-bottom: 5px;
     }
     
+    /* 액션 버튼 가로 모드 최적화 */
     .action-buttons {
-        margin-top: 10px;
-        gap: 5px;
+        flex-direction: row;
+        margin-top: 15px;
+        gap: 10px;
+    }
+    
+    .btn-restart, .btn-leaderboard, .btn-home {
+        min-height: 50px;
+        font-size: 16px;
+        padding: 10px 8px;
     }
 }
 
