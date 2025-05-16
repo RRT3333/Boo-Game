@@ -862,21 +862,54 @@ body {
 .professor-speech:after {
     content: '';
     position: absolute;
-    bottom: -15px;
+    bottom: -13px;
     left: 20px;
     border-width: 15px 15px 0;
     border-style: solid;
     border-color: white transparent;
     display: block;
     width: 0;
+    z-index: 1;
 }
 
 .professor-speech:before {
     content: '';
     position: absolute;
-    bottom: -18px;
-    left: 18px;
-    border-width: 17px 17px 0;
+    bottom: -15px;
+    left: 20px;
+    border-width: 15px 15px 0;
+    border-style: solid;
+    border-color: #333 transparent;
+    display: block;
+    width: 0;
+}
+
+/* 모바일 환경에서 말풍선이 교수님 위에 나타나도록 */
+.professor-speech.mobile-position {
+    border: 2px solid #333;
+}
+
+.professor-speech.mobile-position:after {
+    content: '';
+    position: absolute;
+    bottom: -13px;
+    left: 50%;
+    margin-left: -15px;
+    border-width: 15px 15px 0;
+    border-style: solid;
+    border-color: white transparent;
+    display: block;
+    width: 0;
+    z-index: 1;
+}
+
+.professor-speech.mobile-position:before {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    margin-left: -15px;
+    border-width: 15px 15px 0;
     border-style: solid;
     border-color: #333 transparent;
     display: block;
