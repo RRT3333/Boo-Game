@@ -358,7 +358,7 @@ export class Game {
                     };
                     
                     if (professorUpdate.fSpawnRateIncrease) {
-                        this.fSpawnRate = 0.01; // 교수님 사라진 후 F 확률 증가
+                        this.fSpawnRate = 0.05; // 교수님 사라진 후 F 확률 증가
                     }
                 }
                 
