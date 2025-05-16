@@ -496,8 +496,12 @@ export class Game {
             currentStage: this.currentStage
         });
         
-        // 게임 결과 저장 (익명)
-        saveGameResult(gameState, '익명의 학생');
+        // 닉네임 입력 필드에서 플레이스홀더(이전 닉네임) 가져오기
+        const nicknameInput = document.getElementById('gameOverNickname');
+        const previousNickname = nicknameInput ? nicknameInput.placeholder : '익명의 학생';
+        
+        // 게임 결과 저장 (이전 닉네임 사용)
+        saveGameResult(gameState, previousNickname);
         
         // 닉네임 저장 버튼 설정
         setupNicknameButton(this.sounds, window.PLAYER_ID);

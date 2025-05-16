@@ -85,9 +85,9 @@
         <h3>QR코드로 공유하기</h3>
         <div class="qr-code-container">
             <img src="{% static 'assets/ui/qr_code.png' %}" alt="QR 코드" class="mobile-optimized">
-            <div class="qr-text mobile-only">
+            {% comment %} <div class="qr-text mobile-only">
                 <p>모바일에서 QR코드는<br>화면 크기에 맞게 최적화됩니다.</p>
-            </div>
+            </div> {% endcomment %}
         </div>
     </div>
     

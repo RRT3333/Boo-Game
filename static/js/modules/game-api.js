@@ -68,7 +68,10 @@ export function setupNicknameButton(sounds, playerId) {
     const saveBtn = document.getElementById('saveNicknameBtn');
     if (saveBtn) {
         saveBtn.onclick = () => {
-            const nickname = document.getElementById('gameOverNickname').value.trim() || '익명의 학생';
+            const nicknameInput = document.getElementById('gameOverNickname');
+            const inputValue = nicknameInput.value.trim();
+            const placeholder = nicknameInput.placeholder || '익명의 학생';
+            const nickname = inputValue || placeholder;
             
             // 버튼 애니메이션
             saveBtn.classList.add('active');

@@ -124,10 +124,10 @@
                     <div class="retro-input-group">
                         <div class="retro-input-label">YOUR NAME?</div>
                         <div class="retro-input-wrapper">
-                            <input type="text" id="gameOverNickname" maxlength="12" placeholder="익명의 학생">
+                            <input type="text" id="gameOverNickname" maxlength="12" placeholder="{{ previous_nickname }}">
                             <button id="saveNicknameBtn" class="retro-button">SAVE</button>
                         </div>
-                        <div class="retro-hint">* 미입력시 '익명의 학생'으로 저장됩니다</div>
+                        <div class="retro-hint">* 미입력시 '{{ previous_nickname }}'으로 저장됩니다</div>
                     </div>
                 </div>
                 
