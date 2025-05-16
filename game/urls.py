@@ -21,6 +21,7 @@ urlpatterns = [
     path('api/v1/save-score/', api.save_score_api, name='api_save_score'),
     path('api/v1/leaderboard/', api.get_leaderboard_api, name='api_leaderboard'),
     path('api/v1/update-nickname/', api.update_nickname_api, name='api_update_nickname'),
+    path('api/v1/get-customization/', api.get_customization_api, name='api_get_customization'),
     
     # favicon.ico 요청 처리 - Nginx에서 처리하도록 주석 처리
     # path('favicon.ico', views.serve_favicon, name='favicon'),

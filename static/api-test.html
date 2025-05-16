@@ -147,6 +147,7 @@
             <div class="endpoint-link" data-endpoint="save-player" data-method="POST"><span class="method post">POST</span> 플레이어 저장</div>
             <div class="endpoint-link" data-endpoint="save-score" data-method="POST"><span class="method post">POST</span> 점수 저장</div>
             <div class="endpoint-link" data-endpoint="update-nickname" data-method="POST"><span class="method post">POST</span> 닉네임 업데이트</div>
+            <div class="endpoint-link" data-endpoint="get-customization" data-method="GET"><span class="method get">GET</span> 커스터마이징 정보 조회</div>
             
             <div class="links">
                 <a href="/swagger/" target="_blank">Swagger UI</a>
@@ -197,6 +198,10 @@
         </div>
     </div>
     
+    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #444;">
+        <a href="/developer/" style="background-color: #00DDFF; color: black; text-decoration: none; padding: 10px 20px; border-radius: 5px; display: inline-block;">개발자 허브로 돌아가기</a>
+    </div>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const endpoints = {
@@ -243,6 +248,13 @@
                         player_id: '',  // 저장된 플레이어 ID 필요
                         nickname: '새닉네임'
                     }
+                },
+                'get-customization': {
+                    title: '커스터마이징 정보 조회',
+                    description: '현재 세션의 플레이어 커스터마이징 정보를 가져옵니다.',
+                    method: 'GET',
+                    url: '/game/api/v1/get-customization/',
+                    payload: null
                 }
             };
             
@@ -378,9 +390,5 @@
             }
         });
     </script>
-    
-    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #444;">
-        <a href="/developer/" style="background-color: #00DDFF; color: black; text-decoration: none; padding: 10px 20px; border-radius: 5px; display: inline-block;">개발자 허브로 돌아가기</a>
-    </div>
 </body>
 </html> 
