@@ -72,89 +72,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 이전 커스터마이징 선택 적용
     function applyPreviousSelections() {
-        // 이전 커스터마이징 데이터가 없으면 종료
-        if (typeof previousCustomization === 'undefined') {
-            console.log('이전 커스터마이징 데이터가 없습니다.');
-            return;
-        }
+        if (typeof previousCustomization === 'undefined') return;
         
-        console.log('이전 커스터마이징 적용 시작:', previousCustomization);
-        
-        // 의상 선택
+        // 옵션 선택
         if (outfitOptions) {
-            // 모든 선택 옵션 가져오기
-            const outfitOptionElements = outfitOptions.querySelectorAll('.item-option');
-            
-            // 이전 선택 제거
-            outfitOptionElements.forEach(opt => opt.classList.remove('selected'));
-            
-            // 이전 선택 옵션 찾기 및 적용
-            let outfitFound = false;
-            outfitOptionElements.forEach(opt => {
-                if (opt.getAttribute('data-value') === selectedOutfit) {
-                    opt.classList.add('selected');
-                    outfitFound = true;
-                    console.log('의상 선택 적용:', selectedOutfit);
-                }
-            });
-            
-            if (!outfitFound) {
-                console.log('의상 선택을 찾을 수 없음:', selectedOutfit);
-                // 기본값 선택
-                const defaultOption = outfitOptions.querySelector('[data-value="default"]');
-                if (defaultOption) defaultOption.classList.add('selected');
+            const outfitOption = outfitOptions.querySelector(`[data-value="${selectedOutfit}"]`);
+            if (outfitOption) {
+                outfitOptions.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                outfitOption.classList.add('selected');
             }
         }
         
-        // 모자 선택
         if (hatOptions) {
-            // 모든 선택 옵션 가져오기
-            const hatOptionElements = hatOptions.querySelectorAll('.item-option');
-            
-            // 이전 선택 제거
-            hatOptionElements.forEach(opt => opt.classList.remove('selected'));
-            
-            // 이전 선택 옵션 찾기 및 적용
-            let hatFound = false;
-            hatOptionElements.forEach(opt => {
-                if (opt.getAttribute('data-value') === selectedHat) {
-                    opt.classList.add('selected');
-                    hatFound = true;
-                    console.log('모자 선택 적용:', selectedHat);
-                }
-            });
-            
-            if (!hatFound) {
-                console.log('모자 선택을 찾을 수 없음:', selectedHat);
-                // 기본값 선택
-                const defaultOption = hatOptions.querySelector('[data-value="none"]');
-                if (defaultOption) defaultOption.classList.add('selected');
+            const hatOption = hatOptions.querySelector(`[data-value="${selectedHat}"]`);
+            if (hatOption) {
+                hatOptions.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                hatOption.classList.add('selected');
             }
         }
         
-        // 신발 선택
         if (shoesOptions) {
-            // 모든 선택 옵션 가져오기
-            const shoesOptionElements = shoesOptions.querySelectorAll('.item-option');
-            
-            // 이전 선택 제거
-            shoesOptionElements.forEach(opt => opt.classList.remove('selected'));
-            
-            // 이전 선택 옵션 찾기 및 적용
-            let shoesFound = false;
-            shoesOptionElements.forEach(opt => {
-                if (opt.getAttribute('data-value') === selectedShoes) {
-                    opt.classList.add('selected');
-                    shoesFound = true;
-                    console.log('신발 선택 적용:', selectedShoes);
-                }
-            });
-            
-            if (!shoesFound) {
-                console.log('신발 선택을 찾을 수 없음:', selectedShoes);
-                // 기본값 선택
-                const defaultOption = shoesOptions.querySelector('[data-value="default"]');
-                if (defaultOption) defaultOption.classList.add('selected');
+            const shoesOption = shoesOptions.querySelector(`[data-value="${selectedShoes}"]`);
+            if (shoesOption) {
+                shoesOptions.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                shoesOption.classList.add('selected');
             }
         }
     }

@@ -93,5 +93,13 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+// 이전 커스터마이징 정보 전달
+const previousCustomization = {
+    outfit: "{{ previous.outfit }}",
+    hat: "{{ previous.hat }}",
+    shoes: "{{ previous.shoes }}"
+};
+</script>
 <script src="{% static 'js/customize.js' %}"></script>
 {% endblock %} 
