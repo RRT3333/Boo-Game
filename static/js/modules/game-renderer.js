@@ -254,15 +254,36 @@ export function drawProfessor(ctx, isMobile, professorData, canvas, images) {
             document.querySelector('.game-container').appendChild(speechBubble);
         }
         
-        // 위치 업데이트 (말풍선 위치 조정)
-        const bubbleLeft = isMobile ? professorX + professorWidth/2 : professorX + professorWidth - 50;
-        
-        // 말풍선이 화면 밖으로 나가지 않도록 조정
-        const maxLeft = canvas.width - 250;
-        const adjustedLeft = Math.min(bubbleLeft, maxLeft);
-        
-        speechBubble.style.left = adjustedLeft + 'px';
-        speechBubble.style.bottom = (isMobile ? '130px' : '150px');
+        // 모바일에서는 교수님 위에 말풍선 배치, 데스크톱에서는 오른쪽에 배치
+        if (isMobile) {
+            // 모바일에서 교수님 이미지의 중앙 상단에 위치하도록 설정
+            const bubbleLeft = professorX + (professorWidth / 2) - 100; // 말풍선 폭의 절반만큼 왼쪽으로 이동
+            
+            // 말풍선이 화면 밖으로 나가지 않도록 조정
+            const maxLeft = canvas.width - 200; // 모바일에서 말풍선 최대 폭 200px
+            const minLeft = 10; // 최소 여백
+            const adjustedLeft = Math.min(Math.max(bubbleLeft, minLeft), maxLeft);
+            
+            speechBubble.style.left = adjustedLeft + 'px';
+            // 교수님 이미지 위에 표시 (교수님 상단에서 말풍선 높이 + 여백만큼 위로)
+            speechBubble.style.bottom = (canvas.height - professorY + 20) + 'px';
+            
+            // 말풍선 꼬리 위치 조정을 위한 클래스 추가
+            speechBubble.classList.add('mobile-position');
+        } else {
+            // 데스크톱에서는 기존 방식 유지 (오른쪽에 배치)
+            const bubbleLeft = professorX + professorWidth - 50;
+            
+            // 말풍선이 화면 밖으로 나가지 않도록 조정
+            const maxLeft = canvas.width - 250;
+            const adjustedLeft = Math.min(bubbleLeft, maxLeft);
+            
+            speechBubble.style.left = adjustedLeft + 'px';
+            speechBubble.style.bottom = '150px';
+            
+            // 모바일 위치 클래스 제거
+            speechBubble.classList.remove('mobile-position');
+        }
     } else {
         // 교수님이 화면 밖으로 나가면 말풍선 제거
         const speechBubble = document.querySelector('.professor-speech');
