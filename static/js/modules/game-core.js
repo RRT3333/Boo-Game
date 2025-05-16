@@ -32,6 +32,9 @@ export class Game {
         this.backgroundX = 0;
         this.elapsedGameTime = 0;
         
+        // 장애물 속도 조절
+        this.obstacleSpeedMultiplier = 1.0;
+        
         // 카운트다운 상태
         this.countdownState = {
             active: true,
@@ -208,6 +211,9 @@ export class Game {
         this.backgroundX = 0;
         this.elapsedGameTime = 0;
         
+        // 장애물 속도 승수 초기화
+        this.obstacleSpeedMultiplier = 1.0;
+        
         // 커스터마이징 이미지 로드
         this.loadCustomizationImages();
         
@@ -247,8 +253,7 @@ export class Game {
             animationDuration: 6000
         };
         
-        this.fSpawnRate = 0.02
-        ;
+        this.fSpawnRate = 0.02;
         this.aPlusSpawnRate = 0.03;
         
         // UI 초기화
@@ -450,8 +455,23 @@ export class Game {
                 updateTimer(timeLeft);
                 this.timeLeft = timeLeft;
                 
-                // 60초 이후에는 프로그레스바 숨기기
+                // 시간에 따라 장애물 속도 선형적으로 증가
+                if (timeLeft <= 60) {
+                    // 1초부터 60초까지 1.0에서 2.0배로 선형 증가
+                    this.obstacleSpeedMultiplier = 1.0 + (timeLeft / 60);
+                } else {
+                    // 60초 이후에는 2.0에서 5.0배로 가파르게 증가
+                    const additionalTime = timeLeft - 60;
+                    // 40초 동안 5.0배까지 증가 (100초에 도달)
+                    this.obstacleSpeedMultiplier = 2.0 + (Math.min(additionalTime, 40) / 40 * 3.0);
+                }
+                
+                // 60초 이후 F 등장 확률 조정
                 if (timeLeft > 60) {
+                    const progressAfter60 = Math.min((timeLeft - 60) / 40, 1); // 60초부터 100초까지
+                    this.fSpawnRate = 0.05 + (progressAfter60 * 0.02); // 5%에서 7%까지 선형 증가
+                    
+                    // 프로그레스바 숨기기
                     const stageIndicator = document.querySelector('.stage-indicator');
                     if (stageIndicator) {
                         stageIndicator.style.display = 'none';
