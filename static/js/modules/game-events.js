@@ -204,46 +204,41 @@ export function startGameTimer(gameState, callbacks) {
     } = callbacks;
     
     return setInterval(() => {
-        if (gameState.timeLeft > 0) {
-            gameState.timeLeft--;
-            gameState.elapsedGameTime++; // 게임 경과 시간 증가
+        // 시간이 증가하도록 변경
+        gameState.timeLeft++;
+        gameState.elapsedGameTime++; // 게임 경과 시간 증가
+        
+        if (onTimerTick) {
+            onTimerTick(gameState.timeLeft);
+        }
+        
+        // 게임 시작 후 20초에 교수님 등장
+        if (gameState.elapsedGameTime === 20 && !gameState.professorShown) {
+            gameState.professorShown = true;
+            gameState.professorAnimationActive = true;
+            gameState.professorAnimationStart = performance.now();
             
-            if (onTimerTick) {
-                onTimerTick(gameState.timeLeft);
+            if (onProfessorAppear) {
+                onProfessorAppear();
             }
             
-            // 게임 시작 후 20초에 교수님 등장
-            if (gameState.elapsedGameTime === 20 && !gameState.professorShown) {
-                gameState.professorShown = true;
-                gameState.professorAnimationActive = true;
-                gameState.professorAnimationStart = performance.now();
-                
-                if (onProfessorAppear) {
-                    onProfessorAppear();
-                }
-                
-                // showWarning 함수 직접 호출
-                showWarning(gameState.isMobile);
-            }
-            
-            // 스테이지 전환 확인 (10초마다)
-            if (gameState.elapsedGameTime % 10 === 0 && 
-                gameState.elapsedGameTime > 0 && 
-                gameState.elapsedGameTime <= 50) {
-                // 5번만 전환 (6단계까지)
-                if (gameState.currentStage < 6) {
-                    if (onStageTransition) {
-                        onStageTransition(gameState.currentStage + 1);
-                    }
-                }
-            }
-            
-            if (gameState.timeLeft === 0) {
-                if (onGameOver) {
-                    onGameOver();
+            // showWarning 함수 직접 호출
+            showWarning(gameState.isMobile);
+        }
+        
+        // 스테이지 전환 확인 (10초마다)
+        if (gameState.elapsedGameTime % 10 === 0 && 
+            gameState.elapsedGameTime > 0 && 
+            gameState.elapsedGameTime <= 60) {  // 50초에서 60초로 증가
+            // 6번 전환 (1단계부터 6단계까지)
+            if (gameState.currentStage < 6) {
+                if (onStageTransition) {
+                    onStageTransition(gameState.currentStage + 1);
                 }
             }
         }
+        
+        // 게임은 계속 진행되며 종료 조건은 다른 로직에서 처리
     }, 1000);
 }
 
