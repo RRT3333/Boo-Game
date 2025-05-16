@@ -26,7 +26,7 @@ export class Game {
         // 게임 상태 초기화
         this.score = 0;
         this.health = 3;
-        this.timeLeft = 60;
+        this.timeLeft = 0;
         this.gameOver = false;
         this.gameStarted = false;
         this.backgroundX = 0;
@@ -191,7 +191,7 @@ export class Game {
         // 상태 초기화
         this.score = 0;
         this.health = 3;
-        this.timeLeft = 60;
+        this.timeLeft = 0;
         this.gameOver = false;
         this.gameStarted = false;
         
@@ -256,6 +256,12 @@ export class Game {
         updateScore(this.score);
         updateTimer(this.timeLeft);
         updateStageProgress(this.currentStage, 0);
+        
+        // 프로그레스바 표시 초기화
+        const stageIndicator = document.querySelector('.stage-indicator');
+        if (stageIndicator) {
+            stageIndicator.style.display = 'flex';
+        }
         
         // 모바일 환경 초기화
         if (this.isMobile) {
@@ -347,7 +353,7 @@ export class Game {
                     };
                     
                     if (professorUpdate.fSpawnRateIncrease) {
-                        this.fSpawnRate = 0.05; // 교수님 사라진 후 F 확률 증가
+                        this.fSpawnRate = 0.01; // 교수님 사라진 후 F 확률 증가
                     }
                 }
                 
@@ -443,6 +449,14 @@ export class Game {
             onTimerTick: (timeLeft) => {
                 updateTimer(timeLeft);
                 this.timeLeft = timeLeft;
+                
+                // 60초 이후에는 프로그레스바 숨기기
+                if (timeLeft > 60) {
+                    const stageIndicator = document.querySelector('.stage-indicator');
+                    if (stageIndicator) {
+                        stageIndicator.style.display = 'none';
+                    }
+                }
             },
             onProfessorAppear: () => {
                 this.professorData = {
