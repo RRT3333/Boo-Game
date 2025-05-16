@@ -208,7 +208,7 @@ export function setupGameOverScreen(gameState) {
     // 게임 결과 업데이트
     document.getElementById('finalScore').textContent = gameState.score;
     document.getElementById('finalTime').textContent = gameState.timeLeft || 0; // 경과 시간을 직접 표시
-    document.getElementById('finalStage').textContent = getStageName(gameState.currentStage); // 스테이지 숫자 대신 이름으로 표시
+    document.getElementById('finalStage').textContent = getStageName(gameState.currentStage); // 스테이지 번호 대신 이름 표시
     
     // 게임 클리어 화면도 업데이트 (최종 시간 값 등)
     document.getElementById('clearScore').textContent = gameState.score;
@@ -454,7 +454,7 @@ export function handleGameRestart() {
 }
 
 // 스테이지 이름 변환 함수
-function getStageName(stageNumber) {
+export function getStageName(stageNumber) {
     const stageNames = [
         '교양관', '명수당', '공학관', '백년관', '기숙사', '정문'
     ];
