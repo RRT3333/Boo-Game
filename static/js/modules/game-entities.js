@@ -27,8 +27,8 @@ export function createObstacle(isMobile, canvasWidth, canvasHeight) {
     return {
         x: canvasWidth,
         y: yPos,
-        width: 40, // 크기 일관성 유지
-        height: 40,
+        width: 30, // 크기 일관성 유지 (기존 40에서 20으로 변경)
+        height: 30, // 크기 일관성 유지 (기존 40에서 20으로 변경)
         type: 'F'
     };
 }

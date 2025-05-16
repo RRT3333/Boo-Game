@@ -81,7 +81,7 @@ def create_placeholder_assets():
         "hat": "80x60px",
         "shoes": "60x40px",
         "item": "80x80px",
-        "obstacle": "100x100px",
+        "obstacle": "20x20px",
         "background": "1600x900px",
         "presentation_bg": "1920x1080px",
         "heart": "40x40px",
