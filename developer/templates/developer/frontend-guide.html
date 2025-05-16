@@ -54,6 +54,34 @@
         color: #FFD700;
         font-weight: bold;
     }
+<<<<<<< HEAD
+=======
+
+    /* 폴더 구조 트리 스타일 개선 */
+    .directory-tree {
+        background-color: #111;
+        color: #e0e0e0;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: 'Consolas', 'Courier New', monospace;
+        white-space: pre;
+        line-height: 1.5;
+        overflow-x: auto;
+    }
+    
+    .directory-tree .folder {
+        color: #00DDFF;
+    }
+    
+    .directory-tree .file {
+        color: #B8B8B8;
+    }
+    
+    .directory-tree .comment {
+        color: #787878;
+        font-style: italic;
+    }
+>>>>>>> 8d373b0e37ae48c12d1e7725ae11db88863d91bb
 </style>
 {% endblock %}
 
@@ -98,6 +126,7 @@
         <p>이렇게 분리된 구조는 코드의 유지보수와 협업을 용이하게 합니다.</p>
     </div>
     
+<<<<<<< HEAD
     <div class="code-example file-structure">
         static/
         ├── css/
@@ -121,6 +150,31 @@
             ├── ui/             # UI 이미지
             ├── sounds/         # 사운드 파일
             └── customization/  # 캐릭터 커스터마이징 에셋
+=======
+    <div class="directory-tree">
+<span class="folder">static/</span>
+├── <span class="folder">css/</span>
+│   ├── <span class="file">main.css</span>        <span class="comment"># 메인 페이지 스타일</span>
+│   ├── <span class="file">game.css</span>        <span class="comment"># 게임 인터페이스 스타일</span>
+│   ├── <span class="file">customize.css</span>   <span class="comment"># 캐릭터 커스터마이징 페이지 스타일</span>
+│   └── <span class="file">leaderboard.css</span> <span class="comment"># 리더보드 페이지 스타일</span>
+│
+├── <span class="folder">js/</span>
+│   ├── <span class="file">main.js</span>         <span class="comment"># 메인 페이지 로직</span>
+│   ├── <span class="file">game.js</span>         <span class="comment"># 게임 엔진 및 로직</span>
+│   ├── <span class="file">customize.js</span>    <span class="comment"># 캐릭터 커스터마이징 로직</span>
+│   └── <span class="file">leaderboard.js</span>  <span class="comment"># 리더보드 로직</span>
+│
+└── <span class="folder">assets/</span>           <span class="comment"># 게임에 사용되는 이미지, 사운드 등</span>
+    ├── <span class="folder">character/</span>    <span class="comment"># 캐릭터 관련 이미지</span>
+    ├── <span class="folder">backgrounds/</span>  <span class="comment"># 배경 이미지</span>
+    ├── <span class="folder">items/</span>        <span class="comment"># 아이템 이미지</span>
+    ├── <span class="folder">obstacles/</span>    <span class="comment"># 장애물 이미지</span>
+    ├── <span class="folder">effects/</span>      <span class="comment"># 효과 이미지</span>
+    ├── <span class="folder">ui/</span>           <span class="comment"># UI 이미지</span>
+    ├── <span class="folder">sounds/</span>       <span class="comment"># 사운드 파일</span>
+    └── <span class="folder">customization/</span> <span class="comment"># 캐릭터 커스터마이징 에셋</span>
+>>>>>>> 8d373b0e37ae48c12d1e7725ae11db88863d91bb
     </div>
 </div>
 
