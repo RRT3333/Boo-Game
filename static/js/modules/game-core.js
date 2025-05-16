@@ -47,7 +47,7 @@ export class Game {
         this.stageTransitionSpeed = 2;
 
         // 게임 속도 및 확률
-        this.fSpawnRate = 0.04;  // F 등장 확률
+        this.fSpawnRate = 0.02;  // F 등장 확률
         this.aPlusSpawnRate = 0.03; // A+ 등장 확률
         
         // 교수님 상태
@@ -247,7 +247,8 @@ export class Game {
             animationDuration: 6000
         };
         
-        this.fSpawnRate = 0.04;
+        this.fSpawnRate = 0.02
+        ;
         this.aPlusSpawnRate = 0.03;
         
         // UI 초기화
@@ -346,7 +347,7 @@ export class Game {
                     };
                     
                     if (professorUpdate.fSpawnRateIncrease) {
-                        this.fSpawnRate = 0.055; // 교수님 사라진 후 F 확률 증가
+                        this.fSpawnRate = 0.05; // 교수님 사라진 후 F 확률 증가
                     }
                 }
                 
