@@ -358,7 +358,12 @@ export class Game {
                     };
                     
                     if (professorUpdate.fSpawnRateIncrease) {
-                        this.fSpawnRate = 0.05; // 교수님 사라진 후 F 확률 증가
+                        // 교수님 사라진 후에도 60초까지는 F 확률 5% 유지
+                        if (this.timeLeft > 60) {
+                            this.fSpawnRate = 0.03;
+                        } else {
+                            this.fSpawnRate = 0.05;
+                        }
                     }
                 }
                 
@@ -468,8 +473,7 @@ export class Game {
                 
                 // 60초 이후 F 등장 확률 조정
                 if (timeLeft > 60) {
-                    const progressAfter60 = Math.min((timeLeft - 60) / 40, 1); // 60초부터 100초까지
-                    this.fSpawnRate = 0.05 + (progressAfter60 * 0.02); // 5%에서 7%까지 선형 증가
+                    this.fSpawnRate = 0.03; // 60초 이후 F 확률 3%로 감소
                     
                     // 프로그레스바 숨기기
                     const stageIndicator = document.querySelector('.stage-indicator');
@@ -489,6 +493,7 @@ export class Game {
                     animationStart: performance.now(),
                     animationDuration: 6000
                 };
+                this.fSpawnRate = 0.05; // 교수님 등장과 동시에 F 확률 5%로 증가
             },
             onStageTransition: () => {
                 startStageTransition(this);
