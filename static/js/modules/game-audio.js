@@ -27,6 +27,9 @@ let audioContext = null;
 let audioContextActivated = false;
 let userInteractionOccurred = false;
 
+// 오디오 초기화 시스템 함수 - 모듈 레벨에서 선언
+let initAudioSystem;
+
 // 오디오 컨텍스트 초기화 함수 (지연 생성 패턴)
 function getAudioContext() {
     if (!audioContext) {
@@ -180,7 +183,7 @@ export function initAudio() {
     };
     
     // 오디오 시스템 초기화 (실제 오디오 객체 생성)
-    const initAudioSystem = () => {
+    initAudioSystem = () => {
         if (sounds._initialized) return Promise.resolve();
         
         console.log('오디오 시스템 초기화 중...');
