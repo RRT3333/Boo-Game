@@ -139,7 +139,7 @@ const supportedFormat = getSupportedFormat();
 // 오디오 초기화 (미리 풀 생성)
 export function initAudio() {
     // 효과음 경로 기본 설정
-    const basePath = '/static/assets/sounds/';
+    const basePath = './static/assets/sounds/';
     
     // 풀 생성 - 모바일에서는 매우 작은 풀 사용
     const poolSize = isIOS ? 1 : (isMobile ? 1 : AUDIO_CONFIG.poolSize);
