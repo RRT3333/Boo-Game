@@ -106,11 +106,48 @@ export class Game {
     loadCustomization() {
         const gameAssets = document.getElementById('gameAssets');
         
-        return {
-            outfit: gameAssets ? gameAssets.getAttribute('data-outfit') || 'default' : 'default',
-            hat: gameAssets ? gameAssets.getAttribute('data-hat') || 'none' : 'none',
-            shoes: gameAssets ? gameAssets.getAttribute('data-shoes') || 'default' : 'default'
+        // 기본 커스터마이징 데이터
+        const defaultCustomization = {
+            outfit: 'default',
+            hat: 'none',
+            shoes: 'default'
         };
+        
+        // 유효한 커스터마이징 옵션 목록
+        const validOptions = {
+            outfit: ['default', 'casual', 'formal', 'sporty', 'hoodie'],
+            hat: ['none', 'cap', 'beanie', 'graduation', 'sunglasses'],
+            shoes: ['default', 'sneakers', 'boots', 'sandals', 'dress']
+        };
+        
+        if (!gameAssets) {
+            console.warn('gameAssets 요소를 찾을 수 없습니다. 기본값을 사용합니다.');
+            return defaultCustomization;
+        }
+        
+        // 데이터 속성에서 값을 가져오고 유효성 검사
+        const validateOption = (type, value) => {
+            // 값이 없거나 undefined인 경우 기본값 사용
+            if (!value || value === 'undefined' || value === 'null') {
+                return defaultCustomization[type];
+            }
+            
+            // 소문자로 정규화하여 비교
+            const normalizedValue = value.toLowerCase().trim();
+            
+            // 유효한 옵션 목록에 있는지 확인
+            return validOptions[type].includes(normalizedValue) ? 
+                   normalizedValue : defaultCustomization[type];
+        };
+        
+        // 속성 가져오기 및 유효성 검사
+        const outfit = validateOption('outfit', gameAssets.getAttribute('data-outfit'));
+        const hat = validateOption('hat', gameAssets.getAttribute('data-hat'));
+        const shoes = validateOption('shoes', gameAssets.getAttribute('data-shoes'));
+        
+        console.log(`커스터마이징 로드: outfit=${outfit}, hat=${hat}, shoes=${shoes}`);
+        
+        return { outfit, hat, shoes };
     }
     
     // 이미지 로드
@@ -156,20 +193,37 @@ export class Game {
     
     // 커스터마이징 이미지 로드
     loadCustomizationImages() {
-        if (this.customization.outfit !== 'default') {
+        // 이미지 로드 에러 핸들러
+        const handleImageError = (img, type, value) => {
+            img.onerror = () => {
+                console.warn(`${type} 이미지 로드 실패: ${value}`);
+                // 기본 투명한 이미지 설정
+                img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            };
+        };
+        
+        if (this.customization.outfit && this.customization.outfit !== 'default') {
             // 일반 의상 이미지 로드
             this.images.customization.outfit.src = `/static/assets/customization/${this.customization.outfit}.png`;
+            handleImageError(this.images.customization.outfit, 'outfit', this.customization.outfit);
             
             // 날개 편 상태의 의상 이미지 로드
-            this.images.customization.flyingOutfit.src = `/static/assets/customization/flying/flying_${this.customization.outfit}.png`;
+            try {
+                this.images.customization.flyingOutfit.src = `/static/assets/customization/flying/flying_${this.customization.outfit}.png`;
+                handleImageError(this.images.customization.flyingOutfit, 'flyingOutfit', this.customization.outfit);
+            } catch (e) {
+                console.warn(`날개 편 의상 이미지 로드 실패: ${e.message}`);
+            }
         }
         
-        if (this.customization.hat !== 'none') {
+        if (this.customization.hat && this.customization.hat !== 'none') {
             this.images.customization.hat.src = `/static/assets/customization/${this.customization.hat}.png`;
+            handleImageError(this.images.customization.hat, 'hat', this.customization.hat);
         }
         
-        if (this.customization.shoes !== 'default') {
+        if (this.customization.shoes && this.customization.shoes !== 'default') {
             this.images.customization.shoes.src = `/static/assets/customization/${this.customization.shoes}.png`;
+            handleImageError(this.images.customization.shoes, 'shoes', this.customization.shoes);
         }
     }
     
