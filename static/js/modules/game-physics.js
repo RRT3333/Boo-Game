@@ -125,7 +125,9 @@ export function updateGamePhysics(gameState, callbacks) {
     }
     
     // 상대 속도 최적화: 모바일과 데스크톱 환경에 따른 속도 조정
-    const obstacleSpeed = gameState.isMobile ? 6 : 5;
+    // 속도 승수 적용하여 시간에 따라 장애물 속도 증가
+    const baseObstacleSpeed = gameState.isMobile ? 6 : 5;
+    const obstacleSpeed = baseObstacleSpeed * (gameState.obstacleSpeedMultiplier || 1.0);
     const itemSpeed = gameState.isMobile ? 4 : 3;
     
     // 장애물과 아이템의 물리 상태 업데이트

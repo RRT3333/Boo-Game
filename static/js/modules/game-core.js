@@ -26,11 +26,14 @@ export class Game {
         // 게임 상태 초기화
         this.score = 0;
         this.health = 3;
-        this.timeLeft = 60;
+        this.timeLeft = 0;
         this.gameOver = false;
         this.gameStarted = false;
         this.backgroundX = 0;
         this.elapsedGameTime = 0;
+        
+        // 장애물 속도 조절
+        this.obstacleSpeedMultiplier = 1.0;
         
         // 카운트다운 상태
         this.countdownState = {
@@ -47,7 +50,7 @@ export class Game {
         this.stageTransitionSpeed = 2;
 
         // 게임 속도 및 확률
-        this.fSpawnRate = 0.04;  // F 등장 확률
+        this.fSpawnRate = 0.02;  // F 등장 확률
         this.aPlusSpawnRate = 0.03; // A+ 등장 확률
         
         // 교수님 상태
@@ -191,7 +194,7 @@ export class Game {
         // 상태 초기화
         this.score = 0;
         this.health = 3;
-        this.timeLeft = 60;
+        this.timeLeft = 0;
         this.gameOver = false;
         this.gameStarted = false;
         
@@ -207,6 +210,9 @@ export class Game {
         this.items = [];
         this.backgroundX = 0;
         this.elapsedGameTime = 0;
+        
+        // 장애물 속도 승수 초기화
+        this.obstacleSpeedMultiplier = 1.0;
         
         // 커스터마이징 이미지 로드
         this.loadCustomizationImages();
@@ -247,7 +253,7 @@ export class Game {
             animationDuration: 6000
         };
         
-        this.fSpawnRate = 0.04;
+        this.fSpawnRate = 0.02;
         this.aPlusSpawnRate = 0.03;
         
         // UI 초기화
@@ -255,6 +261,12 @@ export class Game {
         updateScore(this.score);
         updateTimer(this.timeLeft);
         updateStageProgress(this.currentStage, 0);
+        
+        // 프로그레스바 표시 초기화
+        const stageIndicator = document.querySelector('.stage-indicator');
+        if (stageIndicator) {
+            stageIndicator.style.display = 'flex';
+        }
         
         // 모바일 환경 초기화
         if (this.isMobile) {
@@ -346,7 +358,12 @@ export class Game {
                     };
                     
                     if (professorUpdate.fSpawnRateIncrease) {
-                        this.fSpawnRate = 0.055; // 교수님 사라진 후 F 확률 증가
+                        // 교수님 사라진 후에도 60초까지는 F 확률 5% 유지
+                        if (this.timeLeft > 60) {
+                            this.fSpawnRate = 0.03;
+                        } else {
+                            this.fSpawnRate = 0.05;
+                        }
                     }
                 }
                 
@@ -442,6 +459,28 @@ export class Game {
             onTimerTick: (timeLeft) => {
                 updateTimer(timeLeft);
                 this.timeLeft = timeLeft;
+                
+                // 시간에 따라 장애물 속도 선형적으로 증가
+                if (timeLeft <= 60) {
+                    // 1초부터 60초까지 1.0에서 2.0배로 선형 증가
+                    this.obstacleSpeedMultiplier = 1.0 + (timeLeft / 60);
+                } else {
+                    // 60초 이후에는 2.0에서 5.0배로 가파르게 증가
+                    const additionalTime = timeLeft - 60;
+                    // 40초 동안 5.0배까지 증가 (100초에 도달)
+                    this.obstacleSpeedMultiplier = 2.0 + (Math.min(additionalTime, 40) / 40 * 3.0);
+                }
+                
+                // 60초 이후 F 등장 확률 조정
+                if (timeLeft > 60) {
+                    this.fSpawnRate = 0.03; // 60초 이후 F 확률 3%로 감소
+                    
+                    // 프로그레스바 숨기기
+                    const stageIndicator = document.querySelector('.stage-indicator');
+                    if (stageIndicator) {
+                        stageIndicator.style.display = 'none';
+                    }
+                }
             },
             onProfessorAppear: () => {
                 this.professorData = {
@@ -454,6 +493,7 @@ export class Game {
                     animationStart: performance.now(),
                     animationDuration: 6000
                 };
+                this.fSpawnRate = 0.05; // 교수님 등장과 동시에 F 확률 5%로 증가
             },
             onStageTransition: () => {
                 startStageTransition(this);
