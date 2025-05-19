@@ -68,6 +68,21 @@ def game_view(request):
     # 플레이어 ID를 세션에서 받아오거나 새로 생성
     player_id = request.session.get('player_id')
     
+    # 플레이어 ID가 없으면 새로 생성
+    if not player_id:
+        player = Player.objects.create(
+            nickname='익명의 학생',
+            ip_address=request.META.get('REMOTE_ADDR', '0.0.0.0'),
+            outfit='default',
+            hat='none',
+            shoes='default'
+        )
+        player_id = str(player.id)
+        request.session['player_id'] = player_id
+        request.session['outfit'] = 'default'
+        request.session['hat'] = 'none'
+        request.session['shoes'] = 'default'
+    
     # 커스터마이징 정보도 함께 전달
     customization = {
         'outfit': request.session.get('outfit', 'default'),

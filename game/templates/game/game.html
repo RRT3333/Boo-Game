@@ -173,10 +173,10 @@
 
 <!-- 캐릭터 및 게임 에셋 데이터 -->
 <div id="gameAssets" 
-     data-player-id="{{ player_id }}"
-     data-outfit="{{ customization.outfit }}"
-     data-hat="{{ customization.hat }}"
-     data-shoes="{{ customization.shoes }}">
+     data-player-id="{{ player_id|default:'' }}"
+     data-outfit="{{ customization.outfit|default:'default' }}"
+     data-hat="{{ customization.hat|default:'none' }}"
+     data-shoes="{{ customization.shoes|default:'default' }}">
 </div>
 {% endblock %}
 
