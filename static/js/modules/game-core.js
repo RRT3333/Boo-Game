@@ -212,7 +212,7 @@ export class Game {
             
             // 날개 편 상태의 의상 이미지 로드
             try {
-                this.images.customization.flyingOutfit.src = `/static/assets/customization/flying/flying_${this.customization.outfit}.png`;
+            this.images.customization.flyingOutfit.src = `/static/assets/customization/flying/flying_${this.customization.outfit}.png`;
                 handleImageError(this.images.customization.flyingOutfit, 'flyingOutfit', this.customization.outfit);
             } catch (e) {
                 console.warn(`날개 편 의상 이미지 로드 실패: ${e.message}`);

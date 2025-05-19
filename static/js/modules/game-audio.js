@@ -136,7 +136,7 @@ export function initAudio() {
                     // iOS에서는 약간 낮은 볼륨으로 설정 (크래킹 방지)
                     audio.volume = Math.min(0.5, AUDIO_CONFIG.mobileVolume);
                 } else {
-                    audio.volume = isMobile ? AUDIO_CONFIG.mobileVolume : AUDIO_CONFIG.defaultVolume;
+                audio.volume = isMobile ? AUDIO_CONFIG.mobileVolume : AUDIO_CONFIG.defaultVolume;
                 }
                 
                 audio.preload = AUDIO_CONFIG.preloadMode;
@@ -196,14 +196,14 @@ export function initAudio() {
             initOnUserInteraction();
             
             // 그래도 초기화 안되면 빈 객체 반환
-            if (!this._initialized) {
-                return { 
-                    play: () => Promise.resolve(),
-                    pause: () => {},
-                    volume: 0,
-                    currentTime: 0,
-                    paused: true
-                };
+        if (!this._initialized) {
+            return { 
+                play: () => Promise.resolve(),
+                pause: () => {},
+                volume: 0,
+                currentTime: 0,
+                paused: true
+            };
             }
         }
         
@@ -339,11 +339,11 @@ export function playSound(sounds, soundName) {
         const playPromise = audio.play();
         if (playPromise !== undefined) {
             playPromise.catch(e => {
-                // 오류 발생 시 조용히 무시 (개발 모드에서만 로그)
-                if (e.name !== 'NotAllowedError') {
-                    console.log(`Sound play error: ${e.message}`);
-                }
-            });
+            // 오류 발생 시 조용히 무시 (개발 모드에서만 로그)
+            if (e.name !== 'NotAllowedError') {
+                console.log(`Sound play error: ${e.message}`);
+            }
+        });
         }
         
         // 마지막 재생 시간 기록
