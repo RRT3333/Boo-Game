@@ -98,6 +98,9 @@ export class Game {
         // 게임 시작
         this.init();
         
+        // 오디오 컨텍스트 즉시 활성화 시도
+        this.activateAudioContext();
+        
         // 전역 참조 저장
         window.gameInstance = this;
     }
@@ -259,6 +262,12 @@ export class Game {
             lastCountdownTime: 0,
             initialized: false
         };
+        
+        // 오디오 활성화 시도
+        if (this.sounds && typeof this.sounds.activateAudio === 'function') {
+            console.log('게임 초기화: 오디오 활성화 시도');
+            this.sounds.activateAudio();
+        }
         
         this.obstacles = [];
         this.items = [];
@@ -679,5 +688,28 @@ export class Game {
             // 화면을 강제로 다시 그리기
             window.dispatchEvent(new Event('resize'));
         }, 200);
+    }
+    
+    // 오디오 컨텍스트 활성화
+    activateAudioContext() {
+        try {
+            // 무음 오디오를 재생하여 오디오 컨텍스트 활성화 시도
+            const silentAudio = new Audio();
+            silentAudio.volume = 0.01;
+            silentAudio.play().catch(() => {
+                console.log('첫 오디오 재생 시도 실패: 사용자 상호작용 필요');
+                
+                // 사용자가 키보드를 누르면 즉시 오디오 활성화
+                const keyHandler = () => {
+                    const audio = new Audio();
+                    audio.volume = 0.01;
+                    audio.play().catch(() => {});
+                    document.removeEventListener('keydown', keyHandler);
+                };
+                document.addEventListener('keydown', keyHandler, { once: true });
+            });
+        } catch (e) {
+            console.warn('오디오 컨텍스트 활성화 실패:', e);
+        }
     }
 } 

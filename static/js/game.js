@@ -22,11 +22,13 @@ function prepareAudioContext() {
         // 이벤트 리스너 제거
         document.removeEventListener('touchstart', activateAudio);
         document.removeEventListener('click', activateAudio);
+        document.removeEventListener('keydown', activateAudio);
     };
     
-    // 사용자 인터랙션 감지
+    // 사용자 인터랙션 감지 (클릭, 터치, 키보드 입력)
     document.addEventListener('touchstart', activateAudio, { once: true });
     document.addEventListener('click', activateAudio, { once: true });
+    document.addEventListener('keydown', activateAudio, { once: true });
 }
 
 // DOM이 로드된 후 게임 초기화

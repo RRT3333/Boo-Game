@@ -143,21 +143,27 @@ export function initAudio() {
         // 이벤트 리스너 제거
         document.removeEventListener('touchstart', initOnUserInteraction);
         document.removeEventListener('click', initOnUserInteraction);
+        document.removeEventListener('keydown', initOnUserInteraction);
         
         console.log('오디오 초기화 완료');
     };
     
     // 게임에서 사용할 함수들
     sounds.getAudio = function(soundName) {
-        // 아직 초기화되지 않았다면 빈 객체 반환 (재생 시도하지 않음)
+        // 아직 초기화되지 않았다면 즉시 초기화 시도
         if (!this._initialized) {
-            return { 
-                play: () => Promise.resolve(),
-                pause: () => {},
-                volume: 0,
-                currentTime: 0,
-                paused: true
-            };
+            initOnUserInteraction();
+            
+            // 그래도 초기화 안되면 빈 객체 반환
+            if (!this._initialized) {
+                return { 
+                    play: () => Promise.resolve(),
+                    pause: () => {},
+                    volume: 0,
+                    currentTime: 0,
+                    paused: true
+                };
+            }
         }
         
         // 풀에서 사용 가능한 오디오 찾기
@@ -177,15 +183,38 @@ export function initAudio() {
         return pool[0];
     };
     
+    // 오디오 즉시 활성화 시도
+    sounds.activateAudio = function() {
+        if (!this._initialized) {
+            initOnUserInteraction();
+        }
+        
+        // 오디오 컨텍스트가 있고 차단된 상태면 활성화 시도
+        if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume().catch(e => console.log('오디오 컨텍스트 활성화 시도 실패:', e));
+        }
+        
+        return this._initialized;
+    };
+    
     // 오디오 준비하기 위한 이벤트 리스너 등록
     document.addEventListener('touchstart', initOnUserInteraction, { once: false });
     document.addEventListener('click', initOnUserInteraction, { once: false });
+    document.addEventListener('keydown', initOnUserInteraction, { once: false });
     
     return sounds;
 }
 
 // 사운드 재생
 export function playSound(sounds, soundName) {
+    // 사운드 객체가 없으면 무시
+    if (!sounds) return;
+    
+    // 활성화 시도 (초기화되지 않았을 경우)
+    if (!sounds._initialized && typeof sounds.activateAudio === 'function') {
+        sounds.activateAudio();
+    }
+    
     // 성능 최적화를 위한 debounce - 동일 효과음이 너무 빠르게 중복 재생되는 것 방지
     const now = Date.now();
     
