@@ -19,31 +19,77 @@ function prepareAudioContext() {
     
     // 사용자 인터랙션 감지 시 오디오 활성화
     const activateAudio = (e) => {
+        console.log('사용자 인터랙션 감지됨:', e.type);
+        
         // 오디오 활성화 상태 설정
         window.audioActivated = true;
         
-        // 더미 오디오 객체 재생으로 오디오 시스템 활성화
+        // 무음 오디오 재생으로 오디오 시스템 활성화
         const silentAudio = new Audio();
         silentAudio.volume = 0.01;
-        silentAudio.play().then(() => {
-            console.log('오디오 활성화 성공 (사용자 인터랙션)');
-        }).catch(() => {
-            console.log('오디오 활성화 실패 (사용자 인터랙션)');
-        });
+        silentAudio.muted = false;
+        
+        // 강제 활성화를 위해 여러 번 시도
+        const activateSilentAudio = () => {
+            silentAudio.play().then(() => {
+                console.log('오디오 활성화 성공 (사용자 인터랙션)');
+                
+                // 게임 인스턴스 오디오 시스템도 활성화
+                if (window.gameInstance && window.gameInstance.sounds) {
+                    console.log('게임 오디오 시스템 활성화 시도');
+                    window.gameInstance.sounds.activateAudio();
+                    
+                    // 초기화 상태 강제 설정
+                    window.gameInstance.sounds._initialized = true;
+                    window.gameInstance.sounds._audioEnabled = true;
+                    
+                    // AudioContext도 활성화
+                    if (window.gameInstance.activateAudioContext) {
+                        window.gameInstance.activateAudioContext();
+                    }
+                }
+            }).catch(() => {
+                console.log('오디오 활성화 실패 (사용자 인터랙션) - 다시 시도');
+                // 실패 시 다시 시도
+                setTimeout(activateSilentAudio, 100);
+            });
+        };
+        
+        // 첫 번째 시도
+        activateSilentAudio();
         
         // 저전력 모드 감지를 위한 준비
         detectLowPowerMode();
         
         // 이벤트 리스너 제거
-        document.removeEventListener('touchstart', activateAudio, { once: true });
-        document.removeEventListener('click', activateAudio, { once: true });
-        document.removeEventListener('keydown', activateAudio, { once: true });
+        document.removeEventListener('touchstart', activateAudio);
+        document.removeEventListener('click', activateAudio);
+        document.removeEventListener('keydown', activateAudio);
     };
     
     // 사용자 인터랙션 감지 (클릭, 터치, 키보드 입력)
-    document.addEventListener('touchstart', activateAudio, { once: true });
-    document.addEventListener('click', activateAudio, { once: true });
-    document.addEventListener('keydown', activateAudio, { once: true });
+    // once:true를 제거하여 여러 번의 인터랙션도 처리 가능하게 함
+    document.addEventListener('touchstart', activateAudio);
+    document.addEventListener('click', activateAudio);
+    document.addEventListener('keydown', activateAudio);
+    
+    // 추가: 모든 오디오 객체 음소거 해제를 위한 백업 함수
+    window.unmuteSounds = function() {
+        console.log('모든 소리 음소거 해제 시도 (백업)');
+        if (window.gameInstance && window.gameInstance.sounds) {
+            const sounds = window.gameInstance.sounds;
+            // 초기화 상태 강제 설정
+            sounds._initialized = true;
+            sounds._audioEnabled = true;
+            
+            // 모든 오디오 객체 음소거 해제
+            Object.values(sounds._pools || {}).forEach(pool => {
+                pool.forEach(audio => {
+                    audio.muted = false;
+                });
+            });
+        }
+    };
 }
 
 // 저전력 모드 감지
