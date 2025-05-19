@@ -10,24 +10,115 @@ const AUDIO_CONFIG = {
     mobileVolume: 0.7,   // 모바일 환경에서 음량 (좀 더 크게)
     preloadMode: 'auto', // 자동 사전 로드 (metadata, auto, none)
     audioFormats: ['mp3', 'ogg'], // 지원하는 오디오 포맷
-    fadeTime: 50         // 페이드인 시간 (ms)
+    fadeTime: 50,        // 페이드인 시간 (ms)
+    // 성능 최적화 설정 추가
+    jumpSoundThrottle: 200,  // 점프 사운드 쓰로틀 시간 (ms)
+    mobileJumpSoundThrottle: 300 // 모바일에서 점프 사운드 쓰로틀 시간 (ms)
 };
 
 // 모바일 환경 감지
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-// 오디오 컨텍스트 사용 가능 여부 확인
-let audioContext;
-let audioSupported = false;
+// iOS 디바이스 감지
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-try {
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-    audioContext = new AudioContext();
-    audioSupported = true;
-} catch (e) {
-    console.log('Web Audio API not supported in this browser');
-    audioSupported = false;
+// 오디오 컨텍스트 관리 (전역 단일 인스턴스로 관리)
+let audioContext = null;
+let audioContextActivated = false;
+let userInteractionOccurred = false;
+
+// 오디오 컨텍스트 초기화 함수 (지연 생성 패턴)
+function getAudioContext() {
+    if (!audioContext) {
+        try {
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioContext = new AudioContext();
+            console.log('AudioContext 생성됨 (상태: ' + audioContext.state + ')');
+        } catch (e) {
+            console.log('Web Audio API not supported in this browser');
+            return null;
+        }
+    }
+    return audioContext;
 }
+
+// 오디오 컨텍스트 활성화 (사용자 인터랙션 후 호출)
+function activateAudioContext() {
+    if (audioContextActivated) return Promise.resolve();
+    
+    const ctx = getAudioContext();
+    if (!ctx) return Promise.resolve();
+    
+    if (ctx.state === 'running') {
+        audioContextActivated = true;
+        return Promise.resolve();
+    }
+    
+    console.log('AudioContext 활성화 시도...');
+    
+    // 사용자 인터랙션 없이는 시작할 수 없음 - 인터랙션 발생 시에만 시도
+    if (!userInteractionOccurred) {
+        return new Promise(resolve => {
+            // 사용자 인터랙션 감지 대기
+            const onInteraction = () => {
+                userInteractionOccurred = true;
+                ctx.resume().then(() => {
+                    audioContextActivated = true;
+                    console.log('AudioContext 활성화됨 (인터랙션 이후)');
+                    resolve();
+                }).catch(e => {
+                    console.warn('AudioContext 활성화 실패:', e);
+                    resolve();
+                });
+                
+                // 이벤트 리스너 제거
+                ['click', 'touchstart', 'keydown'].forEach(eventType => {
+                    document.removeEventListener(eventType, onInteraction);
+                });
+            };
+            
+            // 이벤트 리스너 등록
+            ['click', 'touchstart', 'keydown'].forEach(eventType => {
+                document.addEventListener(eventType, onInteraction, { once: true });
+            });
+        });
+    }
+    
+    // 사용자 인터랙션이 있었으면 즉시 활성화 시도
+    return ctx.resume().then(() => {
+        audioContextActivated = true;
+        console.log('AudioContext 활성화됨');
+    }).catch(e => {
+        console.warn('AudioContext 활성화 실패:', e);
+    });
+}
+
+// 사용자 인터랙션 감지 (일찍 시작)
+function setupUserInteractionDetection() {
+    const onUserInteraction = () => {
+        userInteractionOccurred = true;
+        activateAudioContext();
+        
+        // 무음 오디오 재생으로 오디오 시스템 활성화
+        try {
+            const silentAudio = new Audio();
+            silentAudio.volume = 0.01;
+            silentAudio.play().then(() => {
+                console.log('무음 오디오 재생 성공 - 오디오 시스템 활성화됨');
+            }).catch(() => {});
+        } catch (e) {
+            // 오류 무시
+        }
+    };
+    
+    // 이벤트 리스너 등록
+    ['click', 'touchstart', 'keydown'].forEach(eventType => {
+        document.addEventListener(eventType, onUserInteraction, { once: true });
+    });
+}
+
+// 사용자 인터랙션 감지 시작
+setupUserInteractionDetection();
 
 // 포맷 지원 확인 (필요시 대체 포맷 로드)
 function getSupportedFormat() {
@@ -45,50 +136,13 @@ function getSupportedFormat() {
 // 지원 포맷
 const supportedFormat = getSupportedFormat();
 
-// 오디오 풀 생성 함수
-function createAudioPool(path, size) {
-    const pool = [];
-    let poolIndex = 0;
-    
-    // 풀에 오디오 객체 추가
-    for (let i = 0; i < size; i++) {
-        const audio = new Audio(path);
-        audio.volume = isMobile ? AUDIO_CONFIG.mobileVolume : AUDIO_CONFIG.defaultVolume;
-        audio.preload = AUDIO_CONFIG.preloadMode;
-        
-        // iOS/Safari 대응 - 사용자 동작 미리 바인딩
-        audio.load();
-        
-        pool.push(audio);
-    }
-    
-    // 풀에서 가용한 오디오 객체 가져오기
-    const getFromPool = () => {
-        // 현재 재생 중이지 않은 객체 찾기
-        for (let i = 0; i < pool.length; i++) {
-            if (pool[i].paused) {
-                return pool[i];
-            }
-        }
-        
-        // 모두 재생 중이면 순환하며 사용
-        poolIndex = (poolIndex + 1) % pool.length;
-        return pool[poolIndex];
-    };
-    
-    return getFromPool;
-}
-
 // 오디오 초기화 (미리 풀 생성)
 export function initAudio() {
-    // iOS 디바이스 감지
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    
     // 효과음 경로 기본 설정
     const basePath = '/static/assets/sounds/';
     
-    // 풀 생성 (iOS에서는 더 작은 풀 사용)
-    const poolSize = isIOS ? 1 : (isMobile ? 2 : AUDIO_CONFIG.poolSize);
+    // 풀 생성 - 모바일에서는 매우 작은 풀 사용
+    const poolSize = isIOS ? 1 : (isMobile ? 1 : AUDIO_CONFIG.poolSize);
     
     // 각 효과음 별 풀 생성 - 실제 오디오 객체는 사용자 인터랙션 이후 생성
     const soundPaths = {
@@ -106,56 +160,49 @@ export function initAudio() {
         _initialized: false,
         _paths: soundPaths,
         _pools: {},
-        _lastPlayed: {}
+        _lastPlayed: {},
+        _audioEnabled: true, // 오디오 활성화 상태 추적
+        _lowPowerMode: false, // 저전력 모드 감지 플래그
+        _activationPromise: null // 오디오 활성화 약속 추적
     };
     
-    // 사용자 인터랙션 감지 시 오디오 초기화
-    const initOnUserInteraction = () => {
-        if (sounds._initialized) return;
+    // 오디오 시스템 초기화 (실제 오디오 객체 생성)
+    const initAudioSystem = () => {
+        if (sounds._initialized) return Promise.resolve();
         
-        console.log('사용자 인터랙션 감지, 오디오 초기화');
+        console.log('오디오 시스템 초기화 중...');
         
-        // iOS 디바이스 감지
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        
-        // 풀 실제 생성
+        // 풀 실제 생성 - 모바일에서는 최소 풀 사용
         for (const soundName in soundPaths) {
             sounds._pools[soundName] = [];
             
             // 풀 크기 계산 (효과음별 다르게)
-            // iOS에서는 각 효과음당 1개의 객체만 사용 (성능 최적화)
-            const size = isIOS ? 1 : 
+            // 모바일에서는 각 효과음당 1개의 객체만 사용 (성능 최적화)
+            const size = isIOS || isMobile ? 1 : 
                        (soundName === 'gameover' || soundName === 'save') ? 1 : poolSize;
             
             // 오디오 객체 생성하여 풀에 추가
             for (let i = 0; i < size; i++) {
                 const audio = new Audio(soundPaths[soundName]);
                 
-                // iOS에 최적화된 볼륨 설정
-                if (isIOS) {
-                    // iOS에서는 약간 낮은 볼륨으로 설정 (크래킹 방지)
+                // 모바일에 최적화된 볼륨 설정
+                if (isIOS || isMobile) {
+                    // 모바일에서는 약간 낮은 볼륨으로 설정 (크래킹 방지)
                     audio.volume = Math.min(0.5, AUDIO_CONFIG.mobileVolume);
                 } else {
-                audio.volume = isMobile ? AUDIO_CONFIG.mobileVolume : AUDIO_CONFIG.defaultVolume;
+                    audio.volume = AUDIO_CONFIG.defaultVolume;
                 }
                 
                 audio.preload = AUDIO_CONFIG.preloadMode;
                 
-                // iOS/Safari 대응 - 사용자 동작 미리 바인딩 및 초기 설정
+                // iOS/Safari 대응 - 초기 설정
                 if (isIOS) {
                     // iOS에서 오디오 최적화
                     audio.setAttribute('playsinline', '');
-                    audio.muted = true;  // 처음에는 음소거로 로드
-                    audio.play().then(() => {
-                        audio.pause();   // 바로 중지
-                        audio.currentTime = 0;
-                        audio.muted = false; // 음소거 해제
-                    }).catch(() => {
-                        // 오류 무시 (사용자 상호작용 필요)
-                        audio.muted = false;
-                    });
+                    audio.muted = true;  // 처음에는 음소거로 설정
                 }
                 
+                // 모든 오디오 미리 로드
                 audio.load();
                 sounds._pools[soundName].push(audio);
             }
@@ -163,39 +210,86 @@ export function initAudio() {
         
         // 초기화 완료 표시
         sounds._initialized = true;
-        
-        // 오디오 컨텍스트 활성화
-        if (audioContext && audioContext.state === 'suspended') {
-            audioContext.resume().catch(e => console.log('오디오 컨텍스트 활성화 실패:', e));
-        }
-        
-        // iOS에서 추가적인 오디오 활성화
-        if (isIOS) {
-            // 일회성 무음 오디오 재생으로 오디오 시스템 활성화
-            try {
-                const silentAudio = new Audio();
-                silentAudio.volume = 0.01;
-                silentAudio.play().catch(() => {});
-            } catch (e) {
-                // 오류 무시
-            }
-        }
-        
-        // 이벤트 리스너 제거
-        document.removeEventListener('touchstart', initOnUserInteraction);
-        document.removeEventListener('click', initOnUserInteraction);
-        document.removeEventListener('keydown', initOnUserInteraction);
-        
         console.log('오디오 초기화 완료');
+        
+        return Promise.resolve();
+    };
+    
+    // 오디오 사용 준비 (사용자 인터랙션 필요)
+    const prepareAudio = () => {
+        // 활성화 Promise가 없으면 새로 생성
+        if (!sounds._activationPromise) {
+            sounds._activationPromise = new Promise(resolve => {
+                // 사용자 인터랙션 감지하고 오디오 초기화
+                const onInteraction = () => {
+                    console.log('사용자 인터랙션 감지, 오디오 초기화');
+                    userInteractionOccurred = true;
+                    
+                    // AudioContext 활성화
+                    activateAudioContext().then(() => {
+                        // 오디오 객체 생성
+                        return initAudioSystem();
+                    }).then(() => {
+                        // iOS에서 추가적인 오디오 활성화
+                        if (isIOS) {
+                            try {
+                                const unmuteSounds = () => {
+                                    // 모든 오디오 음소거 해제
+                                    Object.values(sounds._pools).forEach(pool => {
+                                        pool.forEach(audio => {
+                                            audio.muted = false;
+                                            // 짧게 재생 후 정지 (iOS에서 활성화 위함)
+                                            audio.play().then(() => {
+                                                setTimeout(() => {
+                                                    audio.pause();
+                                                    audio.currentTime = 0;
+                                                }, 1);
+                                            }).catch(() => {});
+                                        });
+                                    });
+                                };
+                                
+                                // 일회성 무음 오디오 재생으로 오디오 시스템 활성화
+                                const silentAudio = new Audio();
+                                silentAudio.volume = 0.01;
+                                silentAudio.play().then(() => {
+                                    unmuteSounds();
+                                }).catch(() => {
+                                    // 실패해도 다시 시도
+                                    unmuteSounds();
+                                });
+                            } catch (e) {
+                                // 오류 무시
+                            }
+                        }
+                        
+                        resolve();
+                    });
+                    
+                    // 이벤트 리스너 제거
+                    ['touchstart', 'click', 'keydown'].forEach(event => {
+                        document.removeEventListener(event, onInteraction);
+                    });
+                };
+                
+                // 이미 사용자 인터랙션이 있었다면 바로 초기화
+                if (userInteractionOccurred) {
+                    onInteraction();
+                } else {
+                    // 이벤트 리스너 등록
+                    ['touchstart', 'click', 'keydown'].forEach(event => {
+                        document.addEventListener(event, onInteraction, { once: false });
+                    });
+                }
+            });
+        }
+        
+        return sounds._activationPromise;
     };
     
     // 게임에서 사용할 함수들
     sounds.getAudio = function(soundName) {
-        // 아직 초기화되지 않았다면 즉시 초기화 시도
-        if (!this._initialized) {
-            initOnUserInteraction();
-            
-            // 그래도 초기화 안되면 빈 객체 반환
+        // 아직 초기화되지 않았다면 빈 객체 반환
         if (!this._initialized) {
             return { 
                 play: () => Promise.resolve(),
@@ -204,7 +298,17 @@ export function initAudio() {
                 currentTime: 0,
                 paused: true
             };
-            }
+        }
+        
+        // 오디오가 비활성화된 경우 더미 객체 반환
+        if (!this._audioEnabled) {
+            return { 
+                play: () => Promise.resolve(),
+                pause: () => {},
+                volume: 0,
+                currentTime: 0,
+                paused: true
+            };
         }
         
         // 풀에서 사용 가능한 오디오 찾기
@@ -226,22 +330,74 @@ export function initAudio() {
     
     // 오디오 즉시 활성화 시도
     sounds.activateAudio = function() {
-        if (!this._initialized) {
-            initOnUserInteraction();
+        // 초기화 Promise 없으면 새로 생성
+        if (!this._activationPromise) {
+            this._activationPromise = prepareAudio();
         }
         
-        // 오디오 컨텍스트가 있고 차단된 상태면 활성화 시도
-        if (audioContext && audioContext.state === 'suspended') {
-            audioContext.resume().catch(e => console.log('오디오 컨텍스트 활성화 시도 실패:', e));
+        // 사용자 인터랙션이 있었으면 활성화 시도
+        if (userInteractionOccurred) {
+            // AudioContext 활성화
+            activateAudioContext();
+            
+            // 아직 초기화 안된 경우 초기화
+            if (!this._initialized) {
+                initAudioSystem();
+            }
         }
         
         return this._initialized;
     };
     
-    // 오디오 준비하기 위한 이벤트 리스너 등록
-    document.addEventListener('touchstart', initOnUserInteraction, { once: false });
-    document.addEventListener('click', initOnUserInteraction, { once: false });
-    document.addEventListener('keydown', initOnUserInteraction, { once: false });
+    // 절전 모드 감지 및 오디오 조절
+    sounds.detectLowPowerMode = function() {
+        // 이미 저전력 모드로 감지되었으면 즉시 반환
+        if (this._lowPowerMode) {
+            return true;
+        }
+        
+        // 배터리 API를 통한 절전 모드 감지 시도
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(battery => {
+                if (battery.level < 0.2 || battery.charging === false) {
+                    this._lowPowerMode = true;
+                    console.log('저전력 감지: 오디오 최적화 적용');
+                }
+            }).catch(() => {
+                // 배터리 API 오류는 무시
+            });
+        }
+        
+        // 화면 새로고침 속도 체크를 통한 간접 감지
+        let lastTime = 0;
+        let slowFrames = 0;
+        const checkFrameRate = (timestamp) => {
+            if (lastTime !== 0) {
+                const delta = timestamp - lastTime;
+                // 프레임 간격이 비정상적으로 길면 저전력 모드 가능성
+                if (delta > 30) { // 33ms = ~30fps
+                    slowFrames++;
+                    if (slowFrames > 10) {
+                        this._lowPowerMode = true;
+                        console.log('낮은 프레임 감지: 오디오 최적화 적용');
+                        return;
+                    }
+                }
+            }
+            lastTime = timestamp;
+            requestAnimationFrame(checkFrameRate);
+        };
+        
+        requestAnimationFrame(checkFrameRate);
+        
+        return this._lowPowerMode;
+    };
+    
+    // 첫 사용자 클릭/터치 시 오디오 초기화 시작
+    prepareAudio();
+    
+    // 절전 모드 감지 시작
+    setTimeout(() => sounds.detectLowPowerMode(), 1000);
     
     return sounds;
 }
@@ -251,48 +407,45 @@ export function playSound(sounds, soundName) {
     // 사운드 객체가 없으면 무시
     if (!sounds) return;
     
-    // 활성화 시도 (초기화되지 않았을 경우)
-    if (!sounds._initialized && typeof sounds.activateAudio === 'function') {
-        sounds.activateAudio();
-    }
+    // 초기화되지 않았거나 오디오 비활성화 상태면 무시
+    if (!sounds._initialized || !sounds._audioEnabled) return;
     
-    // 초기화되지 않았으면 무시
-    if (!sounds._initialized) return;
-    
-    // iOS 디바이스 감지 (Safari 또는 iOS WebView)
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    
-    // 성능 최적화를 위한 debounce - 동일 효과음이 너무 빠르게 중복 재생되는 것 방지
+    // 성능 최적화를 위한 제어
     const now = Date.now();
     
     if (!sounds._lastPlayed) {
         sounds._lastPlayed = {};
     }
     
-    // 너무 빠른 반복 재생 방지 (iOS에서 더 긴 간격 적용)
-    const minInterval = isIOS ? 150 : (isMobile ? 80 : 50);
-    
-    if (sounds._lastPlayed[soundName] && (now - sounds._lastPlayed[soundName] < minInterval)) {
-        // 너무 빠르게 재생 요청이 들어오면 건너뜀 (iOS 성능 보호)
-        return;
+    // 점프 사운드 특별 처리 - 성능에 가장 큰 영향을 미치므로
+    if (soundName === 'jump') {
+        // 모바일/저전력 모드에서는 점프 사운드 재생 빈도 제한
+        const jumpThrottle = isIOS ? 400 : // iOS에서 가장 보수적
+                         isMobile ? AUDIO_CONFIG.mobileJumpSoundThrottle : 
+                         sounds._lowPowerMode ? 250 : 
+                         AUDIO_CONFIG.jumpSoundThrottle;
+        
+        // 절전 모드나 모바일에서는 다시 점프해도 빠르게 재생 안됨
+        if (sounds._lastPlayed[soundName] && (now - sounds._lastPlayed[soundName] < jumpThrottle)) {
+            return; // 사운드 재생 무시
+        }
+        
+        // 프레임 드랍 감지되면 점프 사운드 일시적 비활성화
+        if (sounds._lowPowerMode) {
+            // 저전력 모드에서는 간헐적으로만 소리 재생 (2번에 1번 정도)
+            if (Math.random() > 0.5) {
+                return;
+            }
+        }
+    } else {
+        // 다른 사운드는 일반적인 쓰로틀 적용
+        const minInterval = isIOS ? 150 : (isMobile ? 100 : 50);
+        if (sounds._lastPlayed[soundName] && (now - sounds._lastPlayed[soundName] < minInterval)) {
+            return;
+        }
     }
     
     try {
-        // iOS에서는 동일 타입의 모든 재생 중인 오디오를 중지 (글리치 방지)
-        if (isIOS && sounds._pools[soundName]) {
-            // 해당 사운드 타입의 모든 오디오 객체 중지
-            sounds._pools[soundName].forEach(audio => {
-                if (!audio.paused) {
-                    try {
-                        audio.pause();
-                        audio.currentTime = 0;
-                    } catch (e) {
-                        // pause/currentTime 오류는 무시
-                    }
-                }
-            });
-        }
-        
         // 오디오 객체 가져오기
         const audio = sounds.getAudio(soundName);
         
@@ -311,39 +464,41 @@ export function playSound(sounds, soundName) {
             }
         }
         
-        // iOS에서 최적화된 볼륨 조정 (크래킹 방지)
-        if (isIOS) {
-            // iOS에서 크래킹 방지를 위한 볼륨 조정
-            const targetVolume = isMobile ? AUDIO_CONFIG.mobileVolume : AUDIO_CONFIG.defaultVolume;
-            // 시작은 낮은 볼륨으로
-            audio.volume = targetVolume * 0.2;
+        // 모바일에서 성능 최적화된 소리 재생
+        if (isIOS || isMobile || sounds._lowPowerMode) {
+            // 저전력/모바일에서는 볼륨 낮춤
+            const baseVolume = isMobile ? AUDIO_CONFIG.mobileVolume : AUDIO_CONFIG.defaultVolume;
+            const targetVolume = sounds._lowPowerMode ? baseVolume * 0.7 : baseVolume;
             
-            // 약간의 지연 후 볼륨 복원 (크래킹 방지)
-            setTimeout(() => {
-                audio.volume = targetVolume;
-            }, 30);
-        } else if (isMobile) {
-            // 다른 모바일 기기에서 페이드인
-            const targetVolume = audio.volume;
-            audio.volume = targetVolume * 0.3;
+            // 점프 사운드는 더 낮은 볼륨으로
+            audio.volume = soundName === 'jump' ? targetVolume * 0.5 : targetVolume;
+            audio.currentTime = 0;
             
+            // 비동기 재생 (메인 스레드 차단 방지)
             setTimeout(() => {
-                audio.volume = targetVolume;
-            }, 20);
-        }
-        
-        // 재생 위치 처음으로
-        audio.currentTime = 0;
-        
-        // 재생 시작 (오류 처리 포함)
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(e => {
-            // 오류 발생 시 조용히 무시 (개발 모드에서만 로그)
-            if (e.name !== 'NotAllowedError') {
-                console.log(`Sound play error: ${e.message}`);
+                // AudioContext 활성화 확인
+                if (audioContext && audioContext.state !== 'running' && userInteractionOccurred) {
+                    audioContext.resume().catch(() => {});
+                }
+                
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {});
+                }
+            }, 0);
+        } else {
+            // 데스크톱에서는 일반 재생
+            audio.currentTime = 0;
+            
+            // AudioContext 활성화 확인
+            if (audioContext && audioContext.state !== 'running' && userInteractionOccurred) {
+                audioContext.resume().catch(() => {});
             }
-        });
+            
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(() => {});
+            }
         }
         
         // 마지막 재생 시간 기록
