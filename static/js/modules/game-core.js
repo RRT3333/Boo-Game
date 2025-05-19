@@ -98,6 +98,9 @@ export class Game {
         // 게임 시작
         this.init();
         
+        // 오디오 컨텍스트 즉시 활성화 시도
+        this.activateAudioContext();
+        
         // 전역 참조 저장
         window.gameInstance = this;
     }
@@ -106,11 +109,48 @@ export class Game {
     loadCustomization() {
         const gameAssets = document.getElementById('gameAssets');
         
-        return {
-            outfit: gameAssets ? gameAssets.getAttribute('data-outfit') || 'default' : 'default',
-            hat: gameAssets ? gameAssets.getAttribute('data-hat') || 'none' : 'none',
-            shoes: gameAssets ? gameAssets.getAttribute('data-shoes') || 'default' : 'default'
+        // 기본 커스터마이징 데이터
+        const defaultCustomization = {
+            outfit: 'default',
+            hat: 'none',
+            shoes: 'default'
         };
+        
+        // 유효한 커스터마이징 옵션 목록
+        const validOptions = {
+            outfit: ['default', 'casual', 'formal', 'sporty', 'hoodie'],
+            hat: ['none', 'cap', 'beanie', 'graduation', 'sunglasses'],
+            shoes: ['default', 'sneakers', 'boots', 'sandals', 'dress']
+        };
+        
+        if (!gameAssets) {
+            console.warn('gameAssets 요소를 찾을 수 없습니다. 기본값을 사용합니다.');
+            return defaultCustomization;
+        }
+        
+        // 데이터 속성에서 값을 가져오고 유효성 검사
+        const validateOption = (type, value) => {
+            // 값이 없거나 undefined인 경우 기본값 사용
+            if (!value || value === 'undefined' || value === 'null') {
+                return defaultCustomization[type];
+            }
+            
+            // 소문자로 정규화하여 비교
+            const normalizedValue = value.toLowerCase().trim();
+            
+            // 유효한 옵션 목록에 있는지 확인
+            return validOptions[type].includes(normalizedValue) ? 
+                   normalizedValue : defaultCustomization[type];
+        };
+        
+        // 속성 가져오기 및 유효성 검사
+        const outfit = validateOption('outfit', gameAssets.getAttribute('data-outfit'));
+        const hat = validateOption('hat', gameAssets.getAttribute('data-hat'));
+        const shoes = validateOption('shoes', gameAssets.getAttribute('data-shoes'));
+        
+        console.log(`커스터마이징 로드: outfit=${outfit}, hat=${hat}, shoes=${shoes}`);
+        
+        return { outfit, hat, shoes };
     }
     
     // 이미지 로드
@@ -156,20 +196,37 @@ export class Game {
     
     // 커스터마이징 이미지 로드
     loadCustomizationImages() {
-        if (this.customization.outfit !== 'default') {
+        // 이미지 로드 에러 핸들러
+        const handleImageError = (img, type, value) => {
+            img.onerror = () => {
+                console.warn(`${type} 이미지 로드 실패: ${value}`);
+                // 기본 투명한 이미지 설정
+                img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            };
+        };
+        
+        if (this.customization.outfit && this.customization.outfit !== 'default') {
             // 일반 의상 이미지 로드
             this.images.customization.outfit.src = `/static/assets/customization/${this.customization.outfit}.png`;
+            handleImageError(this.images.customization.outfit, 'outfit', this.customization.outfit);
             
             // 날개 편 상태의 의상 이미지 로드
-            this.images.customization.flyingOutfit.src = `/static/assets/customization/flying/flying_${this.customization.outfit}.png`;
+            try {
+                this.images.customization.flyingOutfit.src = `/static/assets/customization/flying/flying_${this.customization.outfit}.png`;
+                handleImageError(this.images.customization.flyingOutfit, 'flyingOutfit', this.customization.outfit);
+            } catch (e) {
+                console.warn(`날개 편 의상 이미지 로드 실패: ${e.message}`);
+            }
         }
         
-        if (this.customization.hat !== 'none') {
+        if (this.customization.hat && this.customization.hat !== 'none') {
             this.images.customization.hat.src = `/static/assets/customization/${this.customization.hat}.png`;
+            handleImageError(this.images.customization.hat, 'hat', this.customization.hat);
         }
         
-        if (this.customization.shoes !== 'default') {
+        if (this.customization.shoes && this.customization.shoes !== 'default') {
             this.images.customization.shoes.src = `/static/assets/customization/${this.customization.shoes}.png`;
+            handleImageError(this.images.customization.shoes, 'shoes', this.customization.shoes);
         }
     }
     
@@ -205,6 +262,12 @@ export class Game {
             lastCountdownTime: 0,
             initialized: false
         };
+        
+        // 오디오 활성화 시도
+        if (this.sounds && typeof this.sounds.activateAudio === 'function') {
+            console.log('게임 초기화: 오디오 활성화 시도');
+            this.sounds.activateAudio();
+        }
         
         this.obstacles = [];
         this.items = [];
@@ -625,5 +688,28 @@ export class Game {
             // 화면을 강제로 다시 그리기
             window.dispatchEvent(new Event('resize'));
         }, 200);
+    }
+    
+    // 오디오 컨텍스트 활성화
+    activateAudioContext() {
+        try {
+            // 무음 오디오를 재생하여 오디오 컨텍스트 활성화 시도
+            const silentAudio = new Audio();
+            silentAudio.volume = 0.01;
+            silentAudio.play().catch(() => {
+                console.log('첫 오디오 재생 시도 실패: 사용자 상호작용 필요');
+                
+                // 사용자가 키보드를 누르면 즉시 오디오 활성화
+                const keyHandler = () => {
+                    const audio = new Audio();
+                    audio.volume = 0.01;
+                    audio.play().catch(() => {});
+                    document.removeEventListener('keydown', keyHandler);
+                };
+                document.addEventListener('keydown', keyHandler, { once: true });
+            });
+        } catch (e) {
+            console.warn('오디오 컨텍스트 활성화 실패:', e);
+        }
     }
 } 
