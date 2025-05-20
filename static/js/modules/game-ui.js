@@ -494,4 +494,117 @@ export function updateStageProgress(currentStage, progress) {
         // 캐릭터 위치 설정
         flyingCharacterEl.style.left = `${characterPosition}%`;
     }
+}
+
+// 졸업 축하 메시지 표시
+export function showGraduation(isMobile) {
+    console.log("졸업 축하 메시지 표시 함수 실행");
+    
+    // 기존 메시지 제거
+    const existingWarning = document.querySelector('.game-warning');
+    if (existingWarning) {
+        existingWarning.remove();
+    }
+    
+    const existingSubWarning = document.querySelector('.game-sub-warning');
+    if (existingSubWarning) {
+        existingSubWarning.remove();
+    }
+    
+    const existingDifficultyWarning = document.querySelector('.game-difficulty-warning');
+    if (existingDifficultyWarning) {
+        existingDifficultyWarning.remove();
+    }
+    
+    // 졸업 축하 메시지 생성
+    const graduationEl = document.createElement('div');
+    graduationEl.className = 'game-warning';
+    graduationEl.textContent = '졸업을 축하합니다';
+    graduationEl.style.color = '#4AFF50'; // 더 밝은 초록색
+    
+    // 추가 축하 문구 생성
+    const challengeEl = document.createElement('div');
+    challengeEl.className = 'game-challenge';
+    challengeEl.textContent = '최고의 졸업생이 되어보세요';
+    challengeEl.style.color = '#000000'; // 검정색
+    challengeEl.style.fontWeight = '500';
+    challengeEl.style.textShadow = '1px 1px 2px rgba(255, 255, 255, 0.8)';
+    challengeEl.style.position = 'absolute';
+    challengeEl.style.left = '50%';
+    challengeEl.style.transform = 'translateX(-50%)';
+    challengeEl.style.textAlign = 'center';
+    challengeEl.style.fontFamily = "'Spoqa Han Sans Neo', sans-serif";
+    challengeEl.style.zIndex = '25';
+    
+    // 난이도 증가 메시지 생성
+    const difficultyEl = document.createElement('div');
+    difficultyEl.className = 'game-difficulty-warning';
+    difficultyEl.innerHTML = '※ 난이도가 증가합니다.';
+    
+    // 모바일과 데스크톱에 따라 위치 조정
+    if (isMobile) {
+        // 모바일 - 중앙에 배치
+        graduationEl.style.fontSize = '32px';
+        graduationEl.style.top = '45%';
+        
+        challengeEl.style.fontSize = '20px';
+        challengeEl.style.top = '54%';
+        
+        difficultyEl.style.fontSize = '16px';
+        difficultyEl.style.top = '64%';
+    } else {
+        // 데스크톱 - 중앙에 배치
+        graduationEl.style.fontSize = '48px';
+        graduationEl.style.top = '45%';
+        
+        challengeEl.style.fontSize = '24px';
+        challengeEl.style.top = '56%';
+        
+        difficultyEl.style.fontSize = '18px';
+        difficultyEl.style.top = '66%';
+    }
+    
+    // 게임 컨테이너에 추가
+    const gameContainer = document.querySelector('.game-container');
+    gameContainer.appendChild(graduationEl);
+    gameContainer.appendChild(challengeEl);
+    gameContainer.appendChild(difficultyEl);
+    
+    console.log("졸업 축하 메시지 요소들 추가 완료");
+    
+    // 일정 시간 후 제거
+    setTimeout(() => {
+        if (graduationEl && graduationEl.parentNode) {
+            graduationEl.style.transition = 'opacity 0.5s ease-out';
+            graduationEl.style.opacity = '0';
+            
+            setTimeout(() => {
+                if (graduationEl.parentNode) {
+                    graduationEl.parentNode.removeChild(graduationEl);
+                }
+            }, 500);
+        }
+        
+        if (challengeEl && challengeEl.parentNode) {
+            challengeEl.style.transition = 'opacity 0.5s ease-out';
+            challengeEl.style.opacity = '0';
+            
+            setTimeout(() => {
+                if (challengeEl.parentNode) {
+                    challengeEl.parentNode.removeChild(challengeEl);
+                }
+            }, 500);
+        }
+        
+        if (difficultyEl && difficultyEl.parentNode) {
+            difficultyEl.style.transition = 'opacity 0.5s ease-out';
+            difficultyEl.style.opacity = '0';
+            
+            setTimeout(() => {
+                if (difficultyEl.parentNode) {
+                    difficultyEl.parentNode.removeChild(difficultyEl);
+                }
+            }, 500);
+        }
+    }, 3000);
 } 

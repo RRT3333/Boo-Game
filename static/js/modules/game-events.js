@@ -4,7 +4,7 @@
  */
 
 import { createObstacle, createItem } from './game-entities.js';
-import { showWarning } from './game-ui.js';
+import { showWarning, showGraduation } from './game-ui.js';
 import { playSound } from './game-audio.js';
 
 // 모바일 환경 감지
@@ -250,6 +250,17 @@ export function startGameTimer(gameState, callbacks) {
             
             // showWarning 함수 직접 호출
             showWarning(gameState.isMobile);
+        }
+        
+        // 게임 시작 후 60초에 졸업 축하 메시지 표시
+        if (gameState.elapsedGameTime === 60) {
+            // 졸업 축하 메시지 표시
+            showGraduation(gameState.isMobile);
+            
+            // 난이도 증가
+            gameState.fSpawnRate = 0.01; // F 확률 0.01로 설정 (테스트용)
+            gameState.aPlusSpawnRate = 0.04; // A+ 확률도 소폭 증가
+            gameState.obstacleSpeedMultiplier *= 1.2; // 장애물 속도 20% 증가
         }
         
         // 스테이지 전환 확인 (10초마다)
