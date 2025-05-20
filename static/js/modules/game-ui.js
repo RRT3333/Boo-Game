@@ -28,9 +28,13 @@ export function updateCountdown(countdownState, timestamp) {
         if (countdownElement) {
             if (countdownState.value > 0) {
                 countdownElement.textContent = countdownState.value;
-            } else {
+            } else if (countdownState.value === 0) {
                 countdownElement.textContent = 'GO!';
-                return true; // 카운트다운 종료 - 0 없이 바로 GO!
+                // GO! 메시지 표시 후 추가적인 값 감소를 위한 상태 업데이트
+                countdownState.value = -1;
+            } else {
+                // GO! 메시지가 1초 동안 표시된 후 카운트다운 종료
+                return true;
             }
         }
     }
