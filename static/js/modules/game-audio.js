@@ -27,6 +27,9 @@ let audioContext = null;
 let audioContextActivated = false;
 let userInteractionOccurred = false;
 
+// 오디오 초기화 시스템 함수 - 모듈 레벨에서 선언
+let initAudioSystem;
+
 // 오디오 컨텍스트 초기화 함수 (지연 생성 패턴)
 function getAudioContext() {
     if (!audioContext) {
@@ -139,6 +142,7 @@ const supportedFormat = getSupportedFormat();
 // 오디오 초기화 (미리 풀 생성)
 export function initAudio() {
     // 효과음 경로 기본 설정
+    // 절대 경로로 시작하여 어느 URL에서든 동일하게 접근
     const basePath = '/static/assets/sounds/';
     
     // 풀 생성 - 모바일에서는 매우 작은 풀 사용
@@ -155,6 +159,18 @@ export function initAudio() {
         background_music: `${basePath}background_music.${supportedFormat}`
     };
     
+    // 디버그: 사운드 경로 로깅
+    console.log('사운드 경로:', soundPaths);
+    
+    // 사운드 파일 존재 여부 확인 시도
+    fetch(soundPaths.jump)
+        .then(response => {
+            console.log(`Jump 사운드 파일 접근 결과: ${response.status} ${response.statusText}`);
+        })
+        .catch(error => {
+            console.error('Jump 사운드 파일 접근 실패:', error);
+        });
+    
     // 풀 초기화 (아직 오디오 객체는 생성하지 않음)
     const sounds = {
         _initialized: false,
@@ -167,7 +183,7 @@ export function initAudio() {
     };
     
     // 오디오 시스템 초기화 (실제 오디오 객체 생성)
-    const initAudioSystem = () => {
+    initAudioSystem = () => {
         if (sounds._initialized) return Promise.resolve();
         
         console.log('오디오 시스템 초기화 중...');
@@ -199,7 +215,8 @@ export function initAudio() {
                 if (isIOS) {
                     // iOS에서 오디오 최적화
                     audio.setAttribute('playsinline', '');
-                    audio.muted = true;  // 처음에는 음소거로 설정
+                    // 음소거 상태를 false로 변경 - 이전에는 true로 설정했음
+                    audio.muted = false;
                 }
                 
                 // 모든 오디오 미리 로드
@@ -225,42 +242,53 @@ export function initAudio() {
                     console.log('사용자 인터랙션 감지, 오디오 초기화');
                     userInteractionOccurred = true;
                     
+                    // 오디오 시스템 강제 초기화 (동기식)
+                    if (!sounds._initialized) {
+                        console.log('오디오 시스템 동기식 초기화 시작');
+                        initAudioSystem();
+                        console.log(`초기화 상태: ${sounds._initialized}`);
+                    }
+                    
                     // AudioContext 활성화
                     activateAudioContext().then(() => {
                         // 오디오 객체 생성
                         return initAudioSystem();
                     }).then(() => {
-                        // iOS에서 추가적인 오디오 활성화
-                        if (isIOS) {
-                            try {
-                                const unmuteSounds = () => {
-                                    // 모든 오디오 음소거 해제
-                                    Object.values(sounds._pools).forEach(pool => {
-                                        pool.forEach(audio => {
-                                            audio.muted = false;
-                                            // 짧게 재생 후 정지 (iOS에서 활성화 위함)
-                                            audio.play().then(() => {
-                                                setTimeout(() => {
-                                                    audio.pause();
-                                                    audio.currentTime = 0;
-                                                }, 1);
-                                            }).catch(() => {});
-                                        });
+                        // 음소거 해제를 모든 디바이스에서 수행
+                        try {
+                            const unmuteSounds = () => {
+                                // 모든 오디오 음소거 해제
+                                console.log('모든 오디오 음소거 해제 시도');
+                                Object.values(sounds._pools).forEach(pool => {
+                                    pool.forEach(audio => {
+                                        // 음소거 해제
+                                        audio.muted = false;
+                                        console.log(`오디오 음소거 해제: ${audio.src}, muted=${audio.muted}`);
+                                        
+                                        // 짧게 재생 후 정지 (iOS에서 활성화 위함)
+                                        audio.play().then(() => {
+                                            setTimeout(() => {
+                                                audio.pause();
+                                                audio.currentTime = 0;
+                                            }, 1);
+                                        }).catch(() => {});
                                     });
-                                };
-                                
-                                // 일회성 무음 오디오 재생으로 오디오 시스템 활성화
-                                const silentAudio = new Audio();
-                                silentAudio.volume = 0.01;
-                                silentAudio.play().then(() => {
-                                    unmuteSounds();
-                                }).catch(() => {
-                                    // 실패해도 다시 시도
-                                    unmuteSounds();
                                 });
-                            } catch (e) {
-                                // 오류 무시
-                            }
+                            };
+                            
+                            // 일회성 무음 오디오 재생으로 오디오 시스템 활성화
+                            const silentAudio = new Audio();
+                            silentAudio.volume = 0.01;
+                            silentAudio.muted = false; // 무음 오디오도 음소거 해제
+                            silentAudio.play().then(() => {
+                                unmuteSounds();
+                            }).catch(() => {
+                                // 실패해도 다시 시도
+                                unmuteSounds();
+                            });
+                        } catch (e) {
+                            // 오류 무시
+                            console.error('오디오 활성화 중 오류:', e);
                         }
                         
                         resolve();
@@ -330,20 +358,57 @@ export function initAudio() {
     
     // 오디오 즉시 활성화 시도
     sounds.activateAudio = function() {
+        console.log('오디오 활성화 시도: 초기화 상태=' + this._initialized);
+        
+        // 모바일에서는 추가 활성화 적용
+        if (isMobile || isIOS) {
+            console.log('모바일 디바이스 감지: 추가 활성화 절차 시작');
+        }
+        
         // 초기화 Promise 없으면 새로 생성
         if (!this._activationPromise) {
+            console.log('활성화 Promise 생성');
             this._activationPromise = prepareAudio();
         }
         
         // 사용자 인터랙션이 있었으면 활성화 시도
         if (userInteractionOccurred) {
+            console.log('인터랙션 감지됨: 오디오 컨텍스트 활성화 시도');
             // AudioContext 활성화
             activateAudioContext();
             
             // 아직 초기화 안된 경우 초기화
             if (!this._initialized) {
+                console.log('아직 초기화되지 않음: 시스템 초기화 시작');
                 initAudioSystem();
+                console.log(`초기화 완료 상태: ${this._initialized}`);
             }
+            
+            // 이미 초기화된 경우에도 음소거 해제 시도
+            if (this._initialized) {
+                console.log('모든 음소거 해제 추가 시도');
+                // 모든 오디오 객체 음소거 해제 시도
+                Object.values(this._pools).forEach(pool => {
+                    pool.forEach(audio => {
+                        audio.muted = false;
+                        
+                        // iOS에서는 짧게 재생 후 정지하여 활성화
+                        if (isIOS) {
+                            const currentVolume = audio.volume;
+                            audio.volume = 0.01; // 거의 들리지 않게 설정
+                            audio.play().then(() => {
+                                setTimeout(() => {
+                                    audio.pause();
+                                    audio.currentTime = 0;
+                                    audio.volume = currentVolume; // 원래 볼륨 복원
+                                }, 1);
+                            }).catch(() => {});
+                        }
+                    });
+                });
+            }
+        } else {
+            console.log('사용자 인터랙션 없음: 오디오 활성화 대기 중');
         }
         
         return this._initialized;
@@ -404,11 +469,25 @@ export function initAudio() {
 
 // 사운드 재생
 export function playSound(sounds, soundName) {
+    console.log(`소리 재생 시도: ${soundName}`);
+    
     // 사운드 객체가 없으면 무시
-    if (!sounds) return;
+    if (!sounds) {
+        console.log('sounds 객체가 없음');
+        return;
+    }
+    
+    // 강제 초기화 - 아직 초기화되지 않았다면 초기화 시도
+    if (!sounds._initialized) {
+        console.log('오디오 시스템 즉시 초기화 시도');
+        initAudioSystem(); // 동기식 초기화 시도
+    }
     
     // 초기화되지 않았거나 오디오 비활성화 상태면 무시
-    if (!sounds._initialized || !sounds._audioEnabled) return;
+    if (!sounds._initialized || !sounds._audioEnabled) {
+        console.log(`오디오 초기화 필요: ${sounds._initialized} ${sounds._audioEnabled}`);
+        return;
+    }
     
     // 성능 최적화를 위한 제어
     const now = Date.now();
@@ -451,7 +530,16 @@ export function playSound(sounds, soundName) {
         
         // 오디오가 없는 경우 무시
         if (!audio) {
+            console.log(`오디오 객체 없음: ${soundName}`);
             return;
+        }
+        
+        console.log(`${soundName} 오디오 객체 획득, 볼륨: ${audio.volume}, 음소거: ${audio.muted}`);
+        
+        // 음소거 상태인 경우 해제
+        if (audio.muted) {
+            audio.muted = false;
+            console.log(`${soundName} 오디오 음소거 해제`);
         }
         
         // 이미 재생 중이면 중지 후 처음부터 재생 (iOS에서 중요)
@@ -476,6 +564,7 @@ export function playSound(sounds, soundName) {
             
             // 비동기 재생 (메인 스레드 차단 방지)
             setTimeout(() => {
+                console.log(`${soundName} 소리 재생 시도 (모바일)`);
                 // AudioContext 활성화 확인
                 if (audioContext && audioContext.state !== 'running' && userInteractionOccurred) {
                     audioContext.resume().catch(() => {});
@@ -483,13 +572,18 @@ export function playSound(sounds, soundName) {
                 
                 const playPromise = audio.play();
                 if (playPromise !== undefined) {
-                    playPromise.catch(() => {});
+                    playPromise.then(() => {
+                        console.log(`${soundName} 소리 재생 성공`);
+                    }).catch((e) => {
+                        console.error(`${soundName} 소리 재생 실패:`, e);
+                    });
                 }
             }, 0);
         } else {
             // 데스크톱에서는 일반 재생
             audio.currentTime = 0;
             
+            console.log(`${soundName} 소리 재생 시도 (데스크톱)`);
             // AudioContext 활성화 확인
             if (audioContext && audioContext.state !== 'running' && userInteractionOccurred) {
                 audioContext.resume().catch(() => {});
@@ -497,7 +591,11 @@ export function playSound(sounds, soundName) {
             
             const playPromise = audio.play();
             if (playPromise !== undefined) {
-                playPromise.catch(() => {});
+                playPromise.then(() => {
+                    console.log(`${soundName} 소리 재생 성공`);
+                }).catch((e) => {
+                    console.error(`${soundName} 소리 재생 실패:`, e);
+                });
             }
         }
         
