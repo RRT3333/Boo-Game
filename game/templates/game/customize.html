@@ -17,9 +17,9 @@
             <div class="character-preview">
                 <div class="avatar-container">
                     <img src="{% static 'assets/character/duck.png' %}" alt="캐릭터" class="character-base">
-                    <img src="" alt="의상" class="character-outfit" id="previewOutfit">
-                    <img src="" alt="모자" class="character-hat" id="previewHat">
-                    <img src="" alt="신발" class="character-shoes" id="previewShoes">
+                    <img src="" alt="의상" class="character-outfit" id="previewOutfit" style="display: none;">
+                    <img src="" alt="모자" class="character-hat" id="previewHat" style="display: none;">
+                    <img src="" alt="신발" class="character-shoes" id="previewShoes" style="display: none;">
                 </div>
             </div>
         </div>
@@ -81,9 +81,9 @@
         </div>
     </div>
     
-    <div class="player-info">
+    {% comment %} <div class="player-info">
         <!-- 닉네임 입력창 제거 -->
-    </div>
+    </div> {% endcomment %}
     
     <div class="action-buttons">
         <a href="{% url 'game:index' %}" class="btn-back">뒤로가기</a>
@@ -93,5 +93,13 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+// 이전 커스터마이징 정보 전달
+const previousCustomization = {
+    outfit: "{{ previous.outfit }}",
+    hat: "{{ previous.hat }}",
+    shoes: "{{ previous.shoes }}"
+};
+</script>
 <script src="{% static 'js/customize.js' %}"></script>
 {% endblock %} 

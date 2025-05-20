@@ -169,6 +169,13 @@
             <button id="test-update-nickname">updateNickname() 테스트</button>
             <pre id="update-nickname-result"></pre>
         </div>
+        
+        <div class="test-section">
+            <h2>5. 커스터마이징 정보 조회 테스트</h2>
+            <p>현재 세션의 플레이어 커스터마이징 정보를 가져옵니다.</p>
+            <button id="test-get-customization">getCustomization() 테스트</button>
+            <pre id="get-customization-result"></pre>
+        </div>
     </div>
 
     <div class="footer">
@@ -298,6 +305,28 @@
                 throw error;
             }
         }
+        
+        /**
+         * 플레이어 커스터마이징 정보 조회
+         * @returns {Promise<Object>} - 플레이어 커스터마이징 정보
+         */
+        async getCustomization() {
+            const url = `${this.baseURL}/game/api/${this.apiVersion}/get-customization/`;
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching customization data:', error);
+                throw error;
+            }
+        }
     }
 
     // 글로벌 인스턴스 생성
@@ -362,12 +391,18 @@
                     }
                     
                     const settingsResult = document.getElementById('settings-result');
-                    settingsResult.innerHTML = `✅ API 클라이언트 설정 업데이트 완료: ${apiClient.baseURL}`;
+                    settingsResult.innerHTML = `✅ API 클라이언트 설정 업데이트 완료: ${apiClient.baseURL}<br>
+                                               <small>setUseHttps 메서드 사용 가능: ${typeof apiClient.setUseHttps === 'function'}</small>`;
                     settingsResult.className = 'test-result success';
+                    console.log('API 클라이언트 설정 업데이트 성공:', {
+                        'apiClient.baseURL': apiClient.baseURL,
+                        'apiClient.apiVersion': apiClient.apiVersion,
+                        'hasSetUseHttps': typeof apiClient.setUseHttps === 'function'
+                    });
                 } catch (error) {
-                    const settingsResult = document.getElementById('settings-result');
                     settingsResult.innerHTML = `❌ 오류: ${error.message}`;
                     settingsResult.className = 'test-result error';
+                    console.error('API 클라이언트 설정 업데이트 실패:', error);
                 }
             });
 
@@ -378,25 +413,20 @@
                 
                 try {
                     const customization = {
-                        outfit: 'test_outfit',
-                        hat: 'test_hat',
-                        shoes: 'test_shoes'
+                        // 실제 사용할 커스터마이징 정보를 여기에 채워넣어야 합니다.
+                        // 예시로 간단한 객체를 사용합니다.
+                        player_id: 'testPlayerId',
+                        nickname: 'Test Player',
+                        // 다른 필요한 속성들도 추가해야 합니다.
                     };
                     
                     const result = await apiClient.savePlayer(customization);
                     resultElement.textContent = JSON.stringify(result, null, 2);
-                    
-                    // 플레이어 ID 저장
-                    if (result.player_id) {
-                        savedPlayerId = result.player_id;
-                        document.getElementById('player-id').value = savedPlayerId;
-                        document.getElementById('update-player-id').value = savedPlayerId;
-                    }
                 } catch (error) {
                     resultElement.textContent = `오류 발생: ${error.message}`;
                 }
             });
-            
+
             // 2. 리더보드 조회 테스트
             document.getElementById('test-get-leaderboard').addEventListener('click', async function() {
                 const resultElement = document.getElementById('get-leaderboard-result');
@@ -409,28 +439,18 @@
                     resultElement.textContent = `오류 발생: ${error.message}`;
                 }
             });
-            
+
             // 3. 점수 저장 테스트
             document.getElementById('test-save-score').addEventListener('click', async function() {
                 const resultElement = document.getElementById('save-score-result');
                 resultElement.textContent = '테스트 중...';
                 
-                const playerId = document.getElementById('player-id').value;
-                if (!playerId) {
-                    resultElement.textContent = '오류: 플레이어 ID가 필요합니다. 먼저 플레이어 저장 테스트를 실행하세요.';
-                    return;
-                }
-                
                 try {
                     const scoreData = {
-                        player_id: playerId,
-                        score: 2000,
-                        play_time: 180,
-                        max_stage: 5,
-                        items_collected: 30,
-                        obstacles_avoided: 50,
-                        max_combo: 10,
-                        nickname: '테스트 플레이어'
+                        player_id: 'testPlayerId',
+                        score: 100,
+                        game: 'Test Game',
+                        timestamp: new Date().toISOString()
                     };
                     
                     const result = await apiClient.saveScore(scoreData);
@@ -439,7 +459,7 @@
                     resultElement.textContent = `오류 발생: ${error.message}`;
                 }
             });
-            
+
             // 4. 닉네임 업데이트 테스트
             document.getElementById('test-update-nickname').addEventListener('click', async function() {
                 const resultElement = document.getElementById('update-nickname-result');
@@ -447,16 +467,6 @@
                 
                 const playerId = document.getElementById('update-player-id').value;
                 const nickname = document.getElementById('new-nickname').value;
-                
-                if (!playerId) {
-                    resultElement.textContent = '오류: 플레이어 ID가 필요합니다. 먼저 플레이어 저장 테스트를 실행하세요.';
-                    return;
-                }
-                
-                if (!nickname) {
-                    resultElement.textContent = '오류: 새 닉네임을 입력하세요.';
-                    return;
-                }
                 
                 try {
                     const data = {
@@ -470,7 +480,20 @@
                     resultElement.textContent = `오류 발생: ${error.message}`;
                 }
             });
+            
+            // 5. 커스터마이징 정보 조회 테스트
+            document.getElementById('test-get-customization').addEventListener('click', async function() {
+                const resultElement = document.getElementById('get-customization-result');
+                resultElement.textContent = '테스트 중...';
+                
+                try {
+                    const result = await apiClient.getCustomization();
+                    resultElement.textContent = JSON.stringify(result, null, 2);
+                } catch (error) {
+                    resultElement.textContent = `오류 발생: ${error.message}`;
+                }
+            });
         });
     </script>
 </body>
-</html> 
+</html>

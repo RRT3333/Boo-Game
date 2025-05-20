@@ -6,13 +6,14 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import uuid
 from django.conf import settings
+import os
 
 def index_view(request):
     """메인 시작 페이지"""
-    # 리더보드 상위 5명 데이터
+    # 리더보드 상위 3명 데이터
     top_players = Score.objects.values('player').annotate(
         best_score=Max('score')
-    ).order_by('-best_score')[:5]
+    ).order_by('-best_score')[:3]
     
     top_players_data = []
     for entry in top_players:
@@ -36,7 +37,31 @@ def customize_view(request):
         'shoes': ['default', 'sneakers', 'boots', 'sandals', 'dress']
     }
     
-    return render(request, 'game/customize.html', {'options': customization_options})
+    # 플레이어 ID를 세션에서 가져오기
+    player_id = request.session.get('player_id')
+    
+    # 이전 커스터마이징 정보 조회
+    previous_customization = {
+        'outfit': 'default',
+        'hat': 'none',
+        'shoes': 'default'
+    }
+    
+    if player_id:
+        try:
+            player = Player.objects.get(id=player_id)
+            previous_customization = {
+                'outfit': player.outfit,
+                'hat': player.hat,
+                'shoes': player.shoes
+            }
+        except Player.DoesNotExist:
+            pass
+    
+    return render(request, 'game/customize.html', {
+        'options': customization_options,
+        'previous': previous_customization
+    })
 
 def game_view(request):
     """게임 플레이 페이지"""
@@ -50,7 +75,20 @@ def game_view(request):
         'shoes': request.session.get('shoes', 'default')
     }
     
-    return render(request, 'game/game.html', {'player_id': player_id, 'customization': customization})
+    # 이전 닉네임 조회
+    previous_nickname = '익명의 학생'
+    if player_id:
+        try:
+            player = Player.objects.get(id=player_id)
+            previous_nickname = player.nickname
+        except Player.DoesNotExist:
+            pass  # 플레이어가 존재하지 않으면 기본 닉네임 사용
+    
+    return render(request, 'game/game.html', {
+        'player_id': player_id, 
+        'customization': customization,
+        'previous_nickname': previous_nickname
+    })
 
 def leaderboard_view(request):
     """일반 리더보드 페이지"""
@@ -164,17 +202,22 @@ def save_score(request):
             items_collected = int(data.get('items_collected', 0))
             obstacles_avoided = int(data.get('obstacles_avoided', 0))
             max_combo = int(data.get('max_combo', 0))
-            nickname = data.get('nickname', '익명의 학생')
+            nickname = data.get('nickname', '').strip()
             
             # 플레이어 가져오기
             try:
                 player = Player.objects.get(id=player_id)
+                # 닉네임이 비어있다면 기존 닉네임 사용
+                if not nickname:
+                    nickname = player.nickname
                 # 닉네임이 변경되었다면 업데이트
-                if nickname != player.nickname:
+                elif nickname != player.nickname:
                     player.nickname = nickname
                     player.save()
             except (Player.DoesNotExist, ValueError):
                 # 플레이어 ID가 유효하지 않으면 새 플레이어 생성
+                if not nickname:
+                    nickname = '익명의 학생'
                 player = Player.objects.create(
                     nickname=nickname,
                     ip_address=request.META.get('REMOTE_ADDR', '0.0.0.0')
@@ -217,6 +260,7 @@ def get_leaderboard_data(request):
             'nickname': player.nickname,
             'score': entry['best_score'],
             'time': best_game.play_time if best_game else 0,
+            'stage': best_game.max_stage if best_game else 1,
             'customization': {
                 'outfit': player.outfit,
                 'hat': player.hat,
@@ -267,3 +311,62 @@ def update_nickname(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+def get_customization(request):
+    """플레이어의 커스터마이징 정보를 가져오는 API"""
+    player_id = request.session.get('player_id')
+    
+    if not player_id:
+        return JsonResponse({
+            'status': 'error',
+            'message': '플레이어 ID가 없습니다',
+            'customization': {
+                'outfit': 'default',
+                'hat': 'none', 
+                'shoes': 'default'
+            }
+        })
+    
+    try:
+        player = Player.objects.get(id=player_id)
+        return JsonResponse({
+            'status': 'success',
+            'customization': {
+                'outfit': player.outfit or 'default',
+                'hat': player.hat or 'none',
+                'shoes': player.shoes or 'default'
+            }
+        })
+    except Player.DoesNotExist:
+        return JsonResponse({
+            'status': 'error',
+            'message': '플레이어를 찾을 수 없습니다',
+            'customization': {
+                'outfit': 'default',
+                'hat': 'none', 
+                'shoes': 'default'
+            }
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e),
+            'customization': {
+                'outfit': 'default',
+                'hat': 'none', 
+                'shoes': 'default'
+            }
+        })
+
+# Nginx에서 favicon.ico를 서빙하도록 주석 처리
+"""
+def serve_favicon(request):
+    favicon_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'favicon', 'favicon.ico')
+    try:
+        with open(favicon_path, 'rb') as f:
+            return HttpResponse(f.read(), content_type='image/x-icon')
+    except FileNotFoundError:
+        raise Http404("Favicon not found")
+    except Exception as e:
+        raise Http404(f"Error serving favicon: {str(e)}")
+"""

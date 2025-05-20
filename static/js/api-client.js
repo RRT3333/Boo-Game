@@ -133,6 +133,28 @@ class BooGameAPI {
             throw error;
         }
     }
+
+    /**
+     * 플레이어 커스터마이징 정보 조회
+     * @returns {Promise<Object>} - 플레이어 커스터마이징 정보
+     */
+    async getCustomization() {
+        const url = `${this.baseURL}/game/api/${this.apiVersion}/get-customization/`;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching customization data:', error);
+            throw error;
+        }
+    }
 }
 
 // 글로벌 인스턴스 생성

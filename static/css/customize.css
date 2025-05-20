@@ -30,6 +30,13 @@ body {
     padding: 20px;
 }
 
+@media (max-width: 768px) {
+    body {
+        align-items: flex-start;
+        padding: 10px;
+    }
+}
+
 .customize-container {
     width: 100%;
     max-width: 800px;
@@ -38,6 +45,13 @@ body {
     border: 3px solid var(--primary-color);
     padding: 30px;
     box-shadow: 0 0 30px rgba(0, 221, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+    .customize-container {
+        padding: 20px 15px;
+        margin: 10px 0;
+    }
 }
 
 h1 {
@@ -60,6 +74,7 @@ h1 {
 @media (max-width: 768px) {
     .customize-main {
         flex-direction: column;
+        gap: 20px;
     }
 }
 
@@ -115,6 +130,14 @@ h1 {
     overflow-y: auto;
     max-height: 400px;
     padding-right: 10px;
+}
+
+@media (max-width: 768px) {
+    .options-section {
+        max-height: none;
+        overflow-y: visible;
+        padding-right: 0;
+    }
 }
 
 .customize-option {
@@ -281,6 +304,8 @@ h1 {
 @media (max-width: 600px) {
     .customize-container {
         padding: 15px;
+        margin: 0;
+        border-radius: 10px;
     }
     
     h1 {
@@ -308,6 +333,15 @@ h1 {
     .btn-back, .btn-start {
         font-size: 0.8rem;
         padding: 10px 20px;
+    }
+    
+    body {
+        padding: 5px;
+    }
+    
+    .items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        gap: 5px;
     }
 }
 

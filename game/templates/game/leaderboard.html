@@ -26,12 +26,12 @@
         <table class="leaderboard-table">
             <thead>
                 <tr>
-                    <th>순위</th>
-                    <th>캐릭터</th>
-                    <th>플레이어</th>
-                    <th>점수</th>
-                    <th>시간</th>
-                    <th>스테이지</th>
+                    <th width="8%">순위</th>
+                    <th width="12%">캐릭터</th>
+                    <th width="25%">플레이어</th>
+                    <th width="20%">점수</th>
+                    <th width="15%">시간</th>
+                    <th width="20%">스테이지</th>
                 </tr>
             </thead>
             <tbody>
@@ -83,7 +83,12 @@
     
     <div class="qr-code">
         <h3>QR코드로 공유하기</h3>
-        <img src="{% static 'assets/ui/qr_code.png' %}" alt="QR 코드">
+        <div class="qr-code-container">
+            <img src="{% static 'assets/ui/qr_code.png' %}" alt="QR 코드" class="mobile-optimized">
+            {% comment %} <div class="qr-text mobile-only">
+                <p>모바일에서 QR코드는<br>화면 크기에 맞게 최적화됩니다.</p>
+            </div> {% endcomment %}
+        </div>
     </div>
     
     <div class="action-buttons">

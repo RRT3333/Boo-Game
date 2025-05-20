@@ -183,4 +183,34 @@ def get_leaderboard_api(request):
 def update_nickname_api(request):
     """닉네임 업데이트 API"""
     from .views import update_nickname
-    return update_nickname(request) 
+    return update_nickname(request)
+
+@swagger_auto_schema(
+    method='get',
+    responses={
+        status.HTTP_200_OK: openapi.Response(
+            description="플레이어 커스터마이징 정보",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'status': openapi.Schema(type=openapi.TYPE_STRING),
+                    'customization': openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            'outfit': openapi.Schema(type=openapi.TYPE_STRING),
+                            'hat': openapi.Schema(type=openapi.TYPE_STRING),
+                            'shoes': openapi.Schema(type=openapi.TYPE_STRING),
+                        }
+                    ),
+                },
+            )
+        ),
+    },
+    operation_description="현재 세션의 플레이어 커스터마이징 정보를 가져옵니다."
+)
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_customization_api(request):
+    """플레이어 커스터마이징 정보 조회 API"""
+    from .views import get_customization
+    return get_customization(request) 

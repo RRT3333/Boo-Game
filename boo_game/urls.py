@@ -24,6 +24,8 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.views.generic import TemplateView, RedirectView
 from django.conf import settings
+from django.views.static import serve
+import os
 import re
 
 sitemaps = {
@@ -54,11 +56,17 @@ def markdown_redirect(request, path):
     else:
         return redirect('developer:render_static_markdown', path=path)
 
+# robots.txt 파일을 제공하는 함수
+def serve_robots_txt(request):
+    robots_path = os.path.join(settings.BASE_DIR, 'robots.txt')
+    return serve(request, os.path.basename(robots_path), os.path.dirname(robots_path))
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('game/', include('game.urls')),
     path('', lambda request: redirect('game:index')),  # Redirect root URL to game index page
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path('robots.txt', serve_robots_txt, name='robots_txt'),  # Serve robots.txt from root
     
     # 개발자 도구 URL 패턴
     path('developer/', include('developer.urls')),
