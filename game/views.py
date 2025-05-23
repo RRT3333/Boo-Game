@@ -114,7 +114,7 @@ def leaderboard_view(request):
     top_scores = Score.objects.values('player').annotate(
         best_score=Max('score'),
         games_played=Count('id')
-    ).order_by('-best_score')[:10]
+    ).order_by('-best_score')[:20]
     
     leaderboard_data = []
     for entry in top_scores:
