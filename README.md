@@ -323,3 +323,24 @@ DEBUG=False
 ALLOWED_HOSTS=boogame.kr,www.boogame.kr
 STATIC_ROOT=/var/www/staticfiles
 STATIC_URL=/static/
+
+
+```
+배포 전 최종 체크리스트:
+.env 파일 생성 및 설정
+Apply to deploy.sh
+디렉토리 구조 확인
+backups/ 디렉토리 생성
+logs/ 디렉토리 생성
+static/ 디렉토리 존재
+권한 설정
+Apply to deploy.sh
+Run
+SSL 인증서 준비
+Let's Encrypt 인증서 경로 확인
+SSL 설정 활성화
+데이터베이스 초기 설정
+초기 마이그레이션 준비
+초기 데이터 준비 (필요한 경우)
+이제 안전하게 GitHub에 푸시하고 배포할 수 있습니다. 배포 시에는 ./deploy.sh 스크립트를 사용하면 됩니다.
+```
