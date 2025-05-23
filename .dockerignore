@@ -1,6 +1,7 @@
 # Git
 .git
 .gitignore
+.gitattributes
 
 # Python
 __pycache__
@@ -8,10 +9,12 @@ __pycache__
 *.pyo
 *.pyd
 .Python
-env
+env/
+venv/
+.venv/
 pip-log.txt
 pip-delete-this-directory.txt
-.tox
+.tox/
 .coverage
 .coverage.*
 .cache
@@ -19,45 +22,43 @@ nosetests.xml
 coverage.xml
 *.cover
 *.log
+.pytest_cache/
+.mypy_cache/
+.hypothesis/
 
-# Virtual environments
-venv/
-env/
-ENV/
-.venv/
+# 데이터베이스
+*.sqlite3
+*.sqlite3-journal
 
 # IDE
-.vscode/
 .idea/
+.vscode/
 *.swp
 *.swo
 *~
 
-# OS
+# 문서
+README.md
+CHANGELOG.md
+docs/
+*.md
+
+# 기타
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
+# Virtual environments
+env/
+ENV/
+
 # Django
-.env
-.env.*
 staticfiles/
 mediafiles/
 !staticfiles/.gitkeep
 
 # Testing
-.pytest_cache/
 htmlcov/
 .coverage
-
-# Documentation
-docs/
-*.md
-!README.md
 
 # Docker
 Dockerfile*

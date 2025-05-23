@@ -12,15 +12,48 @@ services:
     volumes:
       - staticfiles:/var/www/staticfiles
       - gunicorn_socket:/tmp
-      - ./db.sqlite3:/app/db.sqlite3  # SQLite 사용시 (운영에서는 PostgreSQL 권장)
     networks:
       - boo_game_network
+    depends_on:
+      db:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 512M
     healthcheck:
       test: ["CMD-SHELL", "test -S /tmp/gunicorn.sock"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  db:
+    image: postgres:15-alpine
+    container_name: boo_game_db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - boo_game_network
+    expose:
+      - "5432"
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   nginx:
     image: nginx:alpine
@@ -37,6 +70,9 @@ services:
       - /var/www/html:/var/www/html:ro        # Let's Encrypt 웹루트
     networks:
       - boo_game_network
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256M
     depends_on:
       web:
         condition: service_healthy
@@ -44,6 +80,7 @@ services:
 volumes:
   staticfiles:
   gunicorn_socket:
+  postgres_data:
 
 networks:
   boo_game_network:
