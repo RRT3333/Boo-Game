@@ -56,7 +56,7 @@ Boo Game은 개발자 작업 효율성을 높이기 위한 통합 개발자 허�
 
 - **자동화된 테스트**: GitHub Actions를 통한 단위 및 통합 테스트 자동화
 - **코드 품질 검사**: 정적 코드 분석 및 코드 커버리지 리포트 생성
-- **자동 배포**: 메인 브랜치 푸시 시 AWS EC2에 자동 배포
+- **Docker 기반 배포**: 컨테이너화된 애플리케이션의 안전한 배포
 - **환경 분리**: 개발, 테스트, 운영 환경 설정 자동화
 
 CI/CD 설정은 `.github/workflows/main.yaml` 파일에서 확인할 수 있습니다.
@@ -66,7 +66,7 @@ CI/CD 설정은 `.github/workflows/main.yaml` 파일에서 확인할 수 있습�
 - **백엔드**: Django 5.2, Django REST Framework
 - **프론트엔드**: HTML5, CSS3, JavaScript ES6+, 자체 개발 게임 라이브러리
 - **데이터베이스**: SQLite(개발), PostgreSQL(운영)
-- **배포**: AWS EC2, Nginx, Gunicorn
+- **배포**: Docker, Nginx, Gunicorn
 - **CI/CD**: GitHub Actions
 - **문서화**: Swagger, ReDoc, Mermaid.js
 
@@ -80,7 +80,7 @@ CI/CD 설정은 `.github/workflows/main.yaml` 파일에서 확인할 수 있습�
 - pip (Python 패키지 관리자)
 - Git
 
-### 2. 설치 및 실행
+### 2. 로컬 개발 환경 설치 및 실행
 
 ```bash
 # 저장소 클론
@@ -96,6 +96,10 @@ venv\Scripts\activate  # Windows
 # 의존성 설치
 pip install -r requirements.txt
 
+# 환경 변수 설정
+cp .env.example .env
+# .env 파일을 편집하여 필요한 설정 입력
+
 # 데이터베이스 마이그레이션
 python manage.py migrate
 
@@ -104,6 +108,111 @@ python manage.py runserver
 ```
 
 이제 브라우저에서 http://localhost:8000 으로 게임에 접속할 수 있습니다.
+
+## 🧪 로컬 Docker 테스트
+
+Docker 설정을 로컬에서 테스트하고 싶다면, 별도의 로컬용 설정을 제공합니다:
+
+### Windows (PowerShell)
+```powershell
+# PowerShell에서 실행
+.\test-local-docker.ps1
+```
+
+### Linux/Mac (Bash)
+```bash
+# Bash에서 실행
+chmod +x test-local-docker.sh
+./test-local-docker.sh
+```
+
+### 수동 실행
+```bash
+# 로컬용 Docker Compose 실행
+docker-compose -f docker-compose.local.yml up --build -d
+
+# 접속 확인
+# Nginx: http://localhost/
+# Django 직접: http://localhost:8000/
+
+# 컨테이너 중지
+docker-compose -f docker-compose.local.yml down
+```
+
+### 로컬 테스트 특징
+- ✅ **SSL 없이 HTTP만 사용** (개발 편의성)
+- ✅ **localhost 도메인으로 접근**
+- ✅ **포트 기반 연결** (Unix 소켓 대신)
+- ✅ **간단한 설정으로 빠른 테스트**
+- ✅ **자동 헬스체크 및 로그 확인**
+
+로컬 테스트용 파일들:
+- `docker-compose.local.yml`: 로컬용 Docker Compose 설정
+- `nginx.local.conf`: 로컬용 Nginx 설정 (HTTP만)
+- `Dockerfile.local`: 로컬 개발용 Dockerfile
+- `docker-entrypoint.local.sh`: 로컬용 시작 스크립트
+
+## 🐳 Docker 배포
+
+### 1. 환경 변수 설정
+
+먼저 `.env` 파일을 생성하고 필요한 환경 변수를 설정합니다:
+
+```bash
+# .env 파일 생성
+cat > .env << EOF
+DJANGO_ENV=production
+DJANGO_SECRET_KEY=your-super-secret-key-here
+DEBUG=False
+ALLOWED_HOSTS=boogame.kr,www.boogame.kr,localhost
+STATIC_ROOT=/var/www/staticfiles
+STATIC_URL=/static/
+EOF
+
+# 보안을 위한 파일 권한 설정
+chmod 600 .env
+```
+
+### 2. Docker Compose를 이용한 배포
+
+```bash
+# 컨테이너 빌드 및 시작
+docker-compose up --build -d
+
+# 컨테이너 상태 확인
+docker-compose ps
+
+# 로그 확인
+docker-compose logs -f web
+```
+
+### 3. 수동 배포 스크립트 실행
+
+```bash
+# 배포 스크립트 실행 권한 부여
+chmod +x deploy.sh
+
+# 배포 실행
+./deploy.sh
+```
+
+### 4. SSL 인증서 설정 (Let's Encrypt)
+
+운영 환경에서 HTTPS를 사용하려면 SSL 인증서가 필요합니다:
+
+```bash
+# Let's Encrypt 설치
+sudo apt update
+sudo apt install certbot
+
+# 인증서 발급
+sudo certbot certonly --webroot -w /var/www/html -d boogame.kr -d www.boogame.kr
+
+# 자동 갱신 설정
+sudo crontab -e
+# 다음 라인 추가:
+# 0 12 * * * /usr/bin/certbot renew --quiet
+```
 
 ### 3. 테스트 실행
 
@@ -168,6 +277,18 @@ coverage report
 
 개발자 문서 허브는 `http://localhost:8000/developer/docs/`에서 접근할 수 있습니다.
 
+## 🔐 보안 고려사항
+
+### 환경 변수 관리
+- **민감한 정보**: 모든 민감한 정보는 환경 변수로 관리
+- **GitHub Secrets**: CI/CD에서 사용되는 비밀 정보는 GitHub Secrets에 저장
+- **파일 권한**: .env 파일은 600 권한으로 설정
+
+### Docker 보안
+- **최소 권한 원칙**: 컨테이너는 필요한 최소 권한으로만 실행
+- **읽기 전용 볼륨**: 설정 파일들은 읽기 전용으로 마운트
+- **네트워크 격리**: 컨테이너간 통신은 전용 네트워크 사용
+
 ## 📋 역할 분담
 
 - **김수민**: 디자인 컴포넌트, PPT 제작
@@ -199,24 +320,6 @@ STATIC_ROOT=staticfiles
 DJANGO_ENV=production
 DJANGO_SECRET_KEY=your-prod-secret-key
 DEBUG=False
-ALLOWED_HOSTS=your.domain.com
-DATABASE_URL=postgres://user:password@host:5432/dbname
-STATIC_ROOT=/var/www/boo_game/static/
-```
-
-### 2. settings.py 환경 분기
-- `.env`의 `DJANGO_ENV` 값에 따라 개발/운영 설정이 자동 분기됩니다.
-- SECRET_KEY, DB, ALLOWED_HOSTS 등은 반드시 환경변수에서만 읽습니다.
-- settings.py, manage.py, wsgi.py, asgi.py 모두 .env를 자동 로드합니다.
-
-### 3. requirements.txt
-- 운영/개발 공통 패키지: `requirements.txt`
-- 개발 전용 패키지: `requirements-dev.txt` (옵션)
-
-### 4. 배포 환경
-- 운영 서버: AWS EC2 (Linux, gunicorn, nginx)
-- 소스코드: Github Actions 등 CI/CD로 배포 가능
-- gunicorn, nginx 설정은 서버에 직접 적용 (레포에는 예시만 제공)
-
-### 5. 보안 주의사항
-- `.env`
+ALLOWED_HOSTS=boogame.kr,www.boogame.kr
+STATIC_ROOT=/var/www/staticfiles
+STATIC_URL=/static/

@@ -41,7 +41,7 @@ jobs:
         file: ./coverage.xml
         fail_ci_if_error: false
 
-  deploy:
+  docker-deploy:
     needs: test  # test 작업이 성공한 후에만 실행
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'  # main 브랜치 푸시에만 배포
     runs-on: ubuntu-latest
@@ -59,7 +59,7 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to EC2
+      - name: Deploy with Docker
         env:
           PROJECT_PATH: ${{ secrets.PROJECT_PATH }}
           DEFAULT_PATH: "/home/ubuntu/Boo-Game"
@@ -67,32 +67,92 @@ jobs:
           ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} '
             PROJECT_PATH="${PROJECT_PATH:-/home/ubuntu/Boo-Game}"
             cd $PROJECT_PATH
+            
+            # Git 최신 코드 받기
             git pull origin main
-            source venv/bin/activate
-            pip3 install -r requirements.txt
             
-            # 정적 파일 처리
-            sudo rm -rf staticfiles/*
-            sudo mkdir -p staticfiles
-            sudo chmod -R 777 staticfiles
+            # 환경 파일 생성/업데이트 (민감한 정보는 GitHub Secrets에서)
+            cat > .env << EOF
+            DJANGO_ENV=production
+            DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+            DEBUG=False
+            ALLOWED_HOSTS=boogame.kr,www.boogame.kr,${{ secrets.HOST }}
+            STATIC_ROOT=/var/www/staticfiles
+            STATIC_URL=/static/
+            EOF
             
-            # Django 관리 명령어
-            python manage.py collectstatic --noinput
-            python manage.py migrate
-            python manage.py scan_markdown_files_new --reset
+            # .env 파일 권한 설정 (보안)
+            chmod 600 .env
             
-            # 서비스 재시작
-            sudo systemctl restart gunicorn
-            sudo systemctl restart nginx
+            # Docker 설치 확인 (필요시 설치)
+            if ! command -v docker &> /dev/null; then
+              echo "Docker not found. Installing Docker..."
+              curl -fsSL https://get.docker.com -o get-docker.sh
+              sudo sh get-docker.sh
+              sudo usermod -aG docker ubuntu
+              sudo systemctl start docker
+              sudo systemctl enable docker
+              newgrp docker
+            fi
             
-            echo "Deployment completed successfully!"
+            # Docker Compose 설치 확인
+            if ! command -v docker-compose &> /dev/null; then
+              echo "Docker Compose not found. Installing..."
+              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+            
+            # 기존 컨테이너 중지 및 제거
+            docker-compose down --remove-orphans || true
+            
+            # 사용하지 않는 이미지 정리
+            docker system prune -f || true
+            
+            # 새 컨테이너 빌드 및 시작
+            docker-compose up --build -d
+            
+            # 컨테이너 시작 대기
+            echo "Waiting for containers to start..."
+            sleep 30
+            
+            # 컨테이너 상태 확인
+            docker-compose ps
+            
+            # 로그 확인 (마지막 20줄)
+            echo "=== Web Container Logs ==="
+            docker-compose logs --tail=20 web
+            echo "=== Nginx Container Logs ==="
+            docker-compose logs --tail=20 nginx
+            
+            echo "🐳 Docker deployment completed successfully!"
+          '
+
+      - name: Health Check
+        run: |
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} '
+            # 30초 추가 대기 후 헬스체크
+            sleep 30
+            
+            # HTTPS 응답 확인
+            if curl -f -s -k https://boogame.kr/ > /dev/null; then
+              echo "✅ HTTPS Health check passed!"
+            elif curl -f -s http://localhost/ > /dev/null; then
+              echo "✅ HTTP Health check passed!"
+            else
+              echo "❌ Health check failed!"
+              echo "=== Debug Information ==="
+              docker-compose ps
+              docker-compose logs --tail=50 web
+              docker-compose logs --tail=50 nginx
+              exit 1
+            fi
           '
 
       - name: Notify deployment status
         if: always()
         run: |
           if [ "${{ job.status }}" == "success" ]; then
-            echo "🚀 Deployment to ${{ secrets.HOST }} (boogame.kr) completed successfully!"
+            echo "🚀 Docker deployment to ${{ secrets.HOST }} (boogame.kr) completed successfully!"
           else
-            echo "❌ Deployment to ${{ secrets.HOST }} (boogame.kr) failed!"
+            echo "❌ Docker deployment to ${{ secrets.HOST }} (boogame.kr) failed!"
           fi

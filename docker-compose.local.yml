@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    container_name: boo_game_web_local
+    restart: unless-stopped
+    environment:
+      - DJANGO_ENV=development
+      - DJANGO_SECRET_KEY=local-development-secret-key-12345
+      - DEBUG=True
+      - ALLOWED_HOSTS=localhost,127.0.0.1,web
+      - STATIC_ROOT=/app/staticfiles
+      - STATIC_URL=/static/
+    ports:
+      - "8000:8000"
+    volumes:
+      - staticfiles_local:/app/staticfiles
+      - ./db.sqlite3:/app/db.sqlite3
+    networks:
+      - boo_game_network_local
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: boo_game_nginx_local
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.local.conf:/etc/nginx/nginx.conf:ro
+      - staticfiles_local:/var/www/staticfiles:ro
+    networks:
+      - boo_game_network_local
+    depends_on:
+      web:
+        condition: service_healthy
+
+volumes:
+  staticfiles_local:
+
+networks:
+  boo_game_network_local:
+    driver: bridge 

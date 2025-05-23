@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: boo_game_web
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=boo_game.settings
+    volumes:
+      - staticfiles:/var/www/staticfiles
+      - gunicorn_socket:/tmp
+      - ./db.sqlite3:/app/db.sqlite3  # SQLite 사용시 (운영에서는 PostgreSQL 권장)
+    networks:
+      - boo_game_network
+    healthcheck:
+      test: ["CMD-SHELL", "test -S /tmp/gunicorn.sock"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: boo_game_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - staticfiles:/var/www/staticfiles:ro
+      - gunicorn_socket:/tmp:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro  # Let's Encrypt 인증서
+      - /var/www/html:/var/www/html:ro        # Let's Encrypt 웹루트
+    networks:
+      - boo_game_network
+    depends_on:
+      web:
+        condition: service_healthy
+
+volumes:
+  staticfiles:
+  gunicorn_socket:
+
+networks:
+  boo_game_network:
+    driver: bridge 
