@@ -23,10 +23,15 @@ jobs:
         pip install coverage
     - name: Create test .env file
       run: |
-        echo "DJANGO_ENV=test" > .env
-        echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" >> .env
-        echo "DEBUG=True" >> .env
-        echo "ALLOWED_HOSTS=localhost,127.0.0.1" >> .env
+        cat > .env << EOF
+        DJANGO_ENV=test
+        DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+        DEBUG=True
+        ALLOWED_HOSTS=localhost,127.0.0.1
+        DATABASE_URL=sqlite:///db.sqlite3
+        STATIC_ROOT=/var/www/staticfiles
+        STATIC_URL=/static/
+        EOF
     - name: Run tests
       run: |
         python manage.py test
@@ -76,9 +81,10 @@ jobs:
             DJANGO_ENV=production
             DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
             DEBUG=False
-            ALLOWED_HOSTS=boogame.kr,www.boogame.kr,${{ secrets.HOST }}
-            STATIC_ROOT=/var/www/staticfiles
+            ALLOWED_HOSTS=boogame.kr,www.boogame.kr,boogame.kr
+            STATIC_ROOT=/var/www/boo_game/static/
             STATIC_URL=/static/
+            DATABASE_URL=postgres://admin:boogame12!@db:5432/boogame_db
             EOF
             
             # .env 파일 권한 설정 (보안)
@@ -102,6 +108,16 @@ jobs:
               sudo chmod +x /usr/local/bin/docker-compose
             fi
             
+            # 백업 디렉토리 생성
+            BACKUP_DIR="backups/$(date +%Y%m%d_%H%M%S)"
+            mkdir -p "$BACKUP_DIR"
+            
+            # 데이터베이스 백업 (기존 컨테이너가 실행 중인 경우)
+            if docker-compose ps | grep -q "boo_game_db"; then
+              echo "📂 Creating database backup..."
+              docker-compose exec -T db pg_dump -U admin boogame_db > "$BACKUP_DIR/db_backup.sql"
+            fi
+            
             # 기존 컨테이너 중지 및 제거
             docker-compose down --remove-orphans || true
             
@@ -109,11 +125,24 @@ jobs:
             docker system prune -f || true
             
             # 새 컨테이너 빌드 및 시작
-            docker-compose up --build -d
+            if ! docker-compose up --build -d; then
+              echo "❌ Failed to start containers!"
+              if [ -f "$BACKUP_DIR/db_backup.sql" ]; then
+                echo "🔄 Restoring database from backup..."
+                docker-compose up -d db
+                sleep 10
+                docker-compose exec -T db psql -U admin boogame_db < "$BACKUP_DIR/db_backup.sql"
+              fi
+              exit 1
+            fi
             
-            # 컨테이너 시작 대기
-            echo "Waiting for containers to start..."
-            sleep 30
+            # 마이그레이션 실행
+            echo "📊 Running database migrations..."
+            docker-compose exec -T web python manage.py migrate --noinput
+            
+            # 정적 파일 수집
+            echo "📦 Collecting static files..."
+            docker-compose exec -T web python manage.py collectstatic --noinput
             
             # 컨테이너 상태 확인
             docker-compose ps
@@ -134,18 +163,24 @@ jobs:
             sleep 30
             
             # HTTPS 응답 확인
-            if curl -f -s -k https://boogame.kr/ > /dev/null; then
-              echo "✅ HTTPS Health check passed!"
-            elif curl -f -s http://localhost/ > /dev/null; then
-              echo "✅ HTTP Health check passed!"
-            else
-              echo "❌ Health check failed!"
-              echo "=== Debug Information ==="
-              docker-compose ps
-              docker-compose logs --tail=50 web
-              docker-compose logs --tail=50 nginx
-              exit 1
-            fi
+            for i in {1..6}; do
+              echo "Health check attempt $i of 6..."
+              if curl -f -s -k https://boogame.kr/ > /dev/null; then
+                echo "✅ HTTPS Health check passed!"
+                exit 0
+              elif curl -f -s http://localhost/ > /dev/null; then
+                echo "✅ HTTP Health check passed!"
+                exit 0
+              fi
+              sleep 10
+            done
+            
+            echo "❌ Health check failed!"
+            echo "=== Debug Information ==="
+            docker-compose ps
+            docker-compose logs --tail=50 web
+            docker-compose logs --tail=50 nginx
+            exit 1
           '
 
       - name: Notify deployment status
