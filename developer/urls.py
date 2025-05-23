@@ -11,5 +11,4 @@ urlpatterns = [
     path('frontend-guide/', views.frontend_guide, name='frontend-guide'),
     path('erd/', views.erd, name='erd'),
     path('docs/<path:path>', views.render_markdown, name='render_markdown'),
-    path('static-docs/<path:path>', views.render_static_markdown, name='render_static_markdown'),
 ] 

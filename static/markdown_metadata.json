@@ -1,6 +1,6 @@
 {
-  "last_updated": "2025-05-23 10:37:03",
-  "total_files": 12,
+  "last_updated": "2025-05-23 11:07:08",
+  "total_files": 15,
   "categories": {
     "project": {
       "title": "프로젝트 문서",
@@ -125,6 +125,30 @@
           "modified": "2025-05-14",
           "size": "0.0 KB",
           "content_hash": "6d8b3d069cca1356d86036d3eae49768"
+        },
+        {
+          "path": "context/study/jaeyoung.md",
+          "title": "5월 9일 공부내용",
+          "description": "- 인프런 1강 완료",
+          "modified": "2025-05-14",
+          "size": "0.0 KB",
+          "content_hash": "d79231e95406a1b56f87f058bf08fdcc"
+        },
+        {
+          "path": "context/study/jh.md",
+          "title": "jh",
+          "description": "jh 문서",
+          "modified": "2025-05-14",
+          "size": "0.9 KB",
+          "content_hash": "7f45f40ca754440f355e4497b3b40b66"
+        },
+        {
+          "path": "context/study/sumin.md",
+          "title": "sumin",
+          "description": "sumin 문서",
+          "modified": "2025-05-14",
+          "size": "1.0 KB",
+          "content_hash": "88fd520a1a4809653c65d7d1773429d7"
         }
       ]
     }
