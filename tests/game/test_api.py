@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from .models import Player, Score
+from game.models import Player, Score
 import json
 import uuid
 
