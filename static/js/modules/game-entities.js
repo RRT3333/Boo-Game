@@ -6,7 +6,7 @@
 // 플레이어 기본 설정
 export function createPlayer(isMobile, canvasHeight) {
     return {
-        x: isMobile ? 80 : 100, // 모바일에서는 왼쪽에 더 가깝게
+        x: isMobile ? 50 : 100, // 모바일에서는 왼쪽에 더 가깝게 (기존 80에서 50으로 변경)
         y: isMobile ? canvasHeight * 0.4 : 300, // 모바일에서는 화면 상단 40% 위치
         width: 70,
         height: 70,
