@@ -122,7 +122,7 @@
         <h3>Developer 앱 가이드</h3>
         <p>개발자 문서 관리, 마크다운 렌더링, API 문서화 등 Developer 앱 사용에 대한 상세 가이드</p>
     </div>
-    <a href="{% url 'developer:render_markdown' 'context/developer-guide.md' %}" target="_blank" class="btn">가이드 보기</a>
+    <a href="{% url 'developer:render_markdown' 'context/developer-guide.md' %}" class="btn">가이드 보기</a>
 </div>
 
 <!-- 문서 목록 (기존 카드 그리드) -->
@@ -142,7 +142,7 @@
                 <div class="links-list">
                     {% for file in category.files %}
                         <li>
-                            <a href="{% url 'developer:render_markdown' file.path %}" target="_blank">
+                            <a href="{% url 'developer:render_markdown' file.path %}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                     <polyline points="14 2 14 8 20 8"></polyline>
