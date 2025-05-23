@@ -24,12 +24,11 @@ python manage.py scan_markdown_files_new --reset || echo "Markdown scan command 
 # 로컬 개발을 위한 Gunicorn 설정 (더 간단한 설정)
 echo "🦄 Starting Gunicorn (Local Development Mode)..."
 exec gunicorn \
-    --bind 0.0.0.0:8000 \
-    --workers 2 \
+    --bind unix:/tmp/gunicorn.sock \
+    --workers 3 \
     --worker-class sync \
     --timeout 60 \
     --access-logfile - \
     --error-logfile - \
     --log-level debug \
-    --reload \
-    boo_game.wsgi:application 
+    boo_game.wsgi:application
