@@ -105,10 +105,34 @@ body {
     grid-area: content;
     padding: 15px 40px;
     background-color: rgba(255, 255, 255, 0.9);
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     flex: 1;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(76, 175, 80, 0.5) transparent;
+}
+
+/* 웹킷 기반 브라우저용 스크롤바 스타일 */
+.leaderboard-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.leaderboard-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.leaderboard-content::-webkit-scrollbar-thumb {
+    background: rgba(76, 175, 80, 0.3);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.leaderboard-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(76, 175, 80, 0.6);
 }
 
 .leaderboard-content h2 {
@@ -120,15 +144,17 @@ body {
     padding-bottom: 8px;
     font-weight: 700;
     font-family: 'Spoqa Han Sans Neo', sans-serif;
+    flex-shrink: 0; /* 헤더가 축소되지 않도록 */
 }
 
 .leaderboard-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 20px;
-    overflow-y: auto;
     padding: 10px;
-    height: 100%;
+    flex: 1;
+    /* 부드러운 스크롤 애니메이션을 위한 스타일 */
+    transition: all 0.3s ease;
 }
 
 .player-card {
