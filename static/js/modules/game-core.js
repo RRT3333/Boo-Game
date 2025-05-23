@@ -283,7 +283,7 @@ export class Game {
         // 플레이어 위치 초기화
         const container = this.canvas.parentElement;
         if (this.isMobile) {
-            this.player.x = Math.min(container.clientWidth * 0.2, 100);
+            this.player.x = Math.min(container.clientWidth * 0.15, 50);
             this.player.y = container.clientHeight * 0.4;
         } else {
             this.player.x = 100;
