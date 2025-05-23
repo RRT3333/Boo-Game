@@ -1,4 +1,3 @@
-// 커스터마이징 페이지 스크립트 (완전히 새로 작성)
 document.addEventListener('DOMContentLoaded', function() {
     // 커스터마이징 요소
     const outfitOptions = document.getElementById('outfitOptions');

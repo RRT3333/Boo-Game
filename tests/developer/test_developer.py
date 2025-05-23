@@ -10,7 +10,7 @@ from datetime import datetime
 from django.core.management import call_command
 import importlib
 
-from .views import get_markdown_metadata
+from developer.views import get_markdown_metadata
 
 class DeveloperViewsTestCase(TestCase):
     """개발자 앱의 뷰 테스트"""

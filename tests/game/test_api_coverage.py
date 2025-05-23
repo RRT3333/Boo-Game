@@ -1,7 +1,7 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
-from rest_framework.test import APIClient
-from .models import Player, Score, Achievement, PlayerAchievement
+from django.contrib.auth.models import User
+from game.models import Player, Score, Achievement, PlayerAchievement
 import json
 import uuid
 
@@ -9,7 +9,7 @@ class APIViewsTest(TestCase):
     """API 뷰 테스트"""
     
     def setUp(self):
-        self.client = APIClient()
+        self.client = Client()
         self.player = Player.objects.create(
             nickname="API 뷰 테스트 유저",
             outfit="sporty",
@@ -84,7 +84,7 @@ class APIEdgeCasesTest(TestCase):
     """API 엣지 케이스 테스트"""
     
     def setUp(self):
-        self.client = APIClient()
+        self.client = Client()
     
     def test_invalid_methods(self):
         """잘못된 HTTP 메소드 테스트"""
