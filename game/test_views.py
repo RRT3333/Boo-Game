@@ -1,7 +1,7 @@
 from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
-from .models import Player, Score, Achievement, PlayerAchievement
-from .views import (
+from game.models import Player, Score, Achievement, PlayerAchievement
+from game.views import (
     check_achievements, 
     get_customization, 
     save_player, 

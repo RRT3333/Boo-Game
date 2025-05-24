@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from .models import Player, Score, Achievement, PlayerAchievement
-from .views import check_achievements
+from game.models import Player, Score, Achievement, PlayerAchievement
+from game.views import check_achievements
 import json
 import uuid
 

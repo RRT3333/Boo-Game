@@ -4,7 +4,7 @@
  */
 
 import { createObstacle, createItem } from './game-entities.js';
-import { showWarning } from './game-ui.js';
+import { showWarning, showGraduation } from './game-ui.js';
 import { playSound } from './game-audio.js';
 
 // 모바일 환경 감지
@@ -13,7 +13,9 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 // 입력 처리 최적화를 위한 변수
 const INPUT_CONFIG = {
     debounceTime: isMobile ? 80 : 50, // 모바일에서는 더 긴 디바운스
-    lastInputTime: 0
+    lastInputTime: 0,
+    lowPowerInputThrottle: 120, // 저전력 모드에서의 입력 쓰로틀
+    pendingJump: false // 클릭/터치 시 점프 지연 처리 플래그
 };
 
 // 게임 입력 처리
@@ -23,7 +25,16 @@ export function handleInput(player, gameOver, sounds) {
     
     // 입력 디바운싱 - 너무 빠른 연속 입력 방지
     const now = Date.now();
-    if (now - INPUT_CONFIG.lastInputTime < INPUT_CONFIG.debounceTime) {
+    
+    // 저전력 모드 감지 (sounds 객체에서 상태 확인)
+    const isLowPowerMode = sounds && sounds._lowPowerMode;
+    
+    // 저전력 모드에서는 더 긴 디바운스 적용
+    const effectiveDebounceTime = isLowPowerMode ? 
+        INPUT_CONFIG.lowPowerInputThrottle : 
+        INPUT_CONFIG.debounceTime;
+    
+    if (now - INPUT_CONFIG.lastInputTime < effectiveDebounceTime) {
         return false;
     }
     
@@ -31,10 +42,25 @@ export function handleInput(player, gameOver, sounds) {
     player.velocity = player.jumpForce;
     player.isFlying = true; // 점프 시 날개 편 상태로 변경
     
-    // 점프 사운드 재생 (별도 스레드에서 처리되도록)
-    setTimeout(() => {
+    // 모바일 환경에서 성능 최적화를 위한 오디오 처리
+    if (isMobile) {
+        // 비동기 플래그 설정 (메인 스레드 차단 방지)
+        if (!INPUT_CONFIG.pendingJump) {
+            INPUT_CONFIG.pendingJump = true;
+            
+            // 다음 프레임에서 사운드 재생 (메인 스레드 차단 방지)
+            setTimeout(() => {
+                // 저전력 모드에서는 가끔만 사운드 재생
+                if (!isLowPowerMode || Math.random() > 0.5) {
+                    playSound(sounds, 'jump');
+                }
+                INPUT_CONFIG.pendingJump = false;
+            }, 0);
+        }
+    } else {
+        // 데스크톱에서는 일반 재생
         playSound(sounds, 'jump');
-    }, 0);
+    }
     
     // 입력 시간 기록
     INPUT_CONFIG.lastInputTime = now;
@@ -224,6 +250,17 @@ export function startGameTimer(gameState, callbacks) {
             
             // showWarning 함수 직접 호출
             showWarning(gameState.isMobile);
+        }
+        
+        // 게임 시작 후 60초에 졸업 축하 메시지 표시
+        if (gameState.elapsedGameTime === 60) {
+            // 졸업 축하 메시지 표시
+            showGraduation(gameState.isMobile);
+            
+            // 난이도 증가
+            gameState.fSpawnRate = 0.01; // F 확률 0.01로 설정 (테스트용)
+            gameState.aPlusSpawnRate = 0.04; // A+ 확률도 소폭 증가
+            gameState.obstacleSpeedMultiplier *= 1.2; // 장애물 속도 20% 증가
         }
         
         // 스테이지 전환 확인 (10초마다)

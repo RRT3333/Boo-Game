@@ -21,23 +21,49 @@ export function getCookie(name) {
 
 // 게임 결과 저장
 export function saveGameResult(gameState, nickname) {
+    // PLAYER_ID 유효성 검사
+    const playerId = window.PLAYER_ID || '';
+    
+    // 문자열 값 안전 변환 
+    const safeString = (value, defaultValue = '') => {
+        return value !== undefined && value !== null ? String(value) : defaultValue;
+    };
+    
+    // 숫자 값 안전 변환
+    const safeNumber = (value, defaultValue = 0) => {
+        const num = parseInt(value, 10);
+        return !isNaN(num) ? num : defaultValue;
+    };
+    
+    // 게임 데이터 수집 및 유효성 검사
+    const gameData = {
+        player_id: safeString(playerId),
+        score: safeNumber(gameState.score),
+        play_time: safeNumber(gameState.timeLeft),
+        max_stage: safeNumber(gameState.currentStage, 1),
+        items_collected: safeNumber(gameState.itemsCollected),
+        obstacles_avoided: safeNumber(gameState.obstaclesAvoided),
+        max_combo: safeNumber(gameState.maxCombo),
+        nickname: safeString(nickname, '익명의 학생')
+    };
+    
+    console.log('게임 결과 저장:', gameData);
+    
     return fetch('/game/api/save-score/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken')
         },
-        body: JSON.stringify({
-            player_id: window.PLAYER_ID,
-            score: gameState.score,
-            play_time: gameState.timeLeft,
-            max_stage: gameState.currentStage,
-            items_collected: gameState.itemsCollected || 0,
-            obstacles_avoided: gameState.obstaclesAvoided || 0,
-            max_combo: gameState.maxCombo || 0,
-            nickname: nickname
-        })
-    }).catch(error => {
+        body: JSON.stringify(gameData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`서버 응답 오류: ${response.status}`);
+        }
+        return response.json();
+    })
+    .catch(error => {
         console.error('점수 저장 오류:', error);
         return { status: 'error', message: error.message };
     });

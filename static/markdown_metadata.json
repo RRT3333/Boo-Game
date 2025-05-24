@@ -1,6 +1,6 @@
 {
-  "last_updated": "2025-05-09 21:55:12",
-  "total_files": 11,
+  "last_updated": "2025-05-23 11:07:08",
+  "total_files": 15,
   "categories": {
     "project": {
       "title": "프로젝트 문서",
@@ -10,7 +10,7 @@
           "path": "context/project-plan.md",
           "title": "Boo Game - 개발 계획",
           "description": "## 프로젝트 구조",
-          "modified": "2025-05-09",
+          "modified": "2025-05-14",
           "size": "4.3 KB",
           "content_hash": "cfd493f29d93dd48b9933e181f49c478"
         },
@@ -18,7 +18,7 @@
           "path": "context/project-summary.md",
           "title": "Boo Game 프로젝트 요약",
           "description": "## 🚀 프로젝트 개선 사항",
-          "modified": "2025-05-09",
+          "modified": "2025-05-14",
           "size": "5.4 KB",
           "content_hash": "52622cb618535e9f140078eefe9fcdb4"
         },
@@ -26,7 +26,7 @@
           "path": "context/README.md",
           "title": "Context 폴더 문서 가이드라인",
           "description": "이 폴더는 Boo Game 프로젝트의 모든 문서가 저장되는 곳입니다. 모든 팀원은 이 가이드라인에 따라 문서를 관리해주세요.",
-          "modified": "2025-05-09",
+          "modified": "2025-05-14",
           "size": "2.6 KB",
           "content_hash": "dc1a819e9bc544354db9af2757d2f322"
         }
@@ -40,7 +40,7 @@
           "path": "context/developer-guide.md",
           "title": "Boo Game Developer 앱 가이드",
           "description": "이 문서는 Boo Game 프로젝트의 Developer 앱에 대한 설명과 사용 방법을 안내합니다.",
-          "modified": "2025-05-09",
+          "modified": "2025-05-14",
           "size": "6.1 KB",
           "content_hash": "36aac035f50602b9a354c783396d2ab2"
         },
@@ -48,7 +48,7 @@
           "path": "context/deployment-guide.md",
           "title": "Boo Game 배포 가이드",
           "description": "이 문서는 Boo Game을 AWS에 배포하기 위한 단계별 가이드입니다.",
-          "modified": "2025-05-09",
+          "modified": "2025-05-14",
           "size": "14.7 KB",
           "content_hash": "620e129190e924f6ec8e4674f5106ffd"
         },
@@ -56,17 +56,25 @@
           "path": "context/assets-guide.md",
           "title": "Boo Game 에셋 가이드",
           "description": "이 문서는 Boo Game에서 사용되는 에셋의 구조, 형식, 네이밍 컨벤션에 대한 상세한 정보를 제공합니다.",
-          "modified": "2025-05-09",
-          "size": "4.7 KB",
-          "content_hash": "ec3d54f9cb9f41344ef0bb8890537a48"
+          "modified": "2025-05-19",
+          "size": "6.4 KB",
+          "content_hash": "53f466c6ad6f87a9c4f11d1cd6a78baf"
         },
         {
           "path": "context/frontend-guide.md",
           "title": "Boo 게임 프론트엔드 개발 가이드",
           "description": "이 문서는 Boo의 졸업 대모험 웹 게임의 프론트엔드 개발에 참여하는 개발자를 위한 가이드입니다.",
-          "modified": "2025-05-09",
+          "modified": "2025-05-14",
           "size": "6.1 KB",
           "content_hash": "0030bb691d05d034e539ae29235d8d44"
+        },
+        {
+          "path": "context/session-guide.md",
+          "title": "session-guide",
+          "description": "session-guide 문서",
+          "modified": "2025-05-14",
+          "size": "1.6 KB",
+          "content_hash": "dff1961ef13d7dd89499a512c3ee1903"
         }
       ]
     },
@@ -78,7 +86,7 @@
           "path": "context/erd.md",
           "title": "Boo 게임 ERD (Entity Relationship Diagram)",
           "description": "버전: 1.3.0",
-          "modified": "2025-05-09",
+          "modified": "2025-05-14",
           "size": "8.3 KB",
           "content_hash": "b52b5b25b43b662329ad9e242276d089"
         }
@@ -92,7 +100,7 @@
           "path": "context/reports/4주차.md",
           "title": "250404",
           "description": "- fly duck 모티브로 한 게임 컨셉 잡고 테스트 코드 빌드 및 배포",
-          "modified": "2025-04-18",
+          "modified": "2025-05-14",
           "size": "0.3 KB",
           "content_hash": "0585d46383b837d08ddc84bc9f0f3d8d"
         },
@@ -100,7 +108,7 @@
           "path": "context/prd.md",
           "title": "Boo Game - 프로덕트 요구사항 문서 (PRD)",
           "description": "## 🎮 개요",
-          "modified": "2025-05-09",
+          "modified": "2025-05-14",
           "size": "3.2 KB",
           "content_hash": "69337c9071c8c77d8cbd82d5f2c94125"
         }
@@ -114,9 +122,33 @@
           "path": "context/study/dao.md",
           "title": "250507",
           "description": "역할분담 회의 완료",
-          "modified": "2025-05-09",
+          "modified": "2025-05-14",
           "size": "0.0 KB",
           "content_hash": "6d8b3d069cca1356d86036d3eae49768"
+        },
+        {
+          "path": "context/study/jaeyoung.md",
+          "title": "5월 9일 공부내용",
+          "description": "- 인프런 1강 완료",
+          "modified": "2025-05-14",
+          "size": "0.0 KB",
+          "content_hash": "d79231e95406a1b56f87f058bf08fdcc"
+        },
+        {
+          "path": "context/study/jh.md",
+          "title": "jh",
+          "description": "jh 문서",
+          "modified": "2025-05-14",
+          "size": "0.9 KB",
+          "content_hash": "7f45f40ca754440f355e4497b3b40b66"
+        },
+        {
+          "path": "context/study/sumin.md",
+          "title": "sumin",
+          "description": "sumin 문서",
+          "modified": "2025-05-14",
+          "size": "1.0 KB",
+          "content_hash": "88fd520a1a4809653c65d7d1773429d7"
         }
       ]
     }

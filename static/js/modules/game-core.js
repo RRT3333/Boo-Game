@@ -98,6 +98,9 @@ export class Game {
         // 게임 시작
         this.init();
         
+        // 오디오 컨텍스트 즉시 활성화 시도
+        this.activateAudioContext();
+        
         // 전역 참조 저장
         window.gameInstance = this;
     }
@@ -106,11 +109,48 @@ export class Game {
     loadCustomization() {
         const gameAssets = document.getElementById('gameAssets');
         
-        return {
-            outfit: gameAssets ? gameAssets.getAttribute('data-outfit') || 'default' : 'default',
-            hat: gameAssets ? gameAssets.getAttribute('data-hat') || 'none' : 'none',
-            shoes: gameAssets ? gameAssets.getAttribute('data-shoes') || 'default' : 'default'
+        // 기본 커스터마이징 데이터
+        const defaultCustomization = {
+            outfit: 'default',
+            hat: 'none',
+            shoes: 'default'
         };
+        
+        // 유효한 커스터마이징 옵션 목록
+        const validOptions = {
+            outfit: ['default', 'casual', 'formal', 'sporty', 'hoodie'],
+            hat: ['none', 'cap', 'beanie', 'graduation', 'sunglasses'],
+            shoes: ['default', 'sneakers', 'boots', 'sandals', 'dress']
+        };
+        
+        if (!gameAssets) {
+            console.warn('gameAssets 요소를 찾을 수 없습니다. 기본값을 사용합니다.');
+            return defaultCustomization;
+        }
+        
+        // 데이터 속성에서 값을 가져오고 유효성 검사
+        const validateOption = (type, value) => {
+            // 값이 없거나 undefined인 경우 기본값 사용
+            if (!value || value === 'undefined' || value === 'null') {
+                return defaultCustomization[type];
+            }
+            
+            // 소문자로 정규화하여 비교
+            const normalizedValue = value.toLowerCase().trim();
+            
+            // 유효한 옵션 목록에 있는지 확인
+            return validOptions[type].includes(normalizedValue) ? 
+                   normalizedValue : defaultCustomization[type];
+        };
+        
+        // 속성 가져오기 및 유효성 검사
+        const outfit = validateOption('outfit', gameAssets.getAttribute('data-outfit'));
+        const hat = validateOption('hat', gameAssets.getAttribute('data-hat'));
+        const shoes = validateOption('shoes', gameAssets.getAttribute('data-shoes'));
+        
+        console.log(`커스터마이징 로드: outfit=${outfit}, hat=${hat}, shoes=${shoes}`);
+        
+        return { outfit, hat, shoes };
     }
     
     // 이미지 로드
@@ -156,20 +196,37 @@ export class Game {
     
     // 커스터마이징 이미지 로드
     loadCustomizationImages() {
-        if (this.customization.outfit !== 'default') {
+        // 이미지 로드 에러 핸들러
+        const handleImageError = (img, type, value) => {
+            img.onerror = () => {
+                console.warn(`${type} 이미지 로드 실패: ${value}`);
+                // 기본 투명한 이미지 설정
+                img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            };
+        };
+        
+        if (this.customization.outfit && this.customization.outfit !== 'default') {
             // 일반 의상 이미지 로드
             this.images.customization.outfit.src = `/static/assets/customization/${this.customization.outfit}.png`;
+            handleImageError(this.images.customization.outfit, 'outfit', this.customization.outfit);
             
             // 날개 편 상태의 의상 이미지 로드
+            try {
             this.images.customization.flyingOutfit.src = `/static/assets/customization/flying/flying_${this.customization.outfit}.png`;
+                handleImageError(this.images.customization.flyingOutfit, 'flyingOutfit', this.customization.outfit);
+            } catch (e) {
+                console.warn(`날개 편 의상 이미지 로드 실패: ${e.message}`);
+            }
         }
         
-        if (this.customization.hat !== 'none') {
+        if (this.customization.hat && this.customization.hat !== 'none') {
             this.images.customization.hat.src = `/static/assets/customization/${this.customization.hat}.png`;
+            handleImageError(this.images.customization.hat, 'hat', this.customization.hat);
         }
         
-        if (this.customization.shoes !== 'default') {
+        if (this.customization.shoes && this.customization.shoes !== 'default') {
             this.images.customization.shoes.src = `/static/assets/customization/${this.customization.shoes}.png`;
+            handleImageError(this.images.customization.shoes, 'shoes', this.customization.shoes);
         }
     }
     
@@ -206,6 +263,12 @@ export class Game {
             initialized: false
         };
         
+        // 오디오 활성화 시도
+        if (this.sounds && typeof this.sounds.activateAudio === 'function') {
+            console.log('게임 초기화: 오디오 활성화 시도');
+            this.sounds.activateAudio();
+        }
+        
         this.obstacles = [];
         this.items = [];
         this.backgroundX = 0;
@@ -220,7 +283,7 @@ export class Game {
         // 플레이어 위치 초기화
         const container = this.canvas.parentElement;
         if (this.isMobile) {
-            this.player.x = Math.min(container.clientWidth * 0.2, 100);
+            this.player.x = Math.min(container.clientWidth * 0.15, 50);
             this.player.y = container.clientHeight * 0.4;
         } else {
             this.player.x = 100;
@@ -316,9 +379,47 @@ export class Game {
     
     // 게임 루프
     gameLoop(timestamp) {
+        // 첫 프레임 처리
         if (this.lastFrameTime === 0) {
             this.lastFrameTime = timestamp;
+            this.fps = 0;
+            this.frameCount = 0;
+            this.frameTime = 0;
+            this.lastFpsUpdate = timestamp;
+            this.lowPowerModeDetected = false;
+            this.targetFrameTime = 1000 / 60; // 60fps를 목표
+            requestAnimationFrame((timestamp) => this.gameLoop(timestamp));
+            return;
         }
+        
+        // 델타 타임 계산 (초 단위)
+        const delta = (timestamp - this.lastFrameTime) / 1000;
+        this.lastFrameTime = timestamp;
+        
+        // FPS 계산 및 저전력 모드 감지
+        this.frameCount++;
+        this.frameTime += delta;
+        
+        if (timestamp - this.lastFpsUpdate >= 1000) {
+            this.fps = this.frameCount;
+            this.frameCount = 0;
+            this.lastFpsUpdate = timestamp;
+            
+            // 저전력 모드 감지
+            if (this.fps < 30 && !this.lowPowerModeDetected) {
+                this.lowPowerModeDetected = true;
+                console.log('저전력 모드 감지: 게임 성능 최적화 적용');
+                
+                // 저전력 모드에서 오디오 최적화
+                if (this.sounds && this.sounds._initialized) {
+                    this.sounds._lowPowerMode = true;
+                }
+            }
+        }
+        
+        // 최대 델타 타임 제한 (너무 긴 프레임 간격으로 인한 "터널링" 방지)
+        const maxDelta = 0.1; // 최대 100ms (10fps)
+        const clampedDelta = Math.min(delta, maxDelta);
         
         if (!this.gameOver) {
             if (this.countdownState.active) {
@@ -367,6 +468,9 @@ export class Game {
                     }
                 }
                 
+                // 절전 모드에서는 처리를 더 단순화
+                const useSimplifiedPhysics = this.lowPowerModeDetected && this.isMobile;
+                
                 // 게임 상태 업데이트
                 const gameState = {
                     canvas: this.canvas,
@@ -378,12 +482,14 @@ export class Game {
                     currentStage: this.currentStage,
                     stageTransitioning: this.stageTransitioning,
                     stageTransitionProgress: this.stageTransitionProgress,
-                    stageTransitionSpeed: this.stageTransitionSpeed,
-                    fSpawnRate: this.fSpawnRate,
-                    aPlusSpawnRate: this.aPlusSpawnRate
+                    stageTransitionSpeed: this.stageTransitionSpeed * (useSimplifiedPhysics ? 1.5 : 1.0), // 절전 모드에서 전환 속도 증가
+                    fSpawnRate: this.fSpawnRate * (useSimplifiedPhysics ? 0.7 : 1.0), // 절전 모드에서 장애물 생성 감소
+                    aPlusSpawnRate: this.aPlusSpawnRate * (useSimplifiedPhysics ? 0.7 : 1.0), // 절전 모드에서 아이템 생성 감소
+                    obstacleSpeedMultiplier: this.obstacleSpeedMultiplier,
+                    deltaTime: clampedDelta // 델타 타임 전달
                 };
                 
-                // 물리 업데이트
+                // 물리 업데이트 - 프레임 속도 독립적
                 const isGameOver = updateGamePhysics(gameState, {
                     onObstacleCollision: () => {
                         this.health--;
@@ -396,10 +502,16 @@ export class Game {
                     onItemCollected: (item) => {
                         if (item.type === 'A+') {
                             this.score += 100;
-                            playSound(this.sounds, 'aplus');
+                            // 절전 모드에서는 사운드 재생을 최소화
+                            if (!useSimplifiedPhysics) {
+                                playSound(this.sounds, 'aplus');
+                            }
                         } else {
                             this.score += 50;
-                            playSound(this.sounds, 'coin');
+                            // 절전 모드에서는 사운드 재생을 최소화
+                            if (!useSimplifiedPhysics) {
+                                playSound(this.sounds, 'coin');
+                            }
                         }
                         this.itemsCollected++;
                         updateScore(this.score);
@@ -424,9 +536,14 @@ export class Game {
                 this.stageTransitionProgress = gameState.stageTransitionProgress;
                 
                 if (!isGameOver) {
-                    // 새 장애물과 아이템 생성
-                    spawnObstacle(this);
-                    spawnItem(this);
+                    // 절전 모드에서는 장애물과 아이템 생성 빈도 줄임
+                    const shouldSpawn = !useSimplifiedPhysics || Math.random() > 0.3;
+                    
+                    if (shouldSpawn) {
+                        // 새 장애물과 아이템 생성
+                        spawnObstacle(this);
+                        spawnItem(this);
+                    }
                     
                     // 게임 렌더링
                     const renderState = {
@@ -440,17 +557,28 @@ export class Game {
                         currentStage: this.currentStage,
                         stageTransitioning: this.stageTransitioning,
                         stageTransitionProgress: this.stageTransitionProgress,
-                        professorData: this.professorData
+                        professorData: this.professorData,
+                        lowPowerMode: this.lowPowerModeDetected
                     };
                     
                     drawGame(this.ctx, renderState, this.images);
                 }
             }
             
-            requestAnimationFrame((timestamp) => this.gameLoop(timestamp));
+            // 저전력 모드에서는 프레임 레이트 제한
+            if (this.lowPowerModeDetected && this.isMobile) {
+                // 30fps로 제한
+                const elapsed = timestamp - this.lastFrameTime;
+                const targetDelay = 1000 / 30; // 30fps
+                const delay = Math.max(0, targetDelay - elapsed);
+                
+                setTimeout(() => {
+                    requestAnimationFrame((timestamp) => this.gameLoop(timestamp));
+                }, delay);
+            } else {
+                requestAnimationFrame((timestamp) => this.gameLoop(timestamp));
+            }
         }
-        
-        this.lastFrameTime = timestamp;
     }
     
     // 게임 타이머 시작
@@ -625,5 +753,85 @@ export class Game {
             // 화면을 강제로 다시 그리기
             window.dispatchEvent(new Event('resize'));
         }, 200);
+    }
+    
+    // 오디오 컨텍스트 활성화
+    activateAudioContext() {
+        try {
+            // 이미 활성화 플래그가 설정되어 있으면 건너뜀
+            if (window.audioActivated) {
+                console.log('오디오 컨텍스트가 이미 활성화되어 있습니다.');
+                return;
+            }
+            
+            // 전역 활성화 플래그 설정
+            window.audioActivated = true;
+            
+            // 무음 오디오를 재생하여 오디오 컨텍스트 활성화 시도
+            const silentAudio = new Audio();
+            silentAudio.volume = 0.01;
+            
+            // Promise 처리를 통한 오류 관리
+            silentAudio.play().then(() => {
+                console.log('오디오 컨텍스트 활성화 성공');
+                
+                // 게임 오디오 시스템 활성화
+                if (this.sounds && typeof this.sounds.activateAudio === 'function') {
+                    this.sounds.activateAudio();
+                }
+            }).catch(() => {
+                console.log('첫 오디오 재생 시도 실패: 사용자 상호작용 필요');
+                
+                // 모바일 환경에서의 특별 처리
+                if (this.isMobile) {
+                    // 터치 이벤트 감지 시 오디오 활성화
+                    const touchHandler = () => {
+                        console.log('터치 이벤트 감지됨: 오디오 컨텍스트 활성화 시도');
+                        
+                        // 오디오 객체 생성 및 재생
+                        const audio = new Audio();
+                        audio.volume = 0.01;
+                        audio.play().then(() => {
+                            console.log('오디오 컨텍스트 활성화 성공 (터치 이벤트 후)');
+                            
+                            // 게임 오디오 시스템 활성화
+                            if (this.sounds && typeof this.sounds.activateAudio === 'function') {
+                                this.sounds.activateAudio();
+                            }
+                        }).catch(() => {});
+                        
+                        // 이벤트 핸들러 제거
+                        document.removeEventListener('touchstart', touchHandler);
+                    };
+                    
+                    // 터치 이벤트 감지
+                    document.addEventListener('touchstart', touchHandler, { once: true, passive: true });
+                } else {
+                    // 사용자가 키보드를 누르면 즉시 오디오 활성화
+                    const keyHandler = () => {
+                        console.log('키보드 이벤트 감지됨: 오디오 컨텍스트 활성화 시도');
+                        
+                        const audio = new Audio();
+                        audio.volume = 0.01;
+                        audio.play().then(() => {
+                            console.log('오디오 컨텍스트 활성화 성공 (키보드 이벤트 후)');
+                            
+                            // 게임 오디오 시스템 활성화
+                            if (this.sounds && typeof this.sounds.activateAudio === 'function') {
+                                this.sounds.activateAudio();
+                            }
+                        }).catch(() => {});
+                        
+                        // 이벤트 핸들러 제거
+                        document.removeEventListener('keydown', keyHandler);
+                    };
+                    
+                    // 키보드 이벤트 감지
+                    document.addEventListener('keydown', keyHandler, { once: true });
+                }
+            });
+        } catch (e) {
+            console.warn('오디오 컨텍스트 활성화 실패:', e);
+        }
     }
 } 

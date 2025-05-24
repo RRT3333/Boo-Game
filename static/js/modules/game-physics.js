@@ -7,22 +7,32 @@
  * 2. 속도와 변위 관계 - 속도에 따른 위치 변화 (Δx = vΔt)
  * 3. 충돌 감지 - 두 물체의 경계 상자(Bounding Box) 교차 여부 확인
  * 4. 상대 속도 - 배경과 물체의 상대적인 움직임
+ * 5. 시간 기반 물리 - 프레임 속도와 무관한 일관된 물리 구현
  */
 
 import { checkCollision } from './game-entities.js';
 
+// 기본 물리 상수
+const BASE_PHYSICS = {
+    gravity: 0.6,           // 기본 중력 가속도
+    jumpForce: -12,         // 기본 점프력
+    baseObstacleSpeed: 5,   // 기본 장애물 속도
+    baseItemSpeed: 3,       // 기본 아이템 속도
+    backgroundSpeed: 2      // 기본 배경 속도
+};
+
 // 플레이어 물리 업데이트
-export function updatePlayerPhysics(player, canvas) {
+export function updatePlayerPhysics(player, canvas, deltaTime = 1/60) {
+    // 시간 기반 물리: deltaTime을 사용하여 프레임 속도와 독립적인 물리 구현
+    const timeScale = deltaTime * 60; // 60fps 기준으로 정규화
+    
     // 중력 가속도에 의한 속도 변화: v = v0 + at
-    // player.gravity는 가속도 a, Δt는 프레임 간격(1로 가정)
-    player.velocity += player.gravity;
+    player.velocity += player.gravity * timeScale;
     
     // 속도에 따른 위치 변화: Δy = vΔt
-    // Δt는 프레임 간격(1로 가정)
-    player.y += player.velocity;
+    player.y += player.velocity * timeScale;
     
     // 운동 방향에 따른 상태 변화
-    // 음의 속도는 상승, 양의 속도는 하강을 의미
     player.isFlying = player.velocity < 0;
     
     let gameOver = false;
@@ -43,12 +53,16 @@ export function updatePlayerPhysics(player, canvas) {
 }
 
 // 장애물 업데이트
-export function updateObstacles(obstacles, player, speed, healthCallback) {
+export function updateObstacles(obstacles, player, speed, healthCallback, deltaTime = 1/60) {
     let collisionDetected = false;
+    
+    // 시간 기반 이동: 속도 * 경과 시간
+    const timeScale = deltaTime * 60; // 60fps 기준으로 정규화
+    const scaledSpeed = speed * timeScale;
     
     // 등속 운동: x = x0 - vt (왼쪽으로 이동하므로 음의 속도)
     return obstacles.filter(obstacle => {
-        obstacle.x -= speed;
+        obstacle.x -= scaledSpeed;
         
         // AABB(Axis-Aligned Bounding Box) 충돌 감지
         if (checkCollision(player, obstacle)) {
@@ -62,10 +76,14 @@ export function updateObstacles(obstacles, player, speed, healthCallback) {
 }
 
 // 아이템 업데이트
-export function updateItems(items, player, speed, scoreCallback) {
+export function updateItems(items, player, speed, scoreCallback, deltaTime = 1/60) {
+    // 시간 기반 이동: 속도 * 경과 시간
+    const timeScale = deltaTime * 60; // 60fps 기준으로 정규화
+    const scaledSpeed = speed * timeScale;
+    
     // 장애물과 동일한 등속 운동 원리 적용
     return items.filter(item => {
-        item.x -= speed;
+        item.x -= scaledSpeed;
         
         if (checkCollision(player, item)) {
             scoreCallback(item);
@@ -77,12 +95,15 @@ export function updateItems(items, player, speed, scoreCallback) {
 }
 
 // 스테이지 전환 업데이트
-export function updateStageTransition(state) {
+export function updateStageTransition(state, deltaTime = 1/60) {
+    // 시간 기반 전환: 속도 * 경과 시간
+    const timeScale = deltaTime * 60; // 60fps 기준으로 정규화
+    
     // 선형 보간(Linear Interpolation)을 통한 부드러운 전환
     // progress = current + (target - current) * speed
     if (!state.stageTransitioning) return false;
     
-    state.stageTransitionProgress += state.stageTransitionSpeed;
+    state.stageTransitionProgress += state.stageTransitionSpeed * timeScale;
     
     if (state.stageTransitionProgress >= 100) {
         state.stageTransitioning = false;
@@ -106,19 +127,23 @@ export function updateGamePhysics(gameState, callbacks) {
         onStageChanged, onGameOver
     } = callbacks;
     
-    // 시차 스크롤링(Parallax Scrolling): 상대 운동 원리 적용
-    gameState.backgroundX -= 2;
+    // 델타 타임 처리 (기본값 = 1/60초)
+    const deltaTime = gameState.deltaTime || 1/60;
+    
+    // 시간 기반 스크롤링(Parallax Scrolling): 시간에 따른 상대 운동
+    const timeScale = deltaTime * 60; // 60fps 기준으로 정규화
+    gameState.backgroundX -= BASE_PHYSICS.backgroundSpeed * timeScale;
     
     // 스테이지 전환 상태 업데이트
     if (gameState.stageTransitioning) {
-        const stageCompleted = updateStageTransition(gameState);
+        const stageCompleted = updateStageTransition(gameState, deltaTime);
         if (stageCompleted && onStageChanged) {
             onStageChanged(gameState.currentStage);
         }
     }
     
     // 플레이어 물리 상태 업데이트
-    const isGameOver = updatePlayerPhysics(gameState.player, gameState.canvas);
+    const isGameOver = updatePlayerPhysics(gameState.player, gameState.canvas, deltaTime);
     if (isGameOver) {
         if (onGameOver) onGameOver();
         return true;
@@ -130,14 +155,15 @@ export function updateGamePhysics(gameState, callbacks) {
     const obstacleSpeed = baseObstacleSpeed * (gameState.obstacleSpeedMultiplier || 1.0);
     const itemSpeed = gameState.isMobile ? 4 : 3;
     
-    // 장애물과 아이템의 물리 상태 업데이트
+    // 장애물과 아이템의 물리 상태 업데이트 - 델타 타임 전달
     gameState.obstacles = updateObstacles(
         gameState.obstacles, 
         gameState.player, 
         obstacleSpeed, 
         () => {
             if (onObstacleCollision) onObstacleCollision();
-        }
+        },
+        deltaTime
     );
     
     gameState.items = updateItems(
@@ -146,7 +172,8 @@ export function updateGamePhysics(gameState, callbacks) {
         itemSpeed,
         (item) => {
             if (onItemCollected) onItemCollected(item);
-        }
+        },
+        deltaTime
     );
     
     return false;

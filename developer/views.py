@@ -87,50 +87,6 @@ def render_markdown(request, path):
         'docs_hub_url': docs_hub_url
     })
 
-def render_static_markdown(request, path):
-    """staticfiles 디렉터리의 마크다운 파일을 HTML로 렌더링합니다."""
-    # 상대 경로 구성 (staticfiles 경로 사용)
-    file_path = os.path.join(settings.STATIC_ROOT, path)
-    
-    # 파일이 존재하는지 확인
-    if not os.path.exists(file_path) or not os.path.isfile(file_path):
-        # STATIC_ROOT에 없으면 STATICFILES_DIRS에서 찾기
-        for static_dir in settings.STATICFILES_DIRS:
-            alt_file_path = os.path.join(static_dir, path)
-            if os.path.exists(alt_file_path) and os.path.isfile(alt_file_path):
-                file_path = alt_file_path
-                break
-        else:
-            raise Http404(f"'{path}' 파일을 찾을 수 없습니다.")
-    
-    # 파일 확장자 확인
-    if not file_path.endswith('.md'):
-        raise Http404("마크다운 파일만 렌더링할 수 있습니다.")
-    
-    # 파일 읽기
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            md_content = f.read()
-    except Exception as e:
-        return HttpResponse(f"파일을 읽는 중 오류가 발생했습니다: {str(e)}", status=500)
-    
-    # 마크다운을 HTML로 변환
-    html_content = markdown.markdown(
-        md_content,
-        extensions=['extra', 'codehilite', 'toc', 'tables', 'fenced_code']
-    )
-    
-    # 문서 허브 URL 생성
-    docs_hub_url = reverse('developer:docs-hub')
-    
-    # 스타일이 적용된 HTML 응답 생성
-    return render(request, 'developer/markdown-viewer.html', {
-        'html_content': html_content,
-        'file_path': path,
-        'file_name': os.path.basename(file_path),
-        'docs_hub_url': docs_hub_url
-    })
-
 def get_markdown_metadata():
     """마크다운 메타데이터 파일을 읽어 반환합니다."""
     metadata_file = os.path.join(settings.BASE_DIR, 'static/markdown_metadata.json')

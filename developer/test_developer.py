@@ -10,7 +10,7 @@ from datetime import datetime
 from django.core.management import call_command
 import importlib
 
-from .views import get_markdown_metadata
+from developer.views import get_markdown_metadata
 
 class DeveloperViewsTestCase(TestCase):
     """개발자 앱의 뷰 테스트"""
@@ -145,9 +145,3 @@ class ManagementCommandsTestCase(TestCase):
         from django.core.management import get_commands
         commands = get_commands()
         self.assertIn('scan_markdown_files', commands)
-        
-    def test_create_md_symlinks_command_exists(self):
-        """create_md_symlinks 명령어가 존재하는지 테스트"""
-        from django.core.management import get_commands
-        commands = get_commands()
-        self.assertIn('create_md_symlinks', commands)
