@@ -245,8 +245,39 @@ pre code {
     text-align: center;
 }
 
+/* 리스트 스타일 수정 - 동그라미가 컨테이너 밖으로 나가는 문제 해결 */
+.section ul, .section ol,
+.notes ul, .notes ol,
+section ul, section ol {
+    list-style-position: inside;
+    padding-left: 0;
+    margin-left: 0;
+}
+
+.section ul li, .section ol li,
+.notes ul li, .notes ol li,
+section ul li, section ol li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+/* 특별한 배경색이 있는 컨테이너의 리스트 */
+div[style*="background-color"] ul,
+div[style*="background-color"] ol {
+    list-style-position: inside;
+    padding-left: 0;
+    margin-left: 0;
+}
+
+div[style*="background-color"] ul li,
+div[style*="background-color"] ol li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
 @media (max-width: 768px) {
     .card-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
     }
 } 

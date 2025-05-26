@@ -79,6 +79,8 @@
         color: #787878;
         font-style: italic;
     }
+
+
 </style>
 {% endblock %}
 
@@ -88,15 +90,15 @@
     <p>이 가이드는 Boo Game 프론트엔드 개발에 참여하는 개발자를 위한 문서입니다. 프로젝트 구조와 주요 컴포넌트, 개발 방법에 대한 정보를 담고 있습니다.</p>
     
     <div style="background-color: rgba(255, 215, 0, 0.1); border-left: 4px solid #FFD700; padding: 1rem; margin: 1rem 0; border-radius: 5px;">
-        <h4 style="color: #FFD700; margin-top: 0;">🎮 Boo Game 프론트엔드란?</h4>
-        <p>Boo Game은 HTML5 Canvas 기술을 사용한 웹 기반 게임입니다. 프론트엔드란 사용자가 직접 보고 상호작용하는 게임의 시각적 부분과 사용자 인터페이스를 의미합니다.</p>
+        <h4 style="color: #FFD700; margin-top: 0;">Boo Game 프론트엔드</h4>
+        <p>Boo Game은 HTML5 Canvas 기술을 사용한 웹 기반 게임입니다. 프론트엔드는 사용자가 직접 보고 상호작용하는 게임의 시각적 부분과 사용자 인터페이스를 담당합니다.</p>
         
         <h5 style="color: #e0e0e0;">주요 기술 스택</h5>
         <ul>
-            <li><strong>HTML5 Canvas</strong>: 웹 페이지에 게임 그래픽을 그리는 데 사용되는 HTML 요소입니다.</li>
-            <li><strong>JavaScript</strong>: 게임 로직을 구현하는 프로그래밍 언어입니다.</li>
-            <li><strong>CSS</strong>: 게임 UI의 스타일과 레이아웃을 담당합니다.</li>
-            <li><strong>Django Templates</strong>: 서버에서 데이터를 받아 HTML 페이지를 동적으로 생성합니다.</li>
+            <li>HTML5 Canvas: 웹 페이지에 게임 그래픽을 그리는 데 사용되는 HTML 요소입니다.</li>
+            <li>JavaScript: 게임 로직을 구현하는 프로그래밍 언어입니다.</li>
+            <li>CSS: 게임 UI의 스타일과 레이아웃을 담당합니다.</li>
+            <li>Django Templates: 서버에서 데이터를 받아 HTML 페이지를 동적으로 생성합니다.</li>
         </ul>
     </div>
     
@@ -113,12 +115,12 @@
     <p>프론트엔드 코드는 다음과 같은 구조로 구성되어 있습니다:</p>
     
     <div style="background-color: rgba(0, 221, 255, 0.1); border: 1px solid rgba(0, 221, 255, 0.3); padding: 1rem; margin-bottom: 1rem; border-radius: 5px;">
-        <h4 style="color: #00DDFF; margin-top: 0;">📂 폴더 구조 이해하기</h4>
+        <h4 style="color: #00DDFF; margin-top: 0;">폴더 구조 이해하기</h4>
         <p>프로젝트의 폴더 구조는 파일을 목적에 따라 체계적으로 분류합니다:</p>
         <ul>
-            <li><strong>css/</strong>: 웹 페이지의 스타일을 담당하는 CSS 파일들이 있습니다.</li>
-            <li><strong>js/</strong>: 게임 로직과 사용자 상호작용을 담당하는 JavaScript 파일들이 있습니다.</li>
-            <li><strong>assets/</strong>: 게임에 사용되는 이미지, 사운드 등의 미디어 파일이 있습니다.</li>
+            <li>css/: 웹 페이지의 스타일을 담당하는 CSS 파일들이 있습니다.</li>
+            <li>js/: 게임 로직과 사용자 상호작용을 담당하는 JavaScript 파일들이 있습니다.</li>
+            <li>assets/: 게임에 사용되는 이미지, 사운드 등의 미디어 파일이 있습니다.</li>
         </ul>
     </div>
     
@@ -153,31 +155,31 @@
     <p>Boo Game의 게임 엔진은 HTML5 Canvas를 사용하여 구현되었습니다. <span class="highlight">game.js</span> 파일에서 주요 게임 로직을 찾을 수 있습니다.</p>
     
     <div style="background-color: rgba(255, 215, 0, 0.1); border-left: 4px solid #FFD700; padding: 1rem; margin: 1rem 0; border-radius: 5px;">
-        <h4 style="color: #FFD700; margin-top: 0;">🕹️ 게임 엔진이란?</h4>
+        <h4 style="color: #FFD700; margin-top: 0;">게임 엔진이란</h4>
         <p>게임 엔진은 게임의 핵심 기능을 제공하는 소프트웨어 프레임워크입니다. Boo Game에서는 다음과 같은 주요 개념이 사용됩니다:</p>
         
         <h5 style="color: #e0e0e0;">핵심 개념</h5>
         <ul>
-            <li><strong>게임 루프</strong>: 게임이 계속 실행되면서 상태를 업데이트하고 화면을 그리는 반복적인 과정입니다.</li>
-            <li><strong>캔버스</strong>: 게임 요소를 그리는 HTML5 요소로, 컨텍스트(ctx)를 통해 조작합니다.</li>
-            <li><strong>스프라이트</strong>: 게임에서 보이는 캐릭터나 객체의 이미지입니다.</li>
-            <li><strong>충돌 감지</strong>: 게임 객체 간의 충돌을 감지하는 기능입니다.</li>
-            <li><strong>애니메이션</strong>: 캐릭터나 객체의 움직임을 표현하는 기법입니다.</li>
+            <li>게임 루프: 게임이 계속 실행되면서 상태를 업데이트하고 화면을 그리는 반복적인 과정입니다.</li>
+            <li>캔버스: 게임 요소를 그리는 HTML5 요소로, 컨텍스트(ctx)를 통해 조작합니다.</li>
+            <li>스프라이트: 게임에서 보이는 캐릭터나 객체의 이미지입니다.</li>
+            <li>충돌 감지: 게임 객체 간의 충돌을 감지하는 기능입니다.</li>
+            <li>애니메이션: 캐릭터나 객체의 움직임을 표현하는 기법입니다.</li>
         </ul>
         
         <div style="margin-top: 1rem; padding: 0.5rem; background-color: rgba(0,0,0,0.2); border-radius: 5px;">
-            <span style="font-weight: bold; color: #FFD700;">💡 TIP:</span> requestAnimationFrame() 함수는 브라우저가 다음 리페인트 전에 함수를 호출하도록 예약하여 부드러운 애니메이션을 만듭니다.
+            <span style="color: #FFD700;">참고:</span> requestAnimationFrame() 함수는 브라우저가 다음 리페인트 전에 함수를 호출하도록 예약하여 부드러운 애니메이션을 만듭니다.
         </div>
     </div>
     
     <p>주요 클래스 및 객체:</p>
     <ul>
-        <li><strong>Game</strong>: 전체 게임을 관리하는 클래스</li>
-        <li><strong>Player</strong>: 플레이어 캐릭터를 관리하는 클래스</li>
-        <li><strong>Obstacle</strong>: 장애물을 관리하는 클래스</li>
-        <li><strong>Item</strong>: 아이템을 관리하는 클래스</li>
-        <li><strong>Background</strong>: 게임 배경을 관리하는 클래스</li>
-        <li><strong>Score</strong>: 점수를 관리하는 클래스</li>
+        <li>Game: 전체 게임을 관리하는 클래스</li>
+        <li>Player: 플레이어 캐릭터를 관리하는 클래스</li>
+        <li>Obstacle: 장애물을 관리하는 클래스</li>
+        <li>Item: 아이템을 관리하는 클래스</li>
+        <li>Background: 게임 배경을 관리하는 클래스</li>
+        <li>Score: 점수를 관리하는 클래스</li>
     </ul>
     
     <p>게임 루프 예시:</p>
@@ -274,17 +276,17 @@
     
     <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; margin: 1.5rem 0;">
         <div style="flex: 1; min-width: 300px; background-color: rgba(0, 0, 0, 0.2); padding: 1.5rem; border-radius: 8px;">
-            <h4 style="color: #00DDFF; margin-top: 0;">🎨 색상</h4>
+            <h4 style="color: #00DDFF; margin-top: 0;">색상</h4>
             <p>Boo Game에서 사용하는 주요 색상:</p>
             <ul>
-                <li><strong>청록색(#00DDFF)</strong>: 게임의 주요 액션을 강조</li>
-                <li><strong>골드(#FFD700)</strong>: 중요한 정보나 성과를 강조</li>
-                <li><strong>어두운 청색(#1a1a2e)</strong>: 게임의 몰입감을 높이는 배경색으로 사용</li>
+                <li>청록색(#00DDFF): 게임의 주요 액션을 강조</li>
+                <li>골드(#FFD700): 중요한 정보나 성과를 강조</li>
+                <li>어두운 청색(#1a1a2e): 게임의 몰입감을 높이는 배경색으로 사용</li>
             </ul>
         </div>
         
         <div style="flex: 1; min-width: 300px; background-color: rgba(0, 0, 0, 0.2); padding: 1.5rem; border-radius: 8px;">
-            <h4 style="color: #00DDFF; margin-top: 0;">📱 디자인</h4>
+            <h4 style="color: #00DDFF; margin-top: 0;">디자인</h4>
             <p>모든 UI 요소는 다양한 화면 크기에 적응해야 합니다:</p>
             <ul>
                 <li>모바일: 터치 친화적인 큰 버튼과 간소화된 UI</li>
@@ -296,9 +298,9 @@
     </div>
     
     <ul>
-        <li><strong>폰트</strong>: 'Noto Sans KR'을 기본 폰트로 사용</li>
-        <li><strong>버튼</strong>: 둥근 테두리(border-radius: 5px)와 청록색 배경</li>
-        <li><strong>카드</strong>: 어두운 배경(#222)에 청록색 강조</li>
+        <li>폰트: 'Noto Sans KR'을 기본 폰트로 사용</li>
+        <li>버튼: 둥근 테두리(border-radius: 5px)와 청록색 배경</li>
+        <li>카드: 어두운 배경(#222)에 청록색 강조</li>
     </ul>
     
     <p>모든 UI는 반응형이어야 하며 모바일 장치에서도 제대로 작동해야 합니다.</p>
@@ -309,15 +311,15 @@
     <p>프론트엔드는 다음과 같은 API 엔드포인트와 통신합니다:</p>
     
     <div style="background-color: rgba(0, 221, 255, 0.1); border: 1px solid rgba(0, 221, 255, 0.3); padding: 1rem; margin-bottom: 1rem; border-radius: 5px;">
-        <h4 style="color: #00DDFF; margin-top: 0;">🔄 API란 무엇인가요?</h4>
+        <h4 style="color: #00DDFF; margin-top: 0;">API란 무엇인가</h4>
         <p>API(Application Programming Interface)는 프론트엔드(클라이언트)와 백엔드(서버) 간의 통신 방법을 정의합니다.</p>
         
         <h5 style="color: #e0e0e0;">API 작동 방식</h5>
         <ol>
-            <li><strong>요청(Request)</strong>: 프론트엔드에서 특정 URL로 데이터를 요청합니다.</li>
-            <li><strong>처리(Process)</strong>: 서버는 요청을 처리하고 데이터를 준비합니다.</li>
-            <li><strong>응답(Response)</strong>: 서버는 요청된 데이터를 JSON 형식으로 응답합니다.</li>
-            <li><strong>표시(Display)</strong>: 프론트엔드는 받은 데이터를 사용자에게 표시합니다.</li>
+            <li>요청(Request): 프론트엔드에서 특정 URL로 데이터를 요청합니다.</li>
+            <li>처리(Process): 서버는 요청을 처리하고 데이터를 준비합니다.</li>
+            <li>응답(Response): 서버는 요청된 데이터를 JSON 형식으로 응답합니다.</li>
+            <li>표시(Display): 프론트엔드는 받은 데이터를 사용자에게 표시합니다.</li>
         </ol>
         
         <div style="margin-top: 1rem; padding: 0.5rem; background-color: rgba(0,0,0,0.2); border-radius: 5px; font-family: monospace; font-size: 0.9rem;">
@@ -358,34 +360,34 @@ POST /game/api/customize/
     
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
         <div style="background-color: #222; padding: 1.5rem; border-radius: 8px;">
-            <h4 style="color: #00DDFF;">🔍 브라우저 개발자 도구</h4>
+            <h4 style="color: #00DDFF;">브라우저 개발자 도구</h4>
             <p>F12 키를 눌러 Chrome DevTools나 Firefox Developer Tools를 엽니다:</p>
             <ul>
-                <li><strong>Console</strong>: JavaScript 오류 및 로그 확인</li>
-                <li><strong>Elements</strong>: HTML/CSS 구조 검사 및 수정</li>
-                <li><strong>Network</strong>: API 요청 및 응답 모니터링</li>
-                <li><strong>Sources</strong>: 코드 중단점 설정 및 디버깅</li>
+                <li>Console: JavaScript 오류 및 로그 확인</li>
+                <li>Elements: HTML/CSS 구조 검사 및 수정</li>
+                <li>Network: API 요청 및 응답 모니터링</li>
+                <li>Sources: 코드 중단점 설정 및 디버깅</li>
             </ul>
         </div>
         
         <div style="background-color: #222; padding: 1.5rem; border-radius: 8px;">
-            <h4 style="color: #00DDFF;">⚠️ 일반적인 문제</h4>
+            <h4 style="color: #00DDFF;">일반적인 문제</h4>
             <ul>
-                <li><strong>캔버스가 표시되지 않음</strong>: canvas ID 확인, CSS 스타일 점검</li>
-                <li><strong>이미지 로딩 실패</strong>: 경로 확인, 로딩 완료 이벤트 처리</li>
-                <li><strong>API 연결 오류</strong>: 네트워크 요청 확인, CORS 문제 해결</li>
-                <li><strong>성능 저하</strong>: 메모리 누수 확인, 렌더링 최적화</li>
+                <li>캔버스가 표시되지 않음: canvas ID 확인, CSS 스타일 점검</li>
+                <li>이미지 로딩 실패: 경로 확인, 로딩 완료 이벤트 처리</li>
+                <li>API 연결 오류: 네트워크 요청 확인, CORS 문제 해결</li>
+                <li>성능 저하: 메모리 누수 확인, 렌더링 최적화</li>
             </ul>
         </div>
     </div>
     
     <div style="background-color: rgba(255, 215, 0, 0.1); border-left: 4px solid #FFD700; padding: 1rem; margin-top: 1.5rem; border-radius: 5px;">
-        <h4 style="color: #FFD700; margin-top: 0;">💡 디버깅 팁</h4>
+        <h4 style="color: #FFD700; margin-top: 0;">디버깅 팁</h4>
         <ul>
-            <li><strong>console.log() 사용</strong>: 변수 값과 코드 실행 흐름을 확인합니다.</li>
-            <li><strong>게임 상태를 시각화</strong>: 디버깅 모드에서 객체의 위치, 속도, 충돌 범위를 표시합니다.</li>
-            <li><strong>성능 모니터링</strong>: requestAnimationFrame의 프레임 속도를 측정하여 성능 문제를 감지합니다.</li>
-            <li><strong>코드 분리</strong>: 기능별로 코드를 모듈화하여 문제 영역을 쉽게 식별합니다.</li>
+            <li>console.log() 사용: 변수 값과 코드 실행 흐름을 확인합니다.</li>
+            <li>게임 상태를 시각화: 디버깅 모드에서 객체의 위치, 속도, 충돌 범위를 표시합니다.</li>
+            <li>성능 모니터링: requestAnimationFrame의 프레임 속도를 측정하여 성능 문제를 감지합니다.</li>
+            <li>코드 분리: 기능별로 코드를 모듈화하여 문제 영역을 쉽게 식별합니다.</li>
         </ul>
     </div>
 </div>
