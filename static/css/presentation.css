@@ -106,36 +106,11 @@ body {
     grid-area: content;
     padding: 15px 40px;
     background-color: rgba(255, 255, 255, 0.9);
-    overflow-y: auto;
-    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     flex: 1;
-    scroll-behavior: smooth;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(76, 175, 80, 0.5) transparent;
-    position: relative;
-    min-height: 0; /* 중요: Grid 레이아웃에서 스크롤을 위해 필요 */
-}
-
-/* 웹킷 기반 브라우저용 스크롤바 스타일 */
-.leaderboard-content::-webkit-scrollbar {
-    width: 8px;
-}
-
-.leaderboard-content::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-}
-
-.leaderboard-content::-webkit-scrollbar-thumb {
-    background: rgba(76, 175, 80, 0.3);
-    border-radius: 4px;
-    transition: background 0.3s ease;
-}
-
-.leaderboard-content::-webkit-scrollbar-thumb:hover {
-    background: rgba(76, 175, 80, 0.6);
+    min-height: 0; /* Grid 레이아웃에서 필요 */
+    overflow: hidden; /* 스크롤은 내부 컨테이너에서 처리 */
 }
 
 .leaderboard-content h2 {
@@ -147,7 +122,38 @@ body {
     padding-bottom: 8px;
     font-weight: 700;
     font-family: 'Spoqa Han Sans Neo', sans-serif;
-    flex-shrink: 0; /* 헤더가 축소되지 않도록 */
+    flex-shrink: 0;
+}
+
+.leaderboard-scroll-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(76, 175, 80, 0.5) transparent;
+    min-height: 0; /* Flexbox에서 스크롤을 위해 필요 */
+    position: relative;
+}
+
+/* 웹킷 기반 브라우저용 스크롤바 스타일 */
+.leaderboard-scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.leaderboard-scroll-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.leaderboard-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(76, 175, 80, 0.3);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.leaderboard-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(76, 175, 80, 0.6);
 }
 
 .leaderboard-grid {
@@ -156,7 +162,6 @@ body {
     gap: 20px;
     padding: 10px;
     margin: 10px 0;
-    min-height: min-content;
     height: auto;
 }
 

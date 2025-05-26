@@ -33,18 +33,14 @@ document.addEventListener('DOMContentLoaded', function() {
     function performAutoScroll() {
         if (!isAutoScrollEnabled || isScrolling) return;
         
-        const leaderboardContent = document.querySelector('.leaderboard-content');
+        const scrollContainer = document.querySelector('.leaderboard-scroll-container');
         const leaderboardGrid = document.querySelector('.leaderboard-grid');
         
-        if (!leaderboardContent || !leaderboardGrid) return;
+        if (!scrollContainer || !leaderboardGrid) return;
         
-        // 실제 콘텐츠 높이 계산 (마진 포함)
-        const gridStyle = window.getComputedStyle(leaderboardGrid);
-        const gridMarginTop = parseInt(gridStyle.marginTop) || 0;
-        const gridMarginBottom = parseInt(gridStyle.marginBottom) || 0;
-        const contentHeight = leaderboardGrid.scrollHeight + gridMarginTop + gridMarginBottom;
-        const visibleHeight = leaderboardContent.clientHeight;
-        const currentScroll = leaderboardContent.scrollTop;
+        const contentHeight = leaderboardGrid.scrollHeight;
+        const visibleHeight = scrollContainer.clientHeight;
+        const currentScroll = scrollContainer.scrollTop;
         const maxScroll = Math.max(0, contentHeight - visibleHeight);
         
         // 스크롤할 필요가 없는 경우 (콘텐츠가 화면에 다 보이는 경우)
@@ -64,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
             targetPosition = 0;
         }
         
-        smoothScrollTo(leaderboardContent, targetPosition, SCROLL_DURATION, () => {
+        smoothScrollTo(scrollContainer, targetPosition, SCROLL_DURATION, () => {
             currentScrollPosition = targetPosition;
             setTimeout(() => {
                 isScrolling = false;
@@ -128,8 +124,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!leaderboardGrid) return;
         
         // 스크롤 위치 임시 저장
-        const leaderboardContent = document.querySelector('.leaderboard-content');
-        const savedScrollPosition = leaderboardContent ? leaderboardContent.scrollTop : 0;
+        const scrollContainer = document.querySelector('.leaderboard-scroll-container');
+        const savedScrollPosition = scrollContainer ? scrollContainer.scrollTop : 0;
         
         // 기존 항목 제거
         leaderboardGrid.innerHTML = '';
@@ -194,8 +190,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // 스크롤 위치 복원 (새로고침으로 인한 위치 리셋 방지)
-        if (leaderboardContent && !isScrolling) {
-            leaderboardContent.scrollTop = savedScrollPosition;
+        if (scrollContainer && !isScrolling) {
+            scrollContainer.scrollTop = savedScrollPosition;
             currentScrollPosition = savedScrollPosition;
         }
     }
@@ -203,9 +199,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // 수동 스크롤 감지 (사용자가 수동으로 스크롤했을 때 위치 동기화)
     function handleManualScroll() {
         if (!isScrolling) {
-            const leaderboardContent = document.querySelector('.leaderboard-content');
-            if (leaderboardContent) {
-                currentScrollPosition = leaderboardContent.scrollTop;
+            const scrollContainer = document.querySelector('.leaderboard-scroll-container');
+            if (scrollContainer) {
+                currentScrollPosition = scrollContainer.scrollTop;
             }
         }
     }
@@ -225,9 +221,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1000);
         
         // 수동 스크롤 이벤트 리스너
-        const leaderboardContent = document.querySelector('.leaderboard-content');
-        if (leaderboardContent) {
-            leaderboardContent.addEventListener('scroll', handleManualScroll);
+        const scrollContainer = document.querySelector('.leaderboard-scroll-container');
+        if (scrollContainer) {
+            scrollContainer.addEventListener('scroll', handleManualScroll);
         }
         
         // 마우스 호버 시 스크롤 일시 정지
