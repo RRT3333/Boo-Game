@@ -6,29 +6,42 @@ document.addEventListener('DOMContentLoaded', function() {
     const SCROLL_DURATION = 3000; // 스크롤 애니메이션 지속 시간
     const SCROLL_PAUSE = 2000; // 스크롤 후 대기 시간
     
-    let refreshTimer;
-    let scrollTimer;
+    let refreshTimer = null;
+    let scrollTimer = null;
     let isScrolling = false;
     let currentScrollPosition = 0;
+    let isAutoScrollEnabled = true;
     
     function setupAutoRefresh() {
+        if (refreshTimer) {
+            clearInterval(refreshTimer);
+        }
         refreshTimer = setInterval(fetchLatestLeaderboard, REFRESH_INTERVAL);
     }
     
     function setupAutoScroll() {
-        scrollTimer = setInterval(performAutoScroll, SCROLL_INTERVAL);
+        if (scrollTimer) {
+            clearInterval(scrollTimer);
+        }
+        if (isAutoScrollEnabled) {
+            scrollTimer = setInterval(performAutoScroll, SCROLL_INTERVAL);
+            // 초기 스크롤 시작
+            setTimeout(performAutoScroll, 1000);
+        }
     }
     
     function performAutoScroll() {
-        if (isScrolling) return;
+        if (!isAutoScrollEnabled || isScrolling) return;
         
         const leaderboardContent = document.querySelector('.leaderboard-content');
         const leaderboardGrid = document.querySelector('.leaderboard-grid');
         
         if (!leaderboardContent || !leaderboardGrid) return;
         
-        const contentHeight = leaderboardContent.scrollHeight;
+        const contentHeight = leaderboardGrid.scrollHeight;
         const visibleHeight = leaderboardContent.clientHeight;
+        const currentScroll = leaderboardContent.scrollTop;
+        const maxScroll = contentHeight - visibleHeight;
         
         // 스크롤할 필요가 없는 경우 (콘텐츠가 화면에 다 보이는 경우)
         if (contentHeight <= visibleHeight) {
@@ -37,20 +50,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         isScrolling = true;
         
-        // 현재 위치에서 아래로 스크롤할지, 위로 돌아갈지 결정
-        const maxScroll = contentHeight - visibleHeight;
-        const isAtBottom = currentScrollPosition >= maxScroll - 10; // 여유값 10px
-        
         let targetPosition;
-        if (isAtBottom) {
-            // 맨 아래에 있으면 맨 위로
-            targetPosition = 0;
+        // 현재 맨 위에 있거나 중간에 있는 경우
+        if (currentScroll < maxScroll - 10) {
+            // 맨 아래로 스크롤
+            targetPosition = maxScroll;
         } else {
-            // 그렇지 않으면 아래로 스크롤 (한 번에 화면 높이의 80% 정도)
-            targetPosition = Math.min(
-                currentScrollPosition + (visibleHeight * 0.8),
-                maxScroll
-            );
+            // 맨 위로 스크롤
+            targetPosition = 0;
         }
         
         smoothScrollTo(leaderboardContent, targetPosition, SCROLL_DURATION, () => {
@@ -67,6 +74,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const startTime = performance.now();
         
         function animation(currentTime) {
+            if (!isAutoScrollEnabled) {
+                if (callback) callback();
+                return;
+            }
+            
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
             
@@ -179,20 +191,52 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 수동 스크롤 감지 (사용자가 수동으로 스크롤했을 때 위치 동기화)
     function handleManualScroll() {
-        const leaderboardContent = document.querySelector('.leaderboard-content');
-        if (leaderboardContent && !isScrolling) {
-            currentScrollPosition = leaderboardContent.scrollTop;
+        if (!isScrolling) {
+            const leaderboardContent = document.querySelector('.leaderboard-content');
+            if (leaderboardContent) {
+                currentScrollPosition = leaderboardContent.scrollTop;
+            }
         }
     }
     
     // 초기 설정
-    setupAutoRefresh();
-    setupAutoScroll();
-    
-    // 수동 스크롤 이벤트 리스너
-    const leaderboardContent = document.querySelector('.leaderboard-content');
-    if (leaderboardContent) {
-        leaderboardContent.addEventListener('scroll', handleManualScroll);
+    function initialize() {
+        setupAutoRefresh();
+        setupAutoScroll();
+        
+        // 수동 스크롤 이벤트 리스너
+        const leaderboardContent = document.querySelector('.leaderboard-content');
+        if (leaderboardContent) {
+            leaderboardContent.addEventListener('scroll', handleManualScroll);
+        }
+        
+        // 마우스 호버 시 스크롤 일시 정지
+        const presentationContainer = document.querySelector('.presentation-container');
+        if (presentationContainer) {
+            presentationContainer.addEventListener('mouseenter', function() {
+                isAutoScrollEnabled = false;
+                clearInterval(scrollTimer);
+                scrollTimer = null;
+            });
+            
+            presentationContainer.addEventListener('mouseleave', function() {
+                isAutoScrollEnabled = true;
+                setupAutoScroll();
+            });
+        }
+        
+        // 페이지 가시성 변경 감지
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                isAutoScrollEnabled = false;
+                clearInterval(scrollTimer);
+                clearInterval(refreshTimer);
+            } else {
+                isAutoScrollEnabled = true;
+                setupAutoRefresh();
+                setupAutoScroll();
+            }
+        });
     }
     
     // 페이지 이탈시 타이머 정리
@@ -200,18 +244,6 @@ document.addEventListener('DOMContentLoaded', function() {
         clearInterval(refreshTimer);
         clearInterval(scrollTimer);
     });
-    
-    // 마우스 호버 시 스크롤 일시 정지
-    const presentationContainer = document.querySelector('.presentation-container');
-    if (presentationContainer) {
-        presentationContainer.addEventListener('mouseenter', function() {
-            clearInterval(scrollTimer);
-        });
-        
-        presentationContainer.addEventListener('mouseleave', function() {
-            setupAutoScroll();
-        });
-    }
     
     // 전체화면 토글 (F11 키)
     document.addEventListener('keydown', function(e) {
@@ -222,13 +254,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // 스페이스바로 자동 스크롤 토글
         if (e.code === 'Space') {
-            if (scrollTimer) {
+            isAutoScrollEnabled = !isAutoScrollEnabled;
+            if (isAutoScrollEnabled) {
+                setupAutoScroll();
+                console.log('자동 스크롤 시작');
+            } else {
                 clearInterval(scrollTimer);
                 scrollTimer = null;
                 console.log('자동 스크롤 정지');
-            } else {
-                setupAutoScroll();
-                console.log('자동 스크롤 시작');
             }
             e.preventDefault();
         }
@@ -245,4 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
+    
+    // 초기화 실행
+    initialize();
 }); 
