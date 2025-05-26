@@ -38,10 +38,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!leaderboardContent || !leaderboardGrid) return;
         
-        const contentHeight = leaderboardGrid.scrollHeight;
+        // 실제 콘텐츠 높이 계산 (마진 포함)
+        const gridStyle = window.getComputedStyle(leaderboardGrid);
+        const gridMarginTop = parseInt(gridStyle.marginTop) || 0;
+        const gridMarginBottom = parseInt(gridStyle.marginBottom) || 0;
+        const contentHeight = leaderboardGrid.scrollHeight + gridMarginTop + gridMarginBottom;
         const visibleHeight = leaderboardContent.clientHeight;
         const currentScroll = leaderboardContent.scrollTop;
-        const maxScroll = contentHeight - visibleHeight;
+        const maxScroll = Math.max(0, contentHeight - visibleHeight);
         
         // 스크롤할 필요가 없는 경우 (콘텐츠가 화면에 다 보이는 경우)
         if (contentHeight <= visibleHeight) {
@@ -52,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let targetPosition;
         // 현재 맨 위에 있거나 중간에 있는 경우
-        if (currentScroll < maxScroll - 10) {
+        if (currentScroll < maxScroll - 20) {
             // 맨 아래로 스크롤
             targetPosition = maxScroll;
         } else {
@@ -73,6 +77,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const distance = targetPosition - startPosition;
         const startTime = performance.now();
         
+        // 스크롤이 필요없는 경우 바로 콜백 실행
+        if (Math.abs(distance) < 1) {
+            if (callback) callback();
+            return;
+        }
+        
         function animation(currentTime) {
             if (!isAutoScrollEnabled) {
                 if (callback) callback();
@@ -91,8 +101,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (progress < 1) {
                 requestAnimationFrame(animation);
-            } else if (callback) {
-                callback();
+            } else {
+                element.scrollTop = targetPosition; // 정확한 위치로 설정
+                if (callback) callback();
             }
         }
         
@@ -201,8 +212,17 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 초기 설정
     function initialize() {
+        // 기존 타이머 정리
+        if (refreshTimer) clearInterval(refreshTimer);
+        if (scrollTimer) clearInterval(scrollTimer);
+        
+        // 새로운 타이머 설정
         setupAutoRefresh();
-        setupAutoScroll();
+        
+        // DOM이 완전히 로드된 후 스크롤 설정
+        setTimeout(() => {
+            setupAutoScroll();
+        }, 1000);
         
         // 수동 스크롤 이벤트 리스너
         const leaderboardContent = document.querySelector('.leaderboard-content');
@@ -236,6 +256,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 setupAutoRefresh();
                 setupAutoScroll();
             }
+        });
+        
+        // 윈도우 리사이즈 이벤트 처리
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (isAutoScrollEnabled) {
+                    setupAutoScroll();
+                }
+            }, 250);
         });
     }
     
