@@ -36,9 +36,9 @@ function getAudioContext() {
         try {
             window.AudioContext = window.AudioContext || window.webkitAudioContext;
             audioContext = new AudioContext();
-            console.log('AudioContext 생성됨 (상태: ' + audioContext.state + ')');
+            // console.log('AudioContext 생성됨 (상태: ' + audioContext.state + ')');
         } catch (e) {
-            console.log('Web Audio API not supported in this browser');
+            // console.log('Web Audio API not supported in this browser');
             return null;
         }
     }
@@ -57,7 +57,7 @@ function activateAudioContext() {
         return Promise.resolve();
     }
     
-    console.log('AudioContext 활성화 시도...');
+    // console.log('AudioContext 활성화 시도...');
     
     // 사용자 인터랙션 없이는 시작할 수 없음 - 인터랙션 발생 시에만 시도
     if (!userInteractionOccurred) {
@@ -67,10 +67,10 @@ function activateAudioContext() {
                 userInteractionOccurred = true;
                 ctx.resume().then(() => {
                     audioContextActivated = true;
-                    console.log('AudioContext 활성화됨 (인터랙션 이후)');
+                    // console.log('AudioContext 활성화됨 (인터랙션 이후)');
                     resolve();
                 }).catch(e => {
-                    console.warn('AudioContext 활성화 실패:', e);
+                    // console.warn('AudioContext 활성화 실패:', e);
                     resolve();
                 });
                 
@@ -90,9 +90,9 @@ function activateAudioContext() {
     // 사용자 인터랙션이 있었으면 즉시 활성화 시도
     return ctx.resume().then(() => {
         audioContextActivated = true;
-        console.log('AudioContext 활성화됨');
+        // console.log('AudioContext 활성화됨');
     }).catch(e => {
-        console.warn('AudioContext 활성화 실패:', e);
+        // console.warn('AudioContext 활성화 실패:', e);
     });
 }
 
@@ -107,7 +107,7 @@ function setupUserInteractionDetection() {
             const silentAudio = new Audio();
             silentAudio.volume = 0.01;
             silentAudio.play().then(() => {
-                console.log('무음 오디오 재생 성공 - 오디오 시스템 활성화됨');
+                // console.log('무음 오디오 재생 성공 - 오디오 시스템 활성화됨');
             }).catch(() => {});
         } catch (e) {
             // 오류 무시
@@ -160,15 +160,15 @@ export function initAudio() {
     };
     
     // 디버그: 사운드 경로 로깅
-    console.log('사운드 경로:', soundPaths);
+    // console.log('사운드 경로:', soundPaths);
     
     // 사운드 파일 존재 여부 확인 시도
     fetch(soundPaths.jump)
         .then(response => {
-            console.log(`Jump 사운드 파일 접근 결과: ${response.status} ${response.statusText}`);
+            // console.log(`Jump 사운드 파일 접근 결과: ${response.status} ${response.statusText}`);
         })
         .catch(error => {
-            console.error('Jump 사운드 파일 접근 실패:', error);
+            // console.error('Jump 사운드 파일 접근 실패:', error);
         });
     
     // 풀 초기화 (아직 오디오 객체는 생성하지 않음)
@@ -186,7 +186,7 @@ export function initAudio() {
     initAudioSystem = () => {
         if (sounds._initialized) return Promise.resolve();
         
-        console.log('오디오 시스템 초기화 중...');
+        // console.log('오디오 시스템 초기화 중...');
         
         // 풀 실제 생성 - 모바일에서는 최소 풀 사용
         for (const soundName in soundPaths) {
@@ -227,7 +227,7 @@ export function initAudio() {
         
         // 초기화 완료 표시
         sounds._initialized = true;
-        console.log('오디오 초기화 완료');
+        // console.log('오디오 초기화 완료');
         
         return Promise.resolve();
     };
@@ -239,14 +239,14 @@ export function initAudio() {
             sounds._activationPromise = new Promise(resolve => {
                 // 사용자 인터랙션 감지하고 오디오 초기화
                 const onInteraction = () => {
-                    console.log('사용자 인터랙션 감지, 오디오 초기화');
+                    // console.log('사용자 인터랙션 감지, 오디오 초기화');
                     userInteractionOccurred = true;
                     
                     // 오디오 시스템 강제 초기화 (동기식)
                     if (!sounds._initialized) {
-                        console.log('오디오 시스템 동기식 초기화 시작');
+                        // console.log('오디오 시스템 동기식 초기화 시작');
                         initAudioSystem();
-                        console.log(`초기화 상태: ${sounds._initialized}`);
+                        // console.log(`초기화 상태: ${sounds._initialized}`);
                     }
                     
                     // AudioContext 활성화
@@ -258,12 +258,12 @@ export function initAudio() {
                         try {
                             const unmuteSounds = () => {
                                 // 모든 오디오 음소거 해제
-                                console.log('모든 오디오 음소거 해제 시도');
+                                // console.log('모든 오디오 음소거 해제 시도');
                                 Object.values(sounds._pools).forEach(pool => {
                                     pool.forEach(audio => {
                                         // 음소거 해제
                                         audio.muted = false;
-                                        console.log(`오디오 음소거 해제: ${audio.src}, muted=${audio.muted}`);
+                                        // console.log(`오디오 음소거 해제: ${audio.src}, muted=${audio.muted}`);
                                         
                                         // 짧게 재생 후 정지 (iOS에서 활성화 위함)
                                         audio.play().then(() => {
@@ -288,7 +288,7 @@ export function initAudio() {
                             });
                         } catch (e) {
                             // 오류 무시
-                            console.error('오디오 활성화 중 오류:', e);
+                            // console.error('오디오 활성화 중 오류:', e);
                         }
                         
                         resolve();
@@ -358,35 +358,35 @@ export function initAudio() {
     
     // 오디오 즉시 활성화 시도
     sounds.activateAudio = function() {
-        console.log('오디오 활성화 시도: 초기화 상태=' + this._initialized);
+        // console.log('오디오 활성화 시도: 초기화 상태=' + this._initialized);
         
         // 모바일에서는 추가 활성화 적용
         if (isMobile || isIOS) {
-            console.log('모바일 디바이스 감지: 추가 활성화 절차 시작');
+            // console.log('모바일 디바이스 감지: 추가 활성화 절차 시작');
         }
         
         // 초기화 Promise 없으면 새로 생성
         if (!this._activationPromise) {
-            console.log('활성화 Promise 생성');
+            // console.log('활성화 Promise 생성');
             this._activationPromise = prepareAudio();
         }
         
         // 사용자 인터랙션이 있었으면 활성화 시도
         if (userInteractionOccurred) {
-            console.log('인터랙션 감지됨: 오디오 컨텍스트 활성화 시도');
+            // console.log('인터랙션 감지됨: 오디오 컨텍스트 활성화 시도');
             // AudioContext 활성화
             activateAudioContext();
             
             // 아직 초기화 안된 경우 초기화
             if (!this._initialized) {
-                console.log('아직 초기화되지 않음: 시스템 초기화 시작');
+                // console.log('아직 초기화되지 않음: 시스템 초기화 시작');
                 initAudioSystem();
-                console.log(`초기화 완료 상태: ${this._initialized}`);
+                // console.log(`초기화 완료 상태: ${this._initialized}`);
             }
             
             // 이미 초기화된 경우에도 음소거 해제 시도
             if (this._initialized) {
-                console.log('모든 음소거 해제 추가 시도');
+                // console.log('모든 음소거 해제 추가 시도');
                 // 모든 오디오 객체 음소거 해제 시도
                 Object.values(this._pools).forEach(pool => {
                     pool.forEach(audio => {
@@ -408,7 +408,7 @@ export function initAudio() {
                 });
             }
         } else {
-            console.log('사용자 인터랙션 없음: 오디오 활성화 대기 중');
+            // console.log('사용자 인터랙션 없음: 오디오 활성화 대기 중');
         }
         
         return this._initialized;
@@ -426,7 +426,7 @@ export function initAudio() {
             navigator.getBattery().then(battery => {
                 if (battery.level < 0.2 || battery.charging === false) {
                     this._lowPowerMode = true;
-                    console.log('저전력 감지: 오디오 최적화 적용');
+                    // console.log('저전력 감지: 오디오 최적화 적용');
                 }
             }).catch(() => {
                 // 배터리 API 오류는 무시
@@ -444,7 +444,7 @@ export function initAudio() {
                     slowFrames++;
                     if (slowFrames > 10) {
                         this._lowPowerMode = true;
-                        console.log('낮은 프레임 감지: 오디오 최적화 적용');
+                        // console.log('낮은 프레임 감지: 오디오 최적화 적용');
                         return;
                     }
                 }
@@ -469,23 +469,23 @@ export function initAudio() {
 
 // 사운드 재생
 export function playSound(sounds, soundName) {
-    console.log(`소리 재생 시도: ${soundName}`);
+    // console.log(`소리 재생 시도: ${soundName}`);
     
     // 사운드 객체가 없으면 무시
     if (!sounds) {
-        console.log('sounds 객체가 없음');
+        // console.log('sounds 객체가 없음');
         return;
     }
     
     // 강제 초기화 - 아직 초기화되지 않았다면 초기화 시도
     if (!sounds._initialized) {
-        console.log('오디오 시스템 즉시 초기화 시도');
+        // console.log('오디오 시스템 즉시 초기화 시도');
         initAudioSystem(); // 동기식 초기화 시도
     }
     
     // 초기화되지 않았거나 오디오 비활성화 상태면 무시
     if (!sounds._initialized || !sounds._audioEnabled) {
-        console.log(`오디오 초기화 필요: ${sounds._initialized} ${sounds._audioEnabled}`);
+        // console.log(`오디오 초기화 필요: ${sounds._initialized} ${sounds._audioEnabled}`);
         return;
     }
     
@@ -530,16 +530,16 @@ export function playSound(sounds, soundName) {
         
         // 오디오가 없는 경우 무시
         if (!audio) {
-            console.log(`오디오 객체 없음: ${soundName}`);
+            // console.log(`오디오 객체 없음: ${soundName}`);
             return;
         }
         
-        console.log(`${soundName} 오디오 객체 획득, 볼륨: ${audio.volume}, 음소거: ${audio.muted}`);
+        // console.log(`${soundName} 오디오 객체 획득, 볼륨: ${audio.volume}, 음소거: ${audio.muted}`);
         
         // 음소거 상태인 경우 해제
         if (audio.muted) {
             audio.muted = false;
-            console.log(`${soundName} 오디오 음소거 해제`);
+            // console.log(`${soundName} 오디오 음소거 해제`);
         }
         
         // 이미 재생 중이면 중지 후 처음부터 재생 (iOS에서 중요)
@@ -564,7 +564,7 @@ export function playSound(sounds, soundName) {
             
             // 비동기 재생 (메인 스레드 차단 방지)
             setTimeout(() => {
-                console.log(`${soundName} 소리 재생 시도 (모바일)`);
+                // console.log(`${soundName} 소리 재생 시도 (모바일)`);
                 // AudioContext 활성화 확인
                 if (audioContext && audioContext.state !== 'running' && userInteractionOccurred) {
                     audioContext.resume().catch(() => {});
@@ -573,9 +573,9 @@ export function playSound(sounds, soundName) {
                 const playPromise = audio.play();
                 if (playPromise !== undefined) {
                     playPromise.then(() => {
-                        console.log(`${soundName} 소리 재생 성공`);
+                        // console.log(`${soundName} 소리 재생 성공`);
                     }).catch((e) => {
-                        console.error(`${soundName} 소리 재생 실패:`, e);
+                        // console.error(`${soundName} 소리 재생 실패:`, e);
                     });
                 }
             }, 0);
@@ -583,7 +583,7 @@ export function playSound(sounds, soundName) {
             // 데스크톱에서는 일반 재생
             audio.currentTime = 0;
             
-            console.log(`${soundName} 소리 재생 시도 (데스크톱)`);
+            // console.log(`${soundName} 소리 재생 시도 (데스크톱)`);
             // AudioContext 활성화 확인
             if (audioContext && audioContext.state !== 'running' && userInteractionOccurred) {
                 audioContext.resume().catch(() => {});
@@ -592,9 +592,9 @@ export function playSound(sounds, soundName) {
             const playPromise = audio.play();
             if (playPromise !== undefined) {
                 playPromise.then(() => {
-                    console.log(`${soundName} 소리 재생 성공`);
+                    // console.log(`${soundName} 소리 재생 성공`);
                 }).catch((e) => {
-                    console.error(`${soundName} 소리 재생 실패:`, e);
+                    // console.error(`${soundName} 소리 재생 실패:`, e);
                 });
             }
         }
@@ -603,6 +603,6 @@ export function playSound(sounds, soundName) {
         sounds._lastPlayed[soundName] = now;
     } catch (e) {
         // 오류 발생 시 조용히 무시
-        console.log(`Sound error for ${soundName}:`, e);
+        // console.log(`Sound error for ${soundName}:`, e);
     }
 } 

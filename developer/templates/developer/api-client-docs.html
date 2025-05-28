@@ -8,21 +8,22 @@
 {% block extra_css %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/api-client.css' %}">
+
 {% endblock %}
 
 {% block content %}
 <section id="overview">
     <h2>개요</h2>
-    <p>BooGameAPI 클라이언트는 프론트엔드 개발자가 Boo Game의 백엔드 API와 쉽게 통신할 수 있도록 설계된 JavaScript 라이브러리입니다. 이 클라이언트를 사용하면 복잡한 HTTP 요청을 직접 처리할 필요 없이 간단한 메서드 호출만으로 API와 상호작용할 수 있습니다.</p>
+    <p>BooGameAPI 클라이언트는 Boo Game의 백엔드 API와 통신하기 위한 JavaScript 라이브러리입니다. 복잡한 HTTP 요청을 간단한 메서드 호출로 대체할 수 있습니다.</p>
     
     <div class="notes" style="background-color: rgba(0, 221, 255, 0.1); border-left-color: var(--primary); margin-top: 1.5rem;">
         <h4>API 클라이언트의 역할</h4>
         <p>이 클라이언트는 다음과 같은 역할을 합니다:</p>
         <ul>
-            <li><strong>HTTP 통신 추상화</strong> - 복잡한 fetch/XHR 요청을 간단한 메서드로 캡슐화</li>
-            <li><strong>에러 처리 표준화</strong> - 서버 오류 및 네트워크 문제를 일관된 형식으로 처리</li>
-            <li><strong>데이터 변환</strong> - JSON 데이터를 자동으로 변환하고 처리</li>
-            <li><strong>인증 관리</strong> - 세션 및 CSRF 토큰을 자동으로 처리</li>
+            <li>HTTP 통신 추상화 - 복잡한 fetch/XHR 요청을 간단한 메서드로 캡슐화</li>
+            <li>에러 처리 표준화 - 서버 오류 및 네트워크 문제를 일관된 형식으로 처리</li>
+            <li>데이터 변환 - JSON 데이터를 자동으로 변환하고 처리</li>
+            <li>인증 관리 - 세션 및 CSRF 토큰을 자동으로 처리</li>
         </ul>
     </div>
 </section>
@@ -62,7 +63,7 @@
     <h2>설치 및 설정</h2>
     <p>API 클라이언트는 두 가지 방법으로 사용할 수 있습니다:</p>
     
-    <h3>1. 글로벌 객체로 사용</h3>
+    <h3>글로벌 객체로 사용</h3>
     <p>HTML에서 직접 스크립트를 로드하여 글로벌 객체로 사용할 수 있습니다:</p>
     <pre><code>&lt;script src="/static/js/api-client.js"&gt;&lt;/script&gt;
 &lt;script&gt;
@@ -75,7 +76,7 @@
   });
 &lt;/script&gt;</code></pre>
     
-    <h3>2. ES 모듈로 가져오기</h3>
+    <h3>ES 모듈로 가져오기</h3>
     <p>모듈 시스템을 사용하는 경우 다음과 같이 가져올 수 있습니다:</p>
     <pre><code>// api-client.js를 ES 모듈로 가져오기
 import BooGameAPI from './api-client.js';

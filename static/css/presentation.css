@@ -58,6 +58,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    min-height: 70px;
 }
 
 .game-logo {
@@ -105,10 +106,11 @@ body {
     grid-area: content;
     padding: 15px 40px;
     background-color: rgba(255, 255, 255, 0.9);
-    overflow: hidden;
     display: flex;
     flex-direction: column;
     flex: 1;
+    min-height: 0; /* Grid 레이아웃에서 필요 */
+    overflow: hidden; /* 스크롤은 내부 컨테이너에서 처리 */
 }
 
 .leaderboard-content h2 {
@@ -120,15 +122,47 @@ body {
     padding-bottom: 8px;
     font-weight: 700;
     font-family: 'Spoqa Han Sans Neo', sans-serif;
+    flex-shrink: 0;
+}
+
+.leaderboard-scroll-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(76, 175, 80, 0.5) transparent;
+    min-height: 0; /* Flexbox에서 스크롤을 위해 필요 */
+    position: relative;
+}
+
+/* 웹킷 기반 브라우저용 스크롤바 스타일 */
+.leaderboard-scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.leaderboard-scroll-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.leaderboard-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(76, 175, 80, 0.3);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.leaderboard-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(76, 175, 80, 0.6);
 }
 
 .leaderboard-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 20px;
-    overflow-y: auto;
     padding: 10px;
-    height: 100%;
+    margin: 10px 0;
+    height: auto;
 }
 
 .player-card {
@@ -140,9 +174,8 @@ body {
     flex-direction: column;
     transition: transform 0.3s ease;
     position: relative;
-    height: auto;
-    min-height: 300px;
-    margin-bottom: 10px;
+    height: 300px; /* 고정 높이 설정 */
+    margin-bottom: 0; /* 마진 제거하고 gap 사용 */
 }
 
 .player-card:hover {
@@ -182,6 +215,7 @@ body {
     font-weight: bold;
     font-size: 1.2rem;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1;
 }
 
 .first-place .rank {
@@ -209,6 +243,7 @@ body {
     background-color: #f9f9f9;
     flex: 1;
     align-items: center;
+    min-height: 200px;
 }
 
 .avatar-container {
@@ -223,6 +258,8 @@ body {
     width: 100%;
     height: 100%;
     object-fit: contain;
+    top: 0;
+    left: 0;
 }
 
 .player-info {
@@ -232,7 +269,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: 100px;
+    min-height: 80px;
 }
 
 .nickname {
@@ -281,6 +318,7 @@ body {
     justify-content: flex-end;
     align-items: center;
     gap: 20px;
+    min-height: 100px;
 }
 
 .qr-info {
