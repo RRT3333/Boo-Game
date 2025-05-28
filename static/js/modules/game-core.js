@@ -47,7 +47,7 @@ export class Game {
         this.currentStage = 1;
         this.stageTransitioning = false;
         this.stageTransitionProgress = 0;
-        this.stageTransitionSpeed = 2;
+        this.stageTransitionSpeed = this.isMobile ? 1.5 : 2; // 모바일에서 적절한 속도로 조정
 
         // 게임 속도 및 확률
         this.fSpawnRate = 0.02;  // F 등장 확률
@@ -459,11 +459,15 @@ export class Game {
                     };
                     
                     if (professorUpdate.fSpawnRateIncrease) {
-                        // 교수님 사라진 후에도 60초까지는 F 확률 5% 유지
+                        // 교수님 사라진 후 F 확률 조정
                         if (this.timeLeft > 60) {
-                            this.fSpawnRate = 0.03;
+                            // 60초 이후에는 시간에 따른 점진적 증가 적용
+                            const extraTime = this.timeLeft - 60;
+                            const baseRate = 0.03; // 기본 3%
+                            const increaseRate = 0.00125; // 초당 0.125% 증가
+                            this.fSpawnRate = Math.min(baseRate + (extraTime * increaseRate), 0.15); // 최대 15%까지 제한
                         } else {
-                            this.fSpawnRate = 0.05;
+                            this.fSpawnRate = 0.05; // 60초 이전에는 5% 유지
                         }
                     }
                 }
@@ -482,7 +486,7 @@ export class Game {
                     currentStage: this.currentStage,
                     stageTransitioning: this.stageTransitioning,
                     stageTransitionProgress: this.stageTransitionProgress,
-                    stageTransitionSpeed: this.stageTransitionSpeed * (useSimplifiedPhysics ? 1.5 : 1.0), // 절전 모드에서 전환 속도 증가
+                    stageTransitionSpeed: this.stageTransitionSpeed * (useSimplifiedPhysics ? 1.2 : 1.0), // 절전 모드에서 전환 속도 조정
                     fSpawnRate: this.fSpawnRate * (useSimplifiedPhysics ? 0.7 : 1.0), // 절전 모드에서 장애물 생성 감소
                     aPlusSpawnRate: this.aPlusSpawnRate * (useSimplifiedPhysics ? 0.7 : 1.0), // 절전 모드에서 아이템 생성 감소
                     obstacleSpeedMultiplier: this.obstacleSpeedMultiplier,
@@ -601,13 +605,20 @@ export class Game {
                 
                 // 60초 이후 F 등장 확률 조정
                 if (timeLeft > 60) {
-                    this.fSpawnRate = 0.03; // 60초 이후 F 확률 3%로 감소
-                    
-                    // 프로그레스바 숨기기
-                    const stageIndicator = document.querySelector('.stage-indicator');
-                    if (stageIndicator) {
-                        stageIndicator.style.display = 'none';
-                    }
+                    // 60초 이후부터 시간이 지날수록 F 확률이 점점 증가
+                    // 60초: 3%, 100초: 8%, 그 이후로도 계속 증가
+                    const extraTime = timeLeft - 60;
+                    const baseRate = 0.03; // 기본 3%
+                    const increaseRate = 0.00125; // 초당 0.125% 증가 (40초에 5%까지)
+                    this.fSpawnRate = Math.min(baseRate + (extraTime * increaseRate), 0.15); // 최대 15%까지 제한
+                } else {
+                    this.fSpawnRate = 0.03; // 60초 이후 기본 F 확률 3%
+                }
+                
+                // 프로그레스바 숨기기
+                const stageIndicator = document.querySelector('.stage-indicator');
+                if (stageIndicator) {
+                    stageIndicator.style.display = 'none';
                 }
             },
             onProfessorAppear: () => {

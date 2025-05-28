@@ -713,6 +713,15 @@ body {
         opacity: 0.9;
         transition: all 0.1s ease;
     }
+
+    /* 모바일 환경에서 더 부드러운 전환 효과 적용 */
+    .progress-bar {
+        transition: width 0.25s linear;
+    }
+    
+    .flying-character {
+        transition: left 0.3s ease-out;
+    }
 }
 
 /* 스마트폰 가로 모드 최적화 */

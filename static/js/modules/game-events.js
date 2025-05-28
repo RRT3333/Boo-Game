@@ -258,7 +258,7 @@ export function startGameTimer(gameState, callbacks) {
             showGraduation(gameState.isMobile);
             
             // 난이도 증가
-            gameState.fSpawnRate = 0.01; // F 확률 0.01로 설정 (테스트용)
+            gameState.fSpawnRate = 0.03; // F 확률 0.03(3%)으로 설정
             gameState.aPlusSpawnRate = 0.04; // A+ 확률도 소폭 증가
             gameState.obstacleSpeedMultiplier *= 1.2; // 장애물 속도 20% 증가
         }

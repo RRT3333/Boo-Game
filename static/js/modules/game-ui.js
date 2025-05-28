@@ -470,29 +470,48 @@ export function updateStageProgress(currentStage, progress) {
     // 진행도 계산 (0-100%)
     const progressPercentage = Math.min(progress, 100); // 100%를 초과하지 않도록 제한
     
+    // 모바일 환경 체크
+    const isMobile = window.innerWidth <= 800;
+    
     // 스테이지 이름 업데이트
     const currentStageEl = document.getElementById('currentStage');
     if (currentStageEl) {
         currentStageEl.textContent = getStageName(currentStage);
     }
     
-    // 진행 바 업데이트
-    const progressBarEl = document.getElementById('stageProgress');
-    if (progressBarEl) {
-        progressBarEl.style.width = `${progressPercentage}%`;
-    }
+    // 스테이지별 위치 계산 (0-100%)
+    const stageWidth = 100 / 5; // 5개 구간
+    const baseProgress = (currentStage - 1) * stageWidth;
+    const targetPosition = baseProgress + (progressPercentage / 100 * stageWidth);
+    const characterPosition = Math.min(targetPosition, 100);
     
     // 캐릭터 위치 업데이트
     const flyingCharacterEl = document.getElementById('flyingCharacter');
     if (flyingCharacterEl) {
-        // 스테이지별 위치 계산 (0-100%)
-        const stageWidth = 100 / 5; // 5개 구간
-        const baseProgress = (currentStage - 1) * stageWidth;
-        const currentProgress = baseProgress + (progressPercentage / 100 * stageWidth);
-        const characterPosition = Math.min(currentProgress, 100);
-        
-        // 캐릭터 위치 설정
         flyingCharacterEl.style.left = `${characterPosition}%`;
+    }
+    
+    // 진행 바 업데이트 - 모바일에서는 캐릭터보다 뒤에 오도록 설정
+    const progressBarEl = document.getElementById('stageProgress');
+    if (progressBarEl) {
+        if (isMobile) {
+            // 모바일에서는 캐릭터보다 5-10% 뒤에 오도록 설정
+            // 시작과 끝 부분에서는 특별 처리
+            if (progressPercentage <= 1) {
+                // 스테이지 시작 시 초기화
+                progressBarEl.style.width = '0%';
+            } else if (progressPercentage >= 95) {
+                // 스테이지 끝 부분에서는 100%로 설정
+                progressBarEl.style.width = '100%';
+            } else {
+                // 캐릭터보다 8% 정도 뒤에 오도록 조정
+                const barWidth = Math.max(0, progressPercentage - 8);
+                progressBarEl.style.width = `${barWidth}%`;
+            }
+        } else {
+            // 데스크톱에서는 동일하게 업데이트
+            progressBarEl.style.width = `${progressPercentage}%`;
+        }
     }
 }
 
