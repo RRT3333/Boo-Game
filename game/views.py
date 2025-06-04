@@ -138,7 +138,7 @@ def presentation_view(request):
     """와이드스크린 발표용 리더보드"""
     top_scores = Score.objects.values('player').annotate(
         best_score=Max('score')
-    ).order_by('-best_score')[:20]
+    ).order_by('-best_score')[:24]
     
     leaderboard_data = []
     for entry in top_scores:
