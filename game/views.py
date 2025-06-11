@@ -268,7 +268,7 @@ def get_leaderboard_data(request):
     """리더보드 데이터 API"""
     top_scores = Score.objects.values('player').annotate(
         best_score=Max('score')
-    ).order_by('-best_score')[:20]
+    ).order_by('-best_score')[:24]
     
     leaderboard_data = []
     for entry in top_scores:
